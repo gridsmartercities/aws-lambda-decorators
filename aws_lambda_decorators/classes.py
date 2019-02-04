@@ -75,7 +75,7 @@ class Parameter:
     def get_annotations_from_key(key):
         if ANNOTATIONS_START in key and ANNOTATIONS_END in key:
             annotation = key[key.find(ANNOTATIONS_START) + 1:key.find(ANNOTATIONS_END)]
-            return key.replace('{}{}{}'.format(ANNOTATIONS_START, annotation, ANNOTATIONS_END), ''), annotation
+            return key.replace(ANNOTATIONS_START + annotation + ANNOTATIONS_END, ''), annotation
         return key, None
 
 
