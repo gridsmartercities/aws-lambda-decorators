@@ -7,7 +7,11 @@ class Mandatory:  # noqa: pylint - too-few-public-methods
 
     @staticmethod
     def validate(value=None):
-        """Check if the given mandatory variable exists."""
+        """Check if the given mandatory variable exists.
+
+        Args:
+            value (any): Value to be validated.
+        """
         return value is not None
 
 
@@ -23,5 +27,9 @@ class ValidRegex:  # noqa: pylint - too-few-public-methods
         self._regexp = re.compile(regex)
 
     def validate(self, value=None):
-        """Check if the given variable adheres to the defined regular expression."""
+        """Check if the given variable adheres to the defined regular expression.
+
+        Args:
+            value (any): Value to be validated.
+        """
         return self._regexp.search(value) is not None
