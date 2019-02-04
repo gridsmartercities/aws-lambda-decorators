@@ -273,9 +273,9 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         def handler(event, context, an_other):  # noqa
             return {}
 
-        handler("first", "{'test': 'a'}", "another")
+        handler("first", "{'tests': 'a'}", "another")
 
-        mock_logger.info.assert_called_once_with(("first", "{'test': 'a'}", "another"))
+        mock_logger.info.assert_called_once_with(("first", "{'tests': 'a'}", "another"))
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_log_decorator_can_log_response(self, mock_logger):
@@ -294,7 +294,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         mock_ssm.get_parameters.return_value = {
             "Parameters": [
                 {
-                    "Value": "test"
+                    "Value": "tests"
                 }
             ]
         }
@@ -304,7 +304,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         def handler(key=None):
             return key
 
-        self.assertEqual(handler(), "test")
+        self.assertEqual(handler(), "tests")
 
     @patch("boto3.client")
     def test_get_valid_ssm_parameter_custom_name(self, mock_boto_client):
@@ -312,7 +312,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         mock_ssm.get_parameters.return_value = {
             "Parameters": [
                 {
-                    "Value": "test"
+                    "Value": "tests"
                 }
             ]
         }
@@ -322,7 +322,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         def handler(custom=None):
             return custom
 
-        self.assertEqual(handler(), "test")
+        self.assertEqual(handler(), "tests")
 
     @patch("boto3.client")
     def test_get_valid_ssm_parameters(self, mock_boto_client):
