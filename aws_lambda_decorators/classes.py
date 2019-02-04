@@ -2,6 +2,10 @@ from aws_lambda_decorators.decoders import decode
 from aws_lambda_decorators.validators import Mandatory
 from aws_lambda_decorators.utils import is_type_in_list, is_valid_variable_name
 
+PATH_DIVIDER = '/'
+ANNOTATIONS_START = '['
+ANNOTATIONS_END = ']'
+
 
 class ExceptionHandler:
     def __init__(self, exception, friendly_message):
@@ -39,7 +43,7 @@ class Parameter:
     def get_value_by_path(self, args):
         dict_value = args[self._func_param_index]
 
-        for path_key in filter(lambda item: item != '', self.path.split('/')):
+        for path_key in filter(lambda item: item != '', self.path.split(PATH_DIVIDER)):
             real_key, annotation = Parameter.get_annotations_from_key(path_key)
             if real_key in dict_value:
                 dict_value = decode(annotation, dict_value[real_key])
@@ -69,9 +73,9 @@ class Parameter:
 
     @staticmethod
     def get_annotations_from_key(key):
-        if '[' in key and ']' in key:
-            annotation = key[key.find('[') + 1:key.find(']')]
-            return key.replace('[{}]'.format(annotation), ''), annotation
+        if ANNOTATIONS_START in key and ANNOTATIONS_END in key:
+            annotation = key[key.find(ANNOTATIONS_START) + 1:key.find(ANNOTATIONS_END)]
+            return key.replace('{}{}{}'.format(ANNOTATIONS_START, annotation, ANNOTATIONS_END), ''), annotation
         return key, None
 
 

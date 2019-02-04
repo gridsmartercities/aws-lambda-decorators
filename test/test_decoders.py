@@ -11,7 +11,7 @@ class DecodersTests(unittest.TestCase):
     @patch('aws_lambda_decorators.decoders.LOGGER')
     def test_decode_function_missing_logs_error(self, mock_logger):
         decode('[random]', None)
-        mock_logger.error.assert_called_once_with('Missing decode function for annotation: %s', '[random]')
+        mock_logger.error.assert_called_once_with('Missing decode function for annotation: [random]')
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_extract_returns_400_on_json_decode_error(self, mock_logger):
