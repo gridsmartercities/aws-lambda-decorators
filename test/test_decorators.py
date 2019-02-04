@@ -1,10 +1,11 @@
 # pylint:disable=no-self-use
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from json import JSONDecodeError
-from aws_lambda_decorators.classes import ExceptionHandler, Parameter
+from botocore.exceptions import ClientError
+from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
-    log, response_body_as_json
+    log, response_body_as_json, extract_from_ssm
 from aws_lambda_decorators.validators import Mandatory, ValidRegex
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
@@ -31,8 +32,8 @@ class DecoratorsTests(unittest.TestCase):
             }
         }
         param = Parameter(path)
-        response = param.get_dict_key_value_by_path([dictionary])
-        self.assertEqual(("c", "hello"), response)
+        response = param.get_value_by_path([dictionary])
+        self.assertEqual("hello", response)
 
     def test_raises_decode_error_convert_json_string_to_dict(self):
         path = "/a/b[json]/c"
@@ -44,7 +45,7 @@ class DecoratorsTests(unittest.TestCase):
         }
         param = Parameter(path)
         with self.assertRaises(JSONDecodeError) as context:
-            param.get_dict_key_value_by_path([dictionary])
+            param.get_value_by_path([dictionary])
 
         self.assertTrue("Expecting property name enclosed in double quotes" in context.exception.msg)
 
@@ -57,8 +58,8 @@ class DecoratorsTests(unittest.TestCase):
             }
         }
         param = Parameter(path)
-        response = param.get_dict_key_value_by_path([dictionary])
-        self.assertEqual(("c", "hello"), response)
+        response = param.get_value_by_path([dictionary])
+        self.assertEqual("hello", response)
 
     def test_can_get_value_from_dict_with_jwt_by_path(self):
         path = "/a/b[jwt]/sub"
@@ -68,8 +69,8 @@ class DecoratorsTests(unittest.TestCase):
             }
         }
         param = Parameter(path)
-        response = param.get_dict_key_value_by_path([dictionary])
-        self.assertEqual(("sub", "aadd1e0e-5807-4763-b1e8-5823bf631bb6"), response)
+        response = param.get_value_by_path([dictionary])
+        self.assertEqual("aadd1e0e-5807-4763-b1e8-5823bf631bb6", response)
 
     def test_extract_from_event_calls_function_with_extra_kwargs(self):
         path = "/a/b/c"
@@ -129,7 +130,7 @@ class DecoratorsTests(unittest.TestCase):
             }
         }
 
-        @extract([Parameter(path, [Mandatory()], func_param_index=0, name='custom')])
+        @extract([Parameter(path, [Mandatory()], func_param_index=0, var_name='custom')])
         def handler(event, context, custom=None):  # noqa
             return custom
 
@@ -146,7 +147,7 @@ class DecoratorsTests(unittest.TestCase):
             }
         }
 
-        @extract_from_event([Parameter(path, validators=[Mandatory()], name='with space')])
+        @extract_from_event([Parameter(path, validators=[Mandatory()], var_name='with space')])
         def handler(event, context):  # noqa
             return {}
 
@@ -166,7 +167,7 @@ class DecoratorsTests(unittest.TestCase):
             }
         }
 
-        @extract_from_event([Parameter(path, validators=[Mandatory()], name='class')])
+        @extract_from_event([Parameter(path, validators=[Mandatory()], var_name='class')])
         def handler(event, context):  # noqa
             return {}
 
@@ -286,6 +287,90 @@ class DecoratorsTests(unittest.TestCase):
         handler()
 
         mock_logger.info.assert_called_once_with({'responseCode': 201})
+
+    @patch("boto3.client")
+    def test_get_valid_ssm_parameter(self, mock_boto_client):
+        mock_ssm = MagicMock()
+        mock_ssm.get_parameters.return_value = {
+            "Parameters": [
+                {
+                    "Value": "test"
+                }
+            ]
+        }
+        mock_boto_client.return_value = mock_ssm
+
+        @extract_from_ssm([SSMParameter("key", "key")])
+        def handler(key=None):
+            return key
+
+        self.assertEqual(handler(), "test")
+
+    @patch("boto3.client")
+    def test_get_valid_ssm_parameter_custom_name(self, mock_boto_client):
+        mock_ssm = MagicMock()
+        mock_ssm.get_parameters.return_value = {
+            "Parameters": [
+                {
+                    "Value": "test"
+                }
+            ]
+        }
+        mock_boto_client.return_value = mock_ssm
+
+        @extract_from_ssm([SSMParameter("key", "custom")])
+        def handler(custom=None):
+            return custom
+
+        self.assertEqual(handler(), "test")
+
+    @patch("boto3.client")
+    def test_get_valid_ssm_parameters(self, mock_boto_client):
+        mock_ssm = MagicMock()
+        mock_ssm.get_parameters.return_value = {
+            "Parameters": [
+                {
+                    "Value": "test1"
+                },
+                {
+                    "Value": "test2"
+                }
+            ]
+        }
+        mock_boto_client.return_value = mock_ssm
+
+        @extract_from_ssm([SSMParameter("key1", "key1"), SSMParameter("key2", "key2")])
+        def handler(key1=None, key2=None):
+            return [key1, key2]
+
+        self.assertEqual(handler(), ["test1", "test2"])
+
+    @patch("boto3.client")
+    def test_get_ssm_parameter_missing_parameter_raises_client_error(self, mock_boto_client):
+        mock_ssm = MagicMock()
+        mock_ssm.get_parameters.side_effect = ClientError({}, "")
+        mock_boto_client.return_value = mock_ssm
+
+        @extract_from_ssm([SSMParameter("")])
+        def handler(key=None):
+            return key
+
+        with self.assertRaises(ClientError):
+            handler()
+
+    @patch("boto3.client")
+    def test_get_ssm_parameter_empty_key_container_raises_key_error(self, mock_boto_client):
+        mock_ssm = MagicMock()
+        mock_ssm.get_parameters.return_value = {
+        }
+        mock_boto_client.return_value = mock_ssm
+
+        @extract_from_ssm([SSMParameter("")])
+        def handler(key=None):
+            return key
+
+        with self.assertRaises(KeyError):
+            handler()
 
     def test_body_gets_dumped_as_json(self):
 

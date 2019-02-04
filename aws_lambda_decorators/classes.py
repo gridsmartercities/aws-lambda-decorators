@@ -18,11 +18,11 @@ class ExceptionHandler:
 
 
 class Parameter:
-    def __init__(self, path, validators=None, func_param_index=0, name=None):
+    def __init__(self, path, validators=None, func_param_index=0, var_name=None):
         self._func_param_index = func_param_index
         self._path = path
         self._validators = validators
-        self._name = name
+        self._name = var_name
 
     @property
     def func_param_index(self):
@@ -36,7 +36,7 @@ class Parameter:
     def func_param_index(self, value):
         self._func_param_index = value
 
-    def get_dict_key_value_by_path(self, args):
+    def get_value_by_path(self, args):
         dict_value = args[self._func_param_index]
 
         for path_key in filter(lambda item: item != "", self.path.split("/")):
@@ -50,12 +50,9 @@ class Parameter:
         if not self.validate(val):
             raise KeyError(real_key)
 
-        return real_key, dict_value
-
-    def get_name(self, key):
-        if self._name and not is_valid_variable_name(self._name):
-            raise SyntaxError(self._name)
-        return self._name if self._name else key
+        if not self._name:
+            self._name = real_key
+        return dict_value
 
     def validate(self, value):
         if not self._validators:
@@ -65,9 +62,28 @@ class Parameter:
                 return False
         return True
 
+    def get_var_name(self):
+        if self._name and not is_valid_variable_name(self._name):
+            raise SyntaxError(self._name)
+        return self._name
+
     @staticmethod
     def get_annotations_from_key(key):
         if '[' in key and ']' in key:
             annotation = key[key.find('[') + 1:key.find(']')]
             return key.replace('[{}]'.format(annotation), ''), annotation
         return key, None
+
+
+class SSMParameter:
+    def __init__(self, ssm_name, var_name=None):
+        self._ssm_name = ssm_name
+        self._name = var_name if var_name else ssm_name
+
+    def get_ssm_name(self):
+        return self._ssm_name
+
+    def get_var_name(self):
+        if self._name and not is_valid_variable_name(self._name):
+            raise SyntaxError(self._name)
+        return self._name
