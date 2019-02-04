@@ -3,7 +3,8 @@ import unittest
 from unittest.mock import patch
 from json import JSONDecodeError
 from aws_lambda_decorators.classes import ExceptionHandler, Parameter
-from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, log
+from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
+    log, response_body_as_json
 from aws_lambda_decorators.validators import Mandatory, ValidRegex
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
@@ -285,3 +286,33 @@ class DecoratorsTests(unittest.TestCase):
         handler()
 
         mock_logger.info.assert_called_once_with({'responseCode': 201})
+
+    def test_body_gets_dumped_as_json(self):
+
+        @response_body_as_json
+        def handler():
+            return {'responseCode': 200, 'body': {'a': 'b'}}
+
+        response = handler()
+
+        self.assertEqual(response, {'responseCode': 200, 'body': '{"a": "b"}'})
+
+    def test_body_dump_raises_exception_on_invalid_json(self):
+
+        @response_body_as_json
+        def handler():
+            return {'responseCode': 200, 'body': {'a'}}
+
+        response = handler()
+
+        self.assertEqual(response, {'responseCode': 500, 'body': 'Invalid response body'})
+
+    def test_response_as_json_invalid_application_does_nothing(self):
+
+        @response_body_as_json
+        def handler():
+            return {'responseCode': 200}
+
+        response = handler()
+
+        self.assertEqual(response, {'responseCode': 200})

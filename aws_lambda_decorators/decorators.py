@@ -1,3 +1,4 @@
+import json
 import logging
 from aws_lambda_decorators.utils import full_name
 
@@ -62,3 +63,15 @@ def log(parameters=False, response=False):
             return func_response
         return wrapper
     return decorator
+
+
+def response_body_as_json(func):
+    def wrapper(*args, **kwargs):
+        response = func(*args, **kwargs)
+        if 'body' in response:
+            try:
+                response['body'] = json.dumps(response['body'])
+            except TypeError as ex:
+                return {'responseCode': 500, 'body': 'Invalid response body'}
+        return response
+    return wrapper
