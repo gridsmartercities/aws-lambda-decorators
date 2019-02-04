@@ -31,9 +31,12 @@ class DecodersTests(unittest.TestCase):
         self.assertEqual(400, response["statusCode"])
         self.assertEqual("Error extracting parameters", response["body"])
 
-        mock_logger.error.assert_called_once_with("json.decoder.JSONDecodeError: 'Expecting property name enclosed in "
-                                                  "double quotes: line 1 column 2 (char 1)' in index 0 for path "
-                                                  "/a/b[json]/c")
+        mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
+                                                  'json.decoder.JSONDecodeError',
+                                                  'Expecting property name enclosed in double quotes: line 1 column 2 '
+                                                  '(char 1)',
+                                                  0,
+                                                  '/a/b[json]/c')
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_extract_returns_400_on_jwt_decode_error(self, mock_logger):
@@ -53,5 +56,8 @@ class DecodersTests(unittest.TestCase):
         self.assertEqual(400, response["statusCode"])
         self.assertTrue("Error extracting parameters" in response["body"])
 
-        mock_logger.error.assert_called_once_with("jwt.exceptions.DecodeError: 'Not enough segments' in index 0 for "
-                                                  "path /a/b[jwt]/c")
+        mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
+                                                  'jwt.exceptions.DecodeError',
+                                                  'Not enough segments',
+                                                  0,
+                                                  '/a/b[jwt]/c')
