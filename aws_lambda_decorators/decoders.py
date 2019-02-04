@@ -18,7 +18,7 @@ def decode(annotation, value):
             func = getattr(module_name, func_name)
             return func(value)
 
-        LOGGER.error(DECODE_FUNC_MISSING_ERROR % annotation)
+        LOGGER.error(DECODE_FUNC_MISSING_ERROR, annotation)
 
     return value
 
