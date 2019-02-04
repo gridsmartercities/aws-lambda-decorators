@@ -2,12 +2,17 @@ output-format: text
 
 strictness: veryhigh
 test-warnings: true
-doc-warnings: false
+doc-warnings: true
 
 pep8:
   full: true
   options:
     max-line-length: 120
+
+pep257:
+  disable:
+    - D203
+    - D213
 
 pylint:
   options:
