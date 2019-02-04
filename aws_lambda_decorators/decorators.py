@@ -59,7 +59,7 @@ def log(parameters=False, response=False):
     def decorator(func):
         def wrapper(*args, **kwargs):
             if parameters:
-                LOGGER.info(*args)
+                LOGGER.info(args)
             func_response = func(*args, **kwargs)
             if response:
                 LOGGER.info(func_response)
