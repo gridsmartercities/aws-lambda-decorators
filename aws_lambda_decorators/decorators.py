@@ -85,7 +85,7 @@ def response_body_as_json(func):
         if 'body' in response:
             try:
                 response['body'] = json.dumps(response['body'])
-            except TypeError as ex:
-                return {'responseCode': 500, 'body': 'Invalid response body'}
+            except TypeError:
+                return {'responseCode': 500, 'body': 'Response body is not JSON serializable'}
         return response
     return wrapper

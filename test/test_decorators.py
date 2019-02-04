@@ -20,7 +20,7 @@ TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhc
            "ceQ1EICp0oICw2ncJch78RAFY5TeqiVa-uBybxwd36zJmZkXeJPWAKd32IOIJXNUyDOJtmXtSQW51pZGYTsihjZHz3kNlfg"
 
 
-class DecoratorsTests(unittest.TestCase):
+class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-methods
 
     def test_can_get_value_from_dict_by_path(self):
         path = "/a/b/c"
@@ -390,7 +390,7 @@ class DecoratorsTests(unittest.TestCase):
 
         response = handler()
 
-        self.assertEqual(response, {'responseCode': 500, 'body': 'Invalid response body'})
+        self.assertEqual(response, {'responseCode': 500, 'body': 'Response body is not JSON serializable'})
 
     def test_response_as_json_invalid_application_does_nothing(self):
 
