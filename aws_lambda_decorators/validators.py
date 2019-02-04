@@ -7,7 +7,8 @@ class Mandatory:  # noqa: pylint - too-few-public-methods
 
     @staticmethod
     def validate(value=None):
-        """Check if the given mandatory variable exists.
+        """
+        Check if the given mandatory variable exists.
 
         Args:
             value (any): Value to be validated.
@@ -19,7 +20,8 @@ class ValidRegex:  # noqa: pylint - too-few-public-methods
     """Validation rule to check if the given variable matches the given regular expression."""
 
     def __init__(self, regex=''):
-        """Compile the given regular expression to regular expression pattern.
+        """
+        Compile the given regular expression to regular expression pattern.
 
         Args:
             regex (str): Regular expression for parameter validation.
@@ -27,7 +29,8 @@ class ValidRegex:  # noqa: pylint - too-few-public-methods
         self._regexp = re.compile(regex)
 
     def validate(self, value=None):
-        """Check if the given variable adheres to the defined regular expression.
+        """
+        Check if the given variable adheres to the defined regular expression.
 
         Args:
             value (any): Value to be validated.
