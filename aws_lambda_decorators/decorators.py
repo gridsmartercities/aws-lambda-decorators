@@ -1,9 +1,14 @@
+import json
 import logging
+import boto3
 from aws_lambda_decorators.utils import full_name
 
 
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
+
+BODY_NOT_JSON_ERROR = 'Response body is not JSON serializable'
+PARAM_EXTRACT_ERROR = 'Error extracting parameters'
 
 
 def extract_from_event(parameters):
@@ -21,14 +26,13 @@ def extract(parameters):
         def wrapper(*args, **kwargs):
             try:
                 for param in parameters:
-                    key, value = param.get_dict_key_value_by_path(args)
-                    kwargs[param.get_name(key)] = value
+                    kwargs[param.get_var_name()] = param.get_value_by_path(args)
                 return func(*args, **kwargs)
             except Exception as ex:  # noqa: pylint - broad-except
                 LOGGER.error(f"{full_name(ex)}: '{ex}' in index {param.func_param_index} for path {param.path}")  # noqa: pylint - logging-fstring-interpolation
                 return {
                     'statusCode': 400,
-                    'body': 'Error extracting parameters'
+                    'body': PARAM_EXTRACT_ERROR
                 }
         return wrapper
     return decorator
@@ -62,3 +66,29 @@ def log(parameters=False, response=False):
             return func_response
         return wrapper
     return decorator
+
+
+def extract_from_ssm(ssm_parameters):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            ssm = boto3.client('ssm')
+            server_key_containers = ssm.get_parameters(
+                Names=[ssm_parameter.get_ssm_name() for ssm_parameter in ssm_parameters],
+                WithDecryption=True)
+            for idx, key_container in enumerate(server_key_containers['Parameters']):
+                kwargs[ssm_parameters[idx].get_var_name()] = key_container['Value']
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def response_body_as_json(func):
+    def wrapper(*args, **kwargs):
+        response = func(*args, **kwargs)
+        if 'body' in response:
+            try:
+                response['body'] = json.dumps(response['body'])
+            except TypeError:
+                return {'responseCode': 500, 'body': BODY_NOT_JSON_ERROR}
+        return response
+    return wrapper
