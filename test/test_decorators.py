@@ -275,7 +275,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         handler("first", "{'test': 'a'}", "another")
 
-        mock_logger.info.assert_called_once_with("first", "{'test': 'a'}", "another")
+        mock_logger.info.assert_called_once_with(("first", "{'test': 'a'}", "another"))
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_log_decorator_can_log_response(self, mock_logger):
