@@ -106,3 +106,6 @@ venv.bak/
 
 # Scripts
 *.sh
+
+# Mac
+.DS_Store
