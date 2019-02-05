@@ -9,22 +9,22 @@ ANNOTATIONS_END = ']'
 
 
 class ExceptionHandler:
-    """Object mapping a message to a given Exception."""
+    """Class mapping an friendly error message to a given Exception."""
 
     def __init__(self, exception, friendly_message):
         """
-        Set the private variables of the ExceptionHandler object.
+        Sets the private variables of the ExceptionHandler object.
 
         Args:
             exception (object|Exception): An exception to be handled.
-            friendly_message (str): Message to be logged if the exception is caught.
+            friendly_message (str): Friendly Message to be returned if the exception is caught.
         """
         self._exception = exception
         self._friendly_message = friendly_message
 
     @property
     def friendly_message(self):
-        """Getter for the message parameter."""
+        """Getter for the friendly message parameter."""
         return self._friendly_message
 
     @property
@@ -34,25 +34,25 @@ class ExceptionHandler:
 
 
 class Parameter:
-    """Object used for defining the path to, validation and name of the variable to be extracted from event/context."""
+    """Class used to encapsulate the extract methods parameters data."""
 
     def __init__(self, path, validators=None, func_param_index=0, var_name=None):
         """
-        Set the private variables of the Parameter object.
+        Sets the private variables of the Parameter object.
 
         Args:
-            path (str): The path to the variable we want to extract. Can use [jwt], [json] to annotate the encoding of
-                the item in the dictionary e.g.:
+            path (str): The path to the variable we want to extract. Can use any annotation that has an existing
+                equivalent decode function in decoders.py (like [jwt] or [json]) e.g.:
                 given a dictionary {
                     "a": {
                         "b": "{ 'c': 'hello' }",
                     }
                 }, path to c is "a/b[json]/c"
-            validators (list): A list of validators for variable validation (e.g. Mandatory(), ValidRegex(my_regex).
-            func_param_index (int): Optional, the index of dictionary  in the function signature e.g.:
+            validators (list): A list of validators the value must conform to (e.g. Mandatory(), ValidRegex(my_regex).
+            func_param_index (int): Optional, the index for the dictionary in the function signature e.g.:
                 def fun(event, context), to extract from context func_param_index has to be 1.
-            var_name (str): Optional, the name of the variable we want to assign the extracted value to. Default is the
-                last part of the path (e.g. 'c' in the case above)
+            var_name (str): Optional, the name of the variable we want to assign the extracted value to. The default
+                value is the last element of the path (e.g. 'c' in the case above)
         """
         self._func_param_index = func_param_index
         self._path = path
@@ -76,7 +76,7 @@ class Parameter:
 
     def get_value_by_path(self, args):
         """
-        Calculate and decode the value of the variable by the given path.
+        Calculate and decode the value of the variable in the given path.
 
         Used by the decorators.
 
@@ -118,7 +118,7 @@ class Parameter:
         Getter for the var_name parameter.
 
         Raise:
-            SyntaxError: if the name is set and is not a valid variable name
+            SyntaxError: if the name is set and is not a valid python variable name
         """
         if self._name and not is_valid_variable_name(self._name):
             raise SyntaxError(self._name)
