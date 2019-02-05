@@ -19,7 +19,9 @@ PARAM_EXTRACT_LOG_MESSAGE = "%s: '%s' in index %s for path %s"
 
 def extract_from_event(parameters):
     """
-    Extract given parameters from the event dictionary in the lambda handler to the handler variables.
+    Extracts a set of parameters from the event dictionary in an API Gateway lambda handler.
+
+    The extracted parameters are added as kwargs to the handler function.
 
     Usage: see extract.
     """
@@ -28,7 +30,9 @@ def extract_from_event(parameters):
 
 def extract_from_context(parameters):
     """
-    Extract given parameters from the context dictionary in the lambda handler to the handler variables.
+    Extracts a set of parameters from the context dictionary in an API Gateway lambda handler.
+
+    The extracted parameters are added as kwargs to the handler function.
 
     Usage: see extract.
     """
@@ -39,7 +43,9 @@ def extract_from_context(parameters):
 
 def extract(parameters):
     """
-    Extract given parameters from either event or context dictionaries in the lambda handler to the handler variables.
+    Extracts a set of parameters from any function parameter passed to any AWS lambda handler.
+
+    The extracted parameters are added as kwargs to the handler function.
 
     Usage:
         @extract[_from_event|_from_context]([Parameter('a/b[jwt]/c', 'var')])
@@ -66,7 +72,7 @@ def extract(parameters):
 
 def handle_exceptions(handlers):
     """
-    Handle exceptions thrown by the wrapped/decorated function.
+    Handles exceptions thrown by the wrapped/decorated function.
 
     Usage:
         @handle_exceptions([ExceptionHandler(KeyError, 'Your message on KeyError except')]).
