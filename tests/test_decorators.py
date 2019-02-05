@@ -156,7 +156,11 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(400, response["statusCode"])
         self.assertEqual('Error extracting parameters', response["body"])
 
-        mock_logger.error.assert_called_once_with("SyntaxError: 'with space' in index 0 for path /a/b")
+        mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
+                                                  'SyntaxError',
+                                                  'with space',
+                                                  0,
+                                                  '/a/b')
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_can_not_add_pythonic_keyword_as_name_to_parameter(self, mock_logger):
@@ -176,7 +180,11 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(400, response["statusCode"])
         self.assertEqual('Error extracting parameters', response["body"])
 
-        mock_logger.error.assert_called_once_with("SyntaxError: 'class' in index 0 for path /a/b")
+        mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
+                                                  'SyntaxError',
+                                                  'class',
+                                                  0,
+                                                  '/a/b')
 
     def test_extract_does_not_raise_an_error_on_missing_optional_key(self):
         path = "/a/b/c"

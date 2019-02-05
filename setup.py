@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 LONG_DESCRIPTION = open('README.md').read()
 
 setup(name='aws_lambda_decorators',
-      version='0.5',
+      version='0.7',
       description='A set of python decorators to simplify aws python lambda development',
       long_description=LONG_DESCRIPTION,
       long_description_content_type="text/markdown",
@@ -22,7 +22,7 @@ setup(name='aws_lambda_decorators',
       packages=find_packages(exclude=('tests',)),
       install_requires=[
           'boto3',
-          'jwt'
+          'PyJWT'
       ],
       zip_safe=False
       )

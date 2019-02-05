@@ -9,6 +9,7 @@ LOGGER.setLevel(logging.INFO)
 
 BODY_NOT_JSON_ERROR = 'Response body is not JSON serializable'
 PARAM_EXTRACT_ERROR = 'Error extracting parameters'
+PARAM_EXTRACT_LOG_MESSAGE = "%s: '%s' in index %s for path %s"
 
 
 def extract_from_event(parameters):
@@ -29,7 +30,7 @@ def extract(parameters):
                     kwargs[param.get_var_name()] = param.get_value_by_path(args)
                 return func(*args, **kwargs)
             except Exception as ex:  # noqa: pylint - broad-except
-                LOGGER.error(f"{full_name(ex)}: '{ex}' in index {param.func_param_index} for path {param.path}")  # noqa: pylint - logging-fstring-interpolation
+                LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE, full_name(ex), str(ex), param.func_param_index, param.path)  # noqa: pylint - logging-fstring-interpolation
                 return {
                     'statusCode': 400,
                     'body': PARAM_EXTRACT_ERROR
