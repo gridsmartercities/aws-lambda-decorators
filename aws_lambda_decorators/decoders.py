@@ -1,3 +1,4 @@
+"""Decoder abstractions and functions for decoding/converting a string of a given annotation to a dictionary."""
 import json
 import logging
 import sys
@@ -11,6 +12,18 @@ DECODE_FUNC_MISSING_ERROR = 'Missing decode function for annotation: %s'
 
 
 def decode(annotation, value):
+    """
+    Convert the given string from an annotation to a python dictionary.
+
+    If :annotation: is not empty, use decode_:annotation:(:value:) to convert to dictionary.
+
+    Args:
+        annotation (str): the type of encoding of the value (e.g. 'json', 'jwt').
+        value (str): the value to be converted from given annotation to a dictionary.
+
+    Return:
+        decoded dictionary.
+    """
     if annotation:
         module_name = sys.modules[__name__]
         func_name = DECODE_FUNC_NAME % annotation
@@ -24,8 +37,10 @@ def decode(annotation, value):
 
 
 def decode_json(value):
+    """Convert a json to a dictionary."""
     return json.loads(value)
 
 
 def decode_jwt(value):
+    """Convert a jwt to a dictionary."""
     return jwt.decode(value, verify=False)
