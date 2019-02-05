@@ -1,4 +1,4 @@
-"""Decoder abstractions and functions for decoding/converting a string of a given annotation to a dictionary."""
+"""Decoder abstractions and functions for decoding/converting a string with a given annotation to a dictionary."""
 import json
 import logging
 import sys
@@ -13,9 +13,15 @@ DECODE_FUNC_MISSING_ERROR = 'Missing decode function for annotation: %s'
 
 def decode(annotation, value):
     """
-    Convert the given string from an annotation to a python dictionary.
+    Converts an annotated string to a python dictionary.
 
     If :annotation: is not empty, use decode_:annotation:(:value:) to convert to dictionary.
+
+    You can create extra decoders by following the same naming convention, e.g.:
+        *annotation*   *decoder*
+          [json]      decode_json
+          [jwt]       decode_jwt
+          [other]     decode_other
 
     Args:
         annotation (str): the type of encoding of the value (e.g. 'json', 'jwt').
