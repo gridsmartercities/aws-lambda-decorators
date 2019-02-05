@@ -1,14 +1,14 @@
-"""Validation rules for extracted parameter validation."""
+"""Validation rules."""
 import re
 
 
 class Mandatory:  # noqa: pylint - too-few-public-methods
-    """Validation rule to check if the given mandatory variable exists."""
+    """Validation rule to check if the given mandatory value exists."""
 
     @staticmethod
     def validate(value=None):
         """
-        Check if the given mandatory variable exists.
+        Check if the given mandatory value exists.
 
         Args:
             value (any): Value to be validated.
@@ -17,11 +17,11 @@ class Mandatory:  # noqa: pylint - too-few-public-methods
 
 
 class ValidRegex:  # noqa: pylint - too-few-public-methods
-    """Validation rule to check if the given variable matches the given regular expression."""
+    """Validation rule to check if a value matches a regular expression."""
 
     def __init__(self, regex=''):
         """
-        Compile the given regular expression to regular expression pattern.
+        Compile a regular expression to a regular expression pattern.
 
         Args:
             regex (str): Regular expression for parameter validation.
@@ -30,7 +30,7 @@ class ValidRegex:  # noqa: pylint - too-few-public-methods
 
     def validate(self, value=None):
         """
-        Check if the given variable adheres to the defined regular expression.
+        Check if a value adheres to the defined regular expression.
 
         Args:
             value (str): Value to be validated.
