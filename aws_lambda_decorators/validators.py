@@ -33,6 +33,6 @@ class ValidRegex:  # noqa: pylint - too-few-public-methods
         Check if the given variable adheres to the defined regular expression.
 
         Args:
-            value (any): Value to be validated.
+            value (str): Value to be validated.
         """
         return self._regexp.search(value) is not None
