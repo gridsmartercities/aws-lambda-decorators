@@ -4,11 +4,10 @@ AWS lambda decorators.
 A set of Python decorators to ease the development of AWS lambda functions.
 
 """
-import inspect
 import json
 import logging
 import boto3
-from aws_lambda_decorators.utils import full_name
+from aws_lambda_decorators.utils import full_name, all_func_args
 
 
 LOGGER = logging.getLogger()
@@ -16,7 +15,8 @@ LOGGER.setLevel(logging.INFO)
 
 BODY_NOT_JSON_ERROR = 'Response body is not JSON serializable'
 PARAM_EXTRACT_ERROR = 'Error extracting parameters'
-PARAM_EXTRACT_LOG_MESSAGE = "%s: '%s' in index %s for path %s"
+PARAM_EXTRACT_LOG_MESSAGE = "%s: '%s' in argument %s for path %s"
+PARAM_INVALID_ERROR = "Error validating parameters"
 
 
 def extract_from_event(parameters):
@@ -68,9 +68,9 @@ def extract(parameters):
     def decorator(func):
         def wrapper(*args, **kwargs):
             try:
+                arg_dictionary = all_func_args(func, args, kwargs)
                 for param in parameters:
-                    index = inspect.getfullargspec(func)[0].index(param.func_param_name)
-                    param_val = args[index]
+                    param_val = arg_dictionary[param.func_param_name]
                     kwargs[param.get_var_name()] = param.get_value_by_path(param_val)
                 return func(*args, **kwargs)
             except Exception as ex:  # noqa: pylint - broad-except
@@ -168,3 +168,29 @@ def response_body_as_json(func):
                 return {'responseCode': 500, 'body': BODY_NOT_JSON_ERROR}
         return response
     return wrapper
+
+
+def validate(parameters):
+    """
+    Validates a set of function parameters.
+
+    Usage:
+        @validate([Parameter('var_name', validators=[...])])
+        def func(var_name)
+            pass
+
+    Args:
+        parameters (list): A collection of Parameter type items.
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            arg_dictionary = all_func_args(func, args, kwargs)
+            for param in parameters:
+                if not param.validate(arg_dictionary[param.func_param_name]):
+                    return {
+                        'statusCode': 400,
+                        'body': PARAM_INVALID_ERROR
+                    }
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator

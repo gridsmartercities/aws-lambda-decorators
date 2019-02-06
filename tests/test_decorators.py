@@ -5,7 +5,7 @@ from json import JSONDecodeError
 from botocore.exceptions import ClientError
 from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
-    log, response_body_as_json, extract_from_ssm
+    log, response_body_as_json, extract_from_ssm, validate
 from aws_lambda_decorators.validators import Mandatory, RegexValidator
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
@@ -104,6 +104,24 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         self.assertEqual(handler(None, dictionary), "hello")
 
+    def test_extract_returns_400_on_empty_path(self):
+        path = None
+        dictionary = {
+            "a": {
+                "b": {
+                }
+            }
+        }
+
+        @extract([Parameter(path, 'event')])
+        def handler(event, context, c=None):  # noqa
+            return {}
+
+        response = handler(dictionary, None)
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual('Error extracting parameters', response["body"])
+
     def test_extract_returns_400_on_missing_mandatory_key(self):
         path = "/a/b/c"
         dictionary = {
@@ -113,7 +131,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, [Mandatory()])])
+        @extract([Parameter(path, 'event', validators=[Mandatory()])])
         def handler(event, context, c=None):  # noqa
             return {}
 
@@ -130,7 +148,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, 'event', [Mandatory()], var_name='custom')])
+        @extract([Parameter(path, 'event', validators=[Mandatory()], var_name='custom')])
         def handler(event, context, custom=None):  # noqa
             return custom
 
@@ -156,7 +174,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(400, response["statusCode"])
         self.assertEqual('Error extracting parameters', response["body"])
 
-        mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
+        mock_logger.error.assert_called_once_with("%s: '%s' in argument %s for path %s",
                                                   'SyntaxError',
                                                   'with space',
                                                   'event',
@@ -180,7 +198,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(400, response["statusCode"])
         self.assertEqual('Error extracting parameters', response["body"])
 
-        mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
+        mock_logger.error.assert_called_once_with("%s: '%s' in argument %s for path %s",
                                                   'SyntaxError',
                                                   'class',
                                                   'event',
@@ -239,6 +257,29 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler(dictionary, None)
 
+        self.assertEqual({}, response)
+
+    def test_validate_raises_an_error_on_invalid_variables(self):
+        @validate([
+            Parameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
+            Parameter(func_param_name="var2", validators=[RegexValidator(r'\d+')])
+        ])
+        def handler(var1=None, var2=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler("2019", "abcd")
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual("Error validating parameters", response["body"])
+
+    def test_validate_does_not_raise_an_error_on_valid_variables(self):
+        @validate([
+            Parameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
+            Parameter(func_param_name="var2", validators=[RegexValidator(r'[ab]+')])
+        ])
+        def handler(var1, var2=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler("2019", var2="abba")
         self.assertEqual({}, response)
 
     def test_extract_returns_400_on_type_error(self):
