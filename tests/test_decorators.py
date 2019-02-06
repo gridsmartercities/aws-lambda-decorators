@@ -174,7 +174,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(400, response["statusCode"])
         self.assertEqual('Error extracting parameters', response["body"])
 
-        mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
+        mock_logger.error.assert_called_once_with("%s: '%s' in argument %s for path %s",
                                                   'SyntaxError',
                                                   'with space',
                                                   'event',
@@ -198,7 +198,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(400, response["statusCode"])
         self.assertEqual('Error extracting parameters', response["body"])
 
-        mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
+        mock_logger.error.assert_called_once_with("%s: '%s' in argument %s for path %s",
                                                   'SyntaxError',
                                                   'class',
                                                   'event',

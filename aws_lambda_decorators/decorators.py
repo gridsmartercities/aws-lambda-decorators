@@ -15,7 +15,7 @@ LOGGER.setLevel(logging.INFO)
 
 BODY_NOT_JSON_ERROR = 'Response body is not JSON serializable'
 PARAM_EXTRACT_ERROR = 'Error extracting parameters'
-PARAM_EXTRACT_LOG_MESSAGE = "%s: '%s' in index %s for path %s"
+PARAM_EXTRACT_LOG_MESSAGE = "%s: '%s' in argument %s for path %s"
 PARAM_INVALID_ERROR = "Error validating parameters"
 
 

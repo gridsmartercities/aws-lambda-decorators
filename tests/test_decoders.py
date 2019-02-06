@@ -31,7 +31,7 @@ class DecodersTests(unittest.TestCase):
         self.assertEqual(400, response["statusCode"])
         self.assertEqual("Error extracting parameters", response["body"])
 
-        mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
+        mock_logger.error.assert_called_once_with("%s: '%s' in argument %s for path %s",
                                                   'json.decoder.JSONDecodeError',
                                                   'Expecting property name enclosed in double quotes: line 1 column 2 '
                                                   '(char 1)',
@@ -56,7 +56,7 @@ class DecodersTests(unittest.TestCase):
         self.assertEqual(400, response["statusCode"])
         self.assertTrue("Error extracting parameters" in response["body"])
 
-        mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
+        mock_logger.error.assert_called_once_with("%s: '%s' in argument %s for path %s",
                                                   'jwt.exceptions.DecodeError',
                                                   'Not enough segments',
                                                   'event',
