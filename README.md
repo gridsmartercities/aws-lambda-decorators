@@ -34,7 +34,7 @@ This decorator extracts a list of variables from a dictionary parameter passed t
 * A 400 exception is raised when the parameter cannot be extracted or when it does not validate.
 * A variable path (e.g. '/headers/Authorization[jwt]/sub') can be annotated to specify a decoding. In the example, Authorization might contain a JWT, which needs to be decoded before accessing the "sub" element.
 
-```
+```python
 @extract(parameters=[
     Parameter(path='/parent/my_param'),  # extracts a non mandatory my_param from dictionary
     Parameter(path='/parent/child/id', validators=[Mandatory()], var_name='user_id', func_param_index=1)  # extracts a mandatory id as "user_id" from another_dictionary
@@ -47,7 +47,7 @@ def lambda_handler(dictionary, another_dictionary, my_param='aDefaultValue', use
 
 This decorator is just a facade to the extract method to be used in AWS Api Gateway Lambdas. It automatically extracts from the event lambda parameter.
 
-```
+```python
 @extract_from_event(parameters=[
     Parameter(path='/body[json]/my_param', validators=[Mandatory()]),  # extracts a mandatory my_param from the json body of the event
     Parameter(path='/headers/Authorization[jwt]/sub', validators=[Mandatory()], var_name='user_id')  # extract the mandatory sub value as user_id from the authorization JWT
@@ -60,7 +60,7 @@ def api_gateway_lambda_handler(event, context, my_param=None, user_id=None):
 
 This decorator is just a facade to the extract method to be used in AWS Api Gateway Lambdas. It automatically extracts from the context lambda parameter.
 
-```
+```python
 @extract_from_event(parameters=[
     Parameter(path='/parent/my_param', validators=[Mandatory()]),  # extracts a mandatory my_param from the parent element in context
 ])
