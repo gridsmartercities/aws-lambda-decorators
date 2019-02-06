@@ -99,7 +99,7 @@ class Parameter:
             real_key, annotation = Parameter.get_annotations_from_key(path_key)
             if real_key in dict_value:
                 dict_value = decode(annotation, dict_value[real_key])
-            elif self._validators and is_type_in_list(Mandatory(), self._validators):
+            elif self._validators and is_type_in_list(Mandatory, self._validators):
                 raise KeyError(real_key)
 
         val = dict_value.get(real_key, None) if isinstance(dict_value, dict) else dict_value
