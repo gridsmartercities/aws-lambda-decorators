@@ -16,7 +16,7 @@ LOGGER.setLevel(logging.INFO)
 BODY_NOT_JSON_ERROR = 'Response body is not JSON serializable'
 PARAM_EXTRACT_ERROR = 'Error extracting parameters'
 PARAM_EXTRACT_LOG_MESSAGE = "%s: '%s' in index %s for path %s"
-ARG_INVALID_ERROR = "argument [%s] is not valid"
+PARAM_INVALID_ERROR = "Error validating parameters"
 
 
 def extract_from_event(parameters):
@@ -189,7 +189,7 @@ def validate(parameters):
                 if not param.validate(arg_dictionary[param.func_param_name]):
                     return {
                         'statusCode': 400,
-                        'body': ARG_INVALID_ERROR % param.func_param_name
+                        'body': PARAM_INVALID_ERROR
                     }
             return func(*args, **kwargs)
         return wrapper

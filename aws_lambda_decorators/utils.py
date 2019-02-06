@@ -49,6 +49,17 @@ def is_valid_variable_name(name):
 
 
 def all_func_args(func, args, kwargs):
+    """
+    Combine arguments and key word arguments to a dictionary.
+
+    Args:
+        func (function): function whose arguments should be extracted.
+        args (list): list of function args (*args).
+        kwargs (dict): dictionary of function kwargs (**kwargs).
+
+    Returns:
+        dictionary argument name -> argument value.
+    """
     arg_spec = inspect.getfullargspec(func)[0]
     arg_dictionary = {arg_spec[idx]: value for idx, value in enumerate(args)}
     arg_dictionary.update(kwargs)

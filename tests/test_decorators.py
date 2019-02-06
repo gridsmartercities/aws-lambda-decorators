@@ -269,7 +269,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler("2019", "abcd")
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual("argument [var2] is not valid", response["body"])
+        self.assertEqual("Error validating parameters", response["body"])
 
     def test_validate_does_not_raise_an_error_on_valid_variables(self):
         @validate([
