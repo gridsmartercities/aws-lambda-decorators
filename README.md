@@ -65,7 +65,7 @@ This decorator extracts and validates values from dictionary parameters passed t
 ])
 def lambda_handler(a_dictionary, another_dictionary, my_param='aDefaultValue', missing_non_mandatory='I am missing', missing_mandatory=None, user_id=None):
     """
-        Given these two values for the dictionaries:
+        Given these two dictionaries:
         
         a_dictionary = { 
             'parent': { 
@@ -271,13 +271,14 @@ Currently, this package offers 2 validators:
 ### Classes
 
 * __Parameter__:
+* __ValidatedParameter__:
 * __SSMParameter__:
 * __ExceptionHandler__:
 
 ### Decoders
 
-* __decode_json__:
-* __decode_jwt__:
+* __decode_json__: decodes a string to json
+* __decode_jwt__: decodes a string to a JWT
 
 ### Utils
 
