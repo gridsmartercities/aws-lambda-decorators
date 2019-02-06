@@ -197,6 +197,10 @@ Before submitting the PR, please ensure that:
 
 `coverage report -m --fail-under=100 --omit=*/__init__.py,tests/*,setup.py`
 
+## Beyond AWS
+
+All the decorators in this package, although specifically thought for AWS Lambdas, can be used to decorate any function. Of the decorators, extract_ssm_parameter, extract_from_event and extract_from_context can be classified as AWS specific. 
+
 ## Links
 
 * [PyPi](https://test.pypi.org/project/aws-lambda-decorators/)
