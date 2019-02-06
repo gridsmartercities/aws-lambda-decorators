@@ -22,7 +22,7 @@ class DecodersTests(unittest.TestCase):
             }
         }
 
-        @extract([Parameter(path)])
+        @extract([Parameter(path, 'event')])
         def handler(event, context, c=None):  # noqa
             return {}
 
@@ -35,7 +35,7 @@ class DecodersTests(unittest.TestCase):
                                                   'json.decoder.JSONDecodeError',
                                                   'Expecting property name enclosed in double quotes: line 1 column 2 '
                                                   '(char 1)',
-                                                  0,
+                                                  'event',
                                                   '/a/b[json]/c')
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
@@ -47,7 +47,7 @@ class DecodersTests(unittest.TestCase):
             }
         }
 
-        @extract([Parameter(path)])
+        @extract([Parameter(path, 'event')])
         def handler(event, context, c=None):  # noqa
             return {}
 
@@ -59,5 +59,5 @@ class DecodersTests(unittest.TestCase):
         mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
                                                   'jwt.exceptions.DecodeError',
                                                   'Not enough segments',
-                                                  0,
+                                                  'event',
                                                   '/a/b[jwt]/c')
