@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from json import JSONDecodeError
 from botocore.exceptions import ClientError
-from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter
+from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter, ValidatedParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate
 from aws_lambda_decorators.validators import Mandatory, RegexValidator
@@ -261,8 +261,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
     def test_validate_raises_an_error_on_invalid_variables(self):
         @validate([
-            Parameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
-            Parameter(func_param_name="var2", validators=[RegexValidator(r'\d+')])
+            ValidatedParameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
+            ValidatedParameter(func_param_name="var2", validators=[RegexValidator(r'\d+')])
         ])
         def handler(var1=None, var2=None):  # noqa: pylint - unused-argument
             return {}
@@ -273,8 +273,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
     def test_validate_does_not_raise_an_error_on_valid_variables(self):
         @validate([
-            Parameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
-            Parameter(func_param_name="var2", validators=[RegexValidator(r'[ab]+')])
+            ValidatedParameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
+            ValidatedParameter(func_param_name="var2", validators=[RegexValidator(r'[ab]+')])
         ])
         def handler(var1, var2=None):  # noqa: pylint - unused-argument
             return {}

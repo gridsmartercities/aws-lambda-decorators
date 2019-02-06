@@ -33,7 +33,82 @@ class ExceptionHandler:
         return self._exception
 
 
-class Parameter:
+class BaseParameter:  # noqa: pylint - too-few-public-methods
+    """Parent object or all parameter object."""
+    def __init__(self, var_name):
+        """
+            Set the private variables of the BaseParameter object.
+
+            Args:
+                var_name (str): The name of variable to store the extracted value to.
+        """
+        self._name = var_name
+
+    def get_var_name(self):
+        if self._name and not is_valid_variable_name(self._name):
+            raise SyntaxError(self._name)
+        return self._name
+
+
+class SSMParameter(BaseParameter):
+    """Object used for defining the key and, optionally, the variable name for ssm parameter extraction."""
+
+    def __init__(self, ssm_name, var_name=None):
+        """
+        Set the private variables of the SSMParameter object.
+
+        Args:
+            ssm_name (str): Key of the variable in the AWS parameter store
+            var_name (str): Optional, the name of variable to store the extracted value to. Defaults to the ssm_name.
+        """
+        self._ssm_name = ssm_name
+        BaseParameter.__init__(self, var_name if var_name else ssm_name)
+
+    def get_ssm_name(self):
+        """Getter for the ssm_name parameter."""
+        return self._ssm_name
+
+
+class ValidatedParameter(BaseParameter):
+    """Class used to encapsulate the validation methods parameters data."""
+
+    def __init__(self, func_param_name=None, validators=None, var_name=None):
+        """
+        Sets the private variables of the ValidatedParameter object.
+
+        Args:
+            func_param_name (str): the name for the dictionary in the function signature
+                def fun(event, context), to extract from context func_param_name has to be 'context'
+            validators (list): A list of validators the value must conform to (e.g. Mandatory(),
+                RegexValidator(my_regex), ...)
+            var_name (str): Optional, the name of the variable we want to assign the extracted value to. The default
+                value is the last element of the path (e.g. 'c' in the case above)
+        """
+        self._func_param_name = func_param_name
+        self._validators = validators
+        BaseParameter.__init__(self, var_name)
+
+    @property
+    def func_param_name(self):
+        """Getter for the func_param_name parameter."""
+        return self._func_param_name
+
+    @func_param_name.setter
+    def func_param_name(self, value):
+        """Setter for the func_param_name parameter."""
+        self._func_param_name = value
+
+    def validate(self, value):
+        """Check if the given value adheres to the given validation rules."""
+        if not self._validators:
+            return True
+        for validator in self._validators:
+            if not validator.validate(value):
+                return False
+        return True
+
+
+class Parameter(ValidatedParameter):
     """Class used to encapsulate the extract methods parameters data."""
 
     def __init__(self, path='', func_param_name=None, validators=None, var_name=None):
@@ -59,25 +134,13 @@ class Parameter:
             var_name (str): Optional, the name of the variable we want to assign the extracted value to. The default
                 value is the last element of the path (e.g. 'c' in the case above)
         """
-        self._func_param_name = func_param_name
         self._path = path
-        self._validators = validators
-        self._name = var_name
-
-    @property
-    def func_param_name(self):
-        """Getter for the func_param_name parameter."""
-        return self._func_param_name
+        ValidatedParameter.__init__(self, func_param_name, validators, var_name)
 
     @property
     def path(self):
         """Getter for the path parameter."""
         return self._path
-
-    @func_param_name.setter
-    def func_param_name(self, value):
-        """Setter for the func_param_name parameter."""
-        self._func_param_name = value
 
     def get_value_by_path(self, dict_value):
         """
@@ -106,26 +169,6 @@ class Parameter:
             self._name = real_key
         return dict_value
 
-    def validate(self, value):
-        """Check if the given value adheres to the given validation rules."""
-        if not self._validators:
-            return True
-        for validator in self._validators:
-            if not validator.validate(value):
-                return False
-        return True
-
-    def get_var_name(self):
-        """
-        Getter for the var_name parameter.
-
-        Raises:
-            SyntaxError: if the name is set and is not a valid python variable name
-        """
-        if self._name and not is_valid_variable_name(self._name):
-            raise SyntaxError(self._name)
-        return self._name
-
     @staticmethod
     def get_annotations_from_key(key):
         """
@@ -139,28 +182,3 @@ class Parameter:
             annotation = key[key.find(ANNOTATIONS_START) + 1:key.find(ANNOTATIONS_END)]
             return key.replace(ANNOTATIONS_START + annotation + ANNOTATIONS_END, ''), annotation
         return key, None
-
-
-class SSMParameter:
-    """Object used for defining the key and, optionally, the variable name for ssm parameter extraction."""
-
-    def __init__(self, ssm_name, var_name=None):
-        """
-        Set the private variables of the SSMParameter object.
-
-        Args:
-            ssm_name (str): Key of the variable in the AWS parameter store
-            var_name (str): Optional, the name of variable to store the extracted value to. Defaults to the ssm_name.
-        """
-        self._ssm_name = ssm_name
-        self._name = var_name if var_name else ssm_name
-
-    def get_ssm_name(self):
-        """Getter for the ssm_name parameter."""
-        return self._ssm_name
-
-    def get_var_name(self):
-        """Getter for the var_name parameter."""
-        if self._name and not is_valid_variable_name(self._name):
-            raise SyntaxError(self._name)
-        return self._name

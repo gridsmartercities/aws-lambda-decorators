@@ -175,12 +175,12 @@ def validate(parameters):
     Validates a set of function parameters.
 
     Usage:
-        @validate([Parameter('var_name', validators=[...])])
+        @validate([ValidatedParameter('var_name', validators=[...])])
         def func(var_name)
             pass
 
     Args:
-        parameters (list): A collection of Parameter type items.
+        parameters (list): A collection of ValidatedParameter type items.
     """
     def decorator(func):
         def wrapper(*args, **kwargs):

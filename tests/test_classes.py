@@ -1,8 +1,12 @@
 import unittest
-from aws_lambda_decorators.classes import Parameter, SSMParameter
+from aws_lambda_decorators.classes import Parameter, SSMParameter, BaseParameter
 
 
 class ParamTests(unittest.TestCase):
+
+    def test_can_create_base_parameter(self):
+        base_param = BaseParameter('var_name')
+        self.assertEqual('var_name', base_param.get_var_name())
 
     def test_annotations_from_key_returns_annotation(self):
         key = 'simple[annotation]'
