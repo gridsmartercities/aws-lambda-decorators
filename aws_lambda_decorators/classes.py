@@ -33,8 +33,15 @@ class ExceptionHandler:
         return self._exception
 
 
-class BaseParameter:
-    def __init__(self, var_name=None):
+class BaseParameter:  # noqa: pylint - too-few-public-methods
+    """Parent object or all parameter object."""
+    def __init__(self, var_name):
+        """
+            Set the private variables of the BaseParameter object.
+
+            Args:
+                var_name (str): The name of variable to store the extracted value to.
+        """
         self._name = var_name
 
     def get_var_name(self):
@@ -55,7 +62,7 @@ class SSMParameter(BaseParameter):
             var_name (str): Optional, the name of variable to store the extracted value to. Defaults to the ssm_name.
         """
         self._ssm_name = ssm_name
-        self._name = var_name if var_name else ssm_name
+        BaseParameter.__init__(self, var_name if var_name else ssm_name)
 
     def get_ssm_name(self):
         """Getter for the ssm_name parameter."""
@@ -63,24 +70,13 @@ class SSMParameter(BaseParameter):
 
 
 class ValidationParameter(BaseParameter):
-    """Class used to encapsulate the extract methods parameters data."""
+    """Class used to encapsulate the validation methods parameters data."""
 
     def __init__(self, func_param_name=None, validators=None, var_name=None):
         """
-        Sets the private variables of the Parameter object.
+        Sets the private variables of the ValidationParameter object.
 
         Args:
-            path (str): The path to the variable we want to extract. Can use any annotation that has an existing
-                equivalent decode function in decoders.py (like [jwt] or [json]).
-                As an example, given the dictionary
-
-                {
-                    "a": {
-                        "b": "{ 'c': 'hello' }",
-                    }
-                }
-
-                the path to c is "a/b[json]/c"
             func_param_name (str): the name for the dictionary in the function signature
                 def fun(event, context), to extract from context func_param_name has to be 'context'
             validators (list): A list of validators the value must conform to (e.g. Mandatory(),
@@ -90,7 +86,7 @@ class ValidationParameter(BaseParameter):
         """
         self._func_param_name = func_param_name
         self._validators = validators
-        self._name = var_name
+        BaseParameter.__init__(self, var_name)
 
     @property
     def func_param_name(self):
@@ -138,10 +134,8 @@ class Parameter(ValidationParameter):
             var_name (str): Optional, the name of the variable we want to assign the extracted value to. The default
                 value is the last element of the path (e.g. 'c' in the case above)
         """
-        self._func_param_name = func_param_name
         self._path = path
-        self._validators = validators
-        self._name = var_name
+        ValidationParameter.__init__(self, func_param_name, validators, var_name)
 
     @property
     def path(self):
@@ -188,4 +182,3 @@ class Parameter(ValidationParameter):
             annotation = key[key.find(ANNOTATIONS_START) + 1:key.find(ANNOTATIONS_END)]
             return key.replace(ANNOTATIONS_START + annotation + ANNOTATIONS_END, ''), annotation
         return key, None
-
