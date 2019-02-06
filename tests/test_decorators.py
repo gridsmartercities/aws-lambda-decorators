@@ -264,7 +264,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             Parameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
             Parameter(func_param_name="var2", validators=[RegexValidator(r'\d+')])
         ])
-        def handler(var1=None, var2=None):
+        def handler(var1=None, var2=None):  # noqa: pylint - unused-argument
             return {}
 
         response = handler("2019", "abcd")
@@ -276,11 +276,11 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             Parameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
             Parameter(func_param_name="var2", validators=[RegexValidator(r'[ab]+')])
         ])
-        def handler(var1, var2=None):
-            return "success"
+        def handler(var1, var2=None):  # noqa: pylint - unused-argument
+            return {}
 
         response = handler("2019", var2="abba")
-        self.assertEqual("success", response)
+        self.assertEqual({}, response)
 
     def test_extract_returns_400_on_type_error(self):
         path = "/a/b[json]/c"

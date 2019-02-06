@@ -2,6 +2,7 @@
 import keyword
 import inspect
 
+
 def full_name(class_type):
     """
     Gets the fully qualified name of a class type.
