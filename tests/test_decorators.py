@@ -131,7 +131,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, [Mandatory()])])
+        @extract([Parameter(path, 'event', validators=[Mandatory()])])
         def handler(event, context, c=None):  # noqa
             return {}
 
@@ -148,7 +148,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, 'event', [Mandatory()], var_name='custom')])
+        @extract([Parameter(path, 'event', validators=[Mandatory()], var_name='custom')])
         def handler(event, context, custom=None):  # noqa
             return custom
 
