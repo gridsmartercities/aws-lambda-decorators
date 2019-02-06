@@ -36,7 +36,7 @@ class ExceptionHandler:
 class Parameter:
     """Class used to encapsulate the extract methods parameters data."""
 
-    def __init__(self, path, validators=None, func_param_index=0, var_name=None):
+    def __init__(self, path, func_param_name=None, validators=None, var_name=None):
         """
         Sets the private variables of the Parameter object.
 
@@ -52,47 +52,45 @@ class Parameter:
                 }
 
                 the path to c is "a/b[json]/c"
-            validators (list): A list of validators the value must conform to (e.g. Mandatory(), RegexValidator(my_regex).
-            func_param_index (int): Optional, the index for the dictionary in the function signature e.g.:
-                def fun(event, context), to extract from context func_param_index has to be 1.
+            func_param_name (str): the name for the dictionary in the function signature
+                def fun(event, context), to extract from context func_param_name has to be 'context'
+            validators (list): A list of validators the value must conform to (e.g. Mandatory(),
+                RegexValidator(my_regex), ...)
             var_name (str): Optional, the name of the variable we want to assign the extracted value to. The default
                 value is the last element of the path (e.g. 'c' in the case above)
         """
-        self._func_param_index = func_param_index
+        self._func_param_name = func_param_name
         self._path = path
         self._validators = validators
         self._name = var_name
 
     @property
-    def func_param_index(self):
-        """Getter for the func_param_index parameter."""
-        return self._func_param_index
+    def func_param_name(self):
+        """Getter for the func_param_name parameter."""
+        return self._func_param_name
 
     @property
     def path(self):
         """Getter for the path parameter."""
         return self._path
 
-    @func_param_index.setter
-    def func_param_index(self, value):
-        """Setter for the func_param_index parameter."""
-        self._func_param_index = value
+    @func_param_name.setter
+    def func_param_name(self, value):
+        """Setter for the func_param_name parameter."""
+        self._func_param_name = value
 
-    def get_value_by_path(self, args):
+    def get_value_by_path(self, dict_value):
         """
         Calculate and decode the value of the variable in the given path.
 
         Used by the decorators.
 
         Args:
-            args (list): list of arguments passed by the decorator. Used for extracting from a given dictionary at
-                args[func_param_index]
+            dict_value (dict): dictionary to be parsed.
 
         Raises:
             KeyError: if the parameter does not validate.
         """
-        dict_value = args[self._func_param_index]
-
         for path_key in filter(lambda item: item != '', self.path.split(PATH_DIVIDER)):
             real_key, annotation = Parameter.get_annotations_from_key(path_key)
             if real_key in dict_value:

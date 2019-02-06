@@ -4,6 +4,7 @@ AWS lambda decorators.
 A set of Python decorators to ease the development of AWS lambda functions.
 
 """
+import inspect
 import json
 import logging
 import boto3
@@ -29,6 +30,8 @@ def extract_from_event(parameters):
         def api_gateway_lambda_handler(event, context, my_param=None)
             pass
     """
+    for param in parameters:
+        param.func_param_name = 'event'
     return extract(parameters)
 
 
@@ -44,7 +47,7 @@ def extract_from_context(parameters):
             pass
     """
     for param in parameters:
-        param.func_param_index = 1
+        param.func_param_name = 'context'
     return extract(parameters)
 
 
@@ -55,7 +58,7 @@ def extract(parameters):
     The extracted parameters are added as kwargs to the handler function.
 
     Usage:
-        @extract([Parameter('headers/Authorization[jwt]/sub', 'user_id', func_param_index=0)])
+        @extract([Parameter('headers/Authorization[jwt]/sub', var_name='user_id', func_param_name=None)])
         def lambda_handler(event, context, user_id=None)
             pass
 
@@ -66,10 +69,12 @@ def extract(parameters):
         def wrapper(*args, **kwargs):
             try:
                 for param in parameters:
-                    kwargs[param.get_var_name()] = param.get_value_by_path(args)
+                    index = inspect.getfullargspec(func)[0].index(param.func_param_name)
+                    param_val = args[index]
+                    kwargs[param.get_var_name()] = param.get_value_by_path(param_val)
                 return func(*args, **kwargs)
             except Exception as ex:  # noqa: pylint - broad-except
-                LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE, full_name(ex), str(ex), param.func_param_index, param.path)  # noqa: pylint - logging-fstring-interpolation
+                LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE, full_name(ex), str(ex), param.func_param_name, param.path)  # noqa: pylint - logging-fstring-interpolation
                 return {
                     'statusCode': 400,
                     'body': PARAM_EXTRACT_ERROR

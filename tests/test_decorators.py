@@ -32,7 +32,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
         param = Parameter(path)
-        response = param.get_value_by_path([dictionary])
+        response = param.get_value_by_path(dictionary)
         self.assertEqual("hello", response)
 
     def test_raises_decode_error_convert_json_string_to_dict(self):
@@ -45,7 +45,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         }
         param = Parameter(path)
         with self.assertRaises(JSONDecodeError) as context:
-            param.get_value_by_path([dictionary])
+            param.get_value_by_path(dictionary)
 
         self.assertTrue("Expecting property name enclosed in double quotes" in context.exception.msg)
 
@@ -57,8 +57,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
                 "c": "bye"
             }
         }
-        param = Parameter(path)
-        response = param.get_value_by_path([dictionary])
+        param = Parameter(path, 'event')
+        response = param.get_value_by_path(dictionary)
         self.assertEqual("hello", response)
 
     def test_can_get_value_from_dict_with_jwt_by_path(self):
@@ -68,8 +68,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
                 "b": TEST_JWT
             }
         }
-        param = Parameter(path)
-        response = param.get_value_by_path([dictionary])
+        param = Parameter(path, 'event')
+        response = param.get_value_by_path(dictionary)
         self.assertEqual("aadd1e0e-5807-4763-b1e8-5823bf631bb6", response)
 
     def test_extract_from_event_calls_function_with_extra_kwargs(self):
@@ -113,7 +113,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, [Mandatory()], func_param_index=0)])
+        @extract([Parameter(path, [Mandatory()])])
         def handler(event, context, c=None):  # noqa
             return {}
 
@@ -130,7 +130,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, [Mandatory()], func_param_index=0, var_name='custom')])
+        @extract([Parameter(path, 'event', [Mandatory()], var_name='custom')])
         def handler(event, context, custom=None):  # noqa
             return custom
 
@@ -159,7 +159,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
                                                   'SyntaxError',
                                                   'with space',
-                                                  0,
+                                                  'event',
                                                   '/a/b')
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
@@ -183,7 +183,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         mock_logger.error.assert_called_once_with("%s: '%s' in index %s for path %s",
                                                   'SyntaxError',
                                                   'class',
-                                                  0,
+                                                  'event',
                                                   '/a/b')
 
     def test_extract_does_not_raise_an_error_on_missing_optional_key(self):
@@ -195,7 +195,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path)])
+        @extract([Parameter(path, 'event')])
         def handler(event, context, c=None):  # noqa
             return {}
 
@@ -214,7 +214,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         }
 
         #  Expect a number
-        @extract([Parameter(path, [RegexValidator(r'\d+')])])
+        @extract([Parameter(path, 'event', [RegexValidator(r'\d+')])])
         def handler(event, context, c=None):  # noqa
             return {}
 
@@ -233,7 +233,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         }
 
         #  Expect a number
-        @extract([Parameter(path, [RegexValidator(r'\d+')])])
+        @extract([Parameter(path, 'event', [RegexValidator(r'\d+')])])
         def handler(event, context, c=None):  # noqa
             return {}
 
