@@ -42,12 +42,16 @@ class Parameter:
 
         Args:
             path (str): The path to the variable we want to extract. Can use any annotation that has an existing
-                equivalent decode function in decoders.py (like [jwt] or [json]) e.g.:
-                given a dictionary {
+                equivalent decode function in decoders.py (like [jwt] or [json]).
+                As an example, given the dictionary
+
+                {
                     "a": {
                         "b": "{ 'c': 'hello' }",
                     }
-                }, path to c is "a/b[json]/c"
+                }
+
+                the path to c is "a/b[json]/c"
             validators (list): A list of validators the value must conform to (e.g. Mandatory(), ValidRegex(my_regex).
             func_param_index (int): Optional, the index for the dictionary in the function signature e.g.:
                 def fun(event, context), to extract from context func_param_index has to be 1.
@@ -84,7 +88,7 @@ class Parameter:
             args (list): list of arguments passed by the decorator. Used for extracting from a given dictionary at
                 args[func_param_index]
 
-        Raise:
+        Raises:
             KeyError: if the parameter does not validate.
         """
         dict_value = args[self._func_param_index]
@@ -117,7 +121,7 @@ class Parameter:
         """
         Getter for the var_name parameter.
 
-        Raise:
+        Raises:
             SyntaxError: if the name is set and is not a valid python variable name
         """
         if self._name and not is_valid_variable_name(self._name):

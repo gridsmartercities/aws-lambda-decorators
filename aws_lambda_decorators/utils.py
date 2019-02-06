@@ -6,10 +6,12 @@ def full_name(class_type):
     """
     Gets the fully qualified name of a class type.
 
+    From https://stackoverflow.com/questions/2020014/get-fully-qualified-class-name-of-an-object-in-python
+
     Args:
         class_type (type): the type of the class.
 
-    Return:
+    Returns:
         the fully qualified name of the class type.
     """
     module = class_type.__class__.__module__
@@ -26,7 +28,7 @@ def is_type_in_list(item_type, items):
         item_type (type): the type of the item.
         items (list): a list of items.
 
-    Return:
+    Returns:
         true if an item of the given type exists in the list, otherwise false.
     """
     return any(isinstance(item, item_type) for item in items)
@@ -39,7 +41,7 @@ def is_valid_variable_name(name):
     Args:
         name (str): the name to check.
 
-    Return:
+    Returns:
         true if the name can be used as a python variable name.
     """
     return name.isidentifier() and not keyword.iskeyword(name)

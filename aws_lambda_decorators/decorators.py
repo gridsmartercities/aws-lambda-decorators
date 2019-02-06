@@ -1,7 +1,9 @@
 """
 AWS lambda decorators.
 
-Something something.
+A set of Python decorators to ease the development of AWS lambda functions. It includes:
+
+    extract_from_event
 """
 import json
 import logging
