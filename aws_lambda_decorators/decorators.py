@@ -16,6 +16,8 @@ LOGGER.setLevel(logging.INFO)
 BODY_NOT_JSON_ERROR = 'Response body is not JSON serializable'
 PARAM_EXTRACT_ERROR = 'Error extracting parameters'
 PARAM_EXTRACT_LOG_MESSAGE = "%s: '%s' in index %s for path %s"
+KWARG_INVALID_ERROR = "kwargs['%s'] is not valid"
+ARG_INVALID_ERROR = "args[%s] is not valid"
 
 
 def extract_from_event(parameters):
@@ -163,3 +165,28 @@ def response_body_as_json(func):
                 return {'responseCode': 500, 'body': BODY_NOT_JSON_ERROR}
         return response
     return wrapper
+
+
+def validate_kwargs(parameters):
+    """
+    Validates a set of kwargs from a function.
+
+    Usage:
+        @validate([Parameter('var_name', validators=[...])])
+        def func(var_name)
+            pass
+
+    Args:
+        parameters (list): A collection of Parameter type items.
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            for param in parameters:
+                if not param.validate(kwargs[param.path]):
+                    return {
+                        'statusCode': 400,
+                        'body': KWARG_INVALID_ERROR % param.path
+                    }
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator

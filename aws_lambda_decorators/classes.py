@@ -36,7 +36,7 @@ class ExceptionHandler:
 class Parameter:
     """Class used to encapsulate the extract methods parameters data."""
 
-    def __init__(self, path, validators=None, func_param_index=0, var_name=None):
+    def __init__(self, path=None, validators=None, func_param_index=0, var_name=None):
         """
         Sets the private variables of the Parameter object.
 

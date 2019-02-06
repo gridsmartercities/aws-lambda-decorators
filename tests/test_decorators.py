@@ -5,7 +5,7 @@ from json import JSONDecodeError
 from botocore.exceptions import ClientError
 from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
-    log, response_body_as_json, extract_from_ssm
+    log, response_body_as_json, extract_from_ssm, validate_kwargs
 from aws_lambda_decorators.validators import Mandatory, RegexValidator
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
@@ -103,6 +103,24 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             return c
 
         self.assertEqual(handler(None, dictionary), "hello")
+
+    def test_extract_returns_400_on_empty_path(self):
+        path = None
+        dictionary = {
+            "a": {
+                "b": {
+                }
+            }
+        }
+
+        @extract([Parameter(path, func_param_index=0)])
+        def handler(event, context, c=None):  # noqa
+            return {}
+
+        response = handler(dictionary, None)
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual('Error extracting parameters', response["body"])
 
     def test_extract_returns_400_on_missing_mandatory_key(self):
         path = "/a/b/c"
@@ -240,6 +258,29 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(dictionary, None)
 
         self.assertEqual({}, response)
+
+    def test_validate_kwargs_raises_an_error_on_invalid_variables(self):
+        @validate_kwargs([
+            Parameter("var1", [RegexValidator(r'\d+')]),
+            Parameter("var2", [RegexValidator(r'\d+')])
+        ])
+        def handler(var1=None, var2=None):
+            return {}
+
+        response = handler(var1="2019", var2="abcd")
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual("kwargs['var2'] is not valid", response["body"])
+
+    def test_validate_kwargs_does_not_raise_an_error_on_valid_variables(self):
+        @validate_kwargs([
+            Parameter("var1", [RegexValidator(r'\d+')]),
+            Parameter("var2", [RegexValidator(r'[ab]+')])
+        ])
+        def handler(var1=None, var2=None):
+            return "success"
+
+        response = handler(var1="2019", var2="abba")
+        self.assertEqual("success", response)
 
     def test_extract_returns_400_on_type_error(self):
         path = "/a/b[json]/c"
