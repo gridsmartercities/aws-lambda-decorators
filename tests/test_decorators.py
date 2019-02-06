@@ -6,7 +6,7 @@ from botocore.exceptions import ClientError
 from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm
-from aws_lambda_decorators.validators import Mandatory, ValidRegex
+from aws_lambda_decorators.validators import Mandatory, RegexValidator
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
            "eyJzdWIiOiJhYWRkMWUwZS01ODA3LTQ3NjMtYjFlOC01ODIzYmY2MzFiYjYiLCJhdWQiOiIycjdtMW1mdWFiODg3ZmZvdG9iNWFjcX" \
@@ -130,7 +130,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, [Mandatory()], func_param_index=0, var_name='custom')])
+        @extract([Parameter(path, [Mandatory], func_param_index=0, var_name='custom')])
         def handler(event, context, custom=None):  # noqa
             return custom
 
@@ -147,7 +147,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract_from_event([Parameter(path, validators=[Mandatory()], var_name='with space')])
+        @extract_from_event([Parameter(path, validators=[Mandatory], var_name='with space')])
         def handler(event, context):  # noqa
             return {}
 
@@ -171,7 +171,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract_from_event([Parameter(path, validators=[Mandatory()], var_name='class')])
+        @extract_from_event([Parameter(path, validators=[Mandatory], var_name='class')])
         def handler(event, context):  # noqa
             return {}
 
@@ -214,7 +214,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         }
 
         #  Expect a number
-        @extract([Parameter(path, [ValidRegex(r'\d+')])])
+        @extract([Parameter(path, [RegexValidator(r'\d+')])])
         def handler(event, context, c=None):  # noqa
             return {}
 
@@ -233,7 +233,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         }
 
         #  Expect a number
-        @extract([Parameter(path, [ValidRegex(r'\d+')])])
+        @extract([Parameter(path, [RegexValidator(r'\d+')])])
         def handler(event, context, c=None):  # noqa
             return {}
 

@@ -16,7 +16,7 @@ class Mandatory:  # noqa: pylint - too-few-public-methods
         return value is not None
 
 
-class ValidRegex:  # noqa: pylint - too-few-public-methods
+class RegexValidator:  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a value matches a regular expression."""
 
     def __init__(self, regex=''):

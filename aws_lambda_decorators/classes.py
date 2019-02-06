@@ -52,7 +52,7 @@ class Parameter:
                 }
 
                 the path to c is "a/b[json]/c"
-            validators (list): A list of validators the value must conform to (e.g. Mandatory(), ValidRegex(my_regex).
+            validators (list): A list of validators the value must conform to (e.g. Mandatory, RegexValidator(my_regex).
             func_param_index (int): Optional, the index for the dictionary in the function signature e.g.:
                 def fun(event, context), to extract from context func_param_index has to be 1.
             var_name (str): Optional, the name of the variable we want to assign the extracted value to. The default
