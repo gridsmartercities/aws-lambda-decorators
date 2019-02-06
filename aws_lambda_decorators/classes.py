@@ -91,8 +91,6 @@ class Parameter:
         Raises:
             KeyError: if the parameter does not validate.
         """
-
-        print(is_type_in_list(Mandatory(), self._validators))
         dict_value = args[self._func_param_index]
 
         for path_key in filter(lambda item: item != '', self.path.split(PATH_DIVIDER)):
