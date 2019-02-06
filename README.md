@@ -25,21 +25,21 @@ The current list of AWS Lambda Python Decorators includes:
 
 #### extract
 
-This decorator extracts a list of variables from a dictionary parameter passed to a Lambda Function.
+This decorator extracts and validates a list of variables from a dictionary parameter passed to a Lambda Function.
 
 * The decorator takes a list of Parameter objects.
 * Each Parameter object requires a non-empty path to the parameter in the dictionary.
 * The parameter value is then extracted and added as a kwarg to the lambda handler.
 * The name of the extracted parameter is defaulted to the last element of the path name, but can be changed by passing a (valid pythonic variable name) value to var_name
 * You can define a default value for the parameter in the lambda handler itself.
-* The dictionary is defaulted to be the first parameter of the lambda function, but can be changed by passing a func_param_index
+* The dictionary argument is passed as func_param_name
 * A 400 exception is raised when the parameter cannot be extracted or when it does not validate.
 * A variable path (e.g. '/headers/Authorization[jwt]/sub') can be annotated to specify a decoding. In the example, Authorization might contain a JWT, which needs to be decoded before accessing the "sub" element.
 
 ```python
 @extract(parameters=[
-    Parameter(path='/parent/my_param'),  # extracts a non mandatory my_param from dictionary
-    Parameter(path='/parent/child/id', validators=[Mandatory()], var_name='user_id', func_param_index=1)  # extracts a mandatory id as "user_id" from another_dictionary
+    Parameter(path='/parent/my_param', func_param_name='dictionary'),  # extracts a non mandatory my_param from dictionary
+    Parameter(path='/parent/child/id', validators=[Mandatory()], var_name='user_id', func_param_name='another_dictionary')  # extracts a mandatory id as "user_id" from another_dictionary
 ])
 def lambda_handler(dictionary, another_dictionary, my_param='aDefaultValue', user_id=None):
     pass
