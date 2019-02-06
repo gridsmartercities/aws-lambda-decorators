@@ -263,7 +263,7 @@ lambda_handler()  # returns { 'responseCode': 400, 'body': "{ 'param': 'hello!' 
 
 ### Validators
 
-Currently, this package offers 2 validators:
+Currently, the package offers 2 validators:
 
 * __Mandatory__: Checks if a parameter has a not None value.
 * __RegexValidator__: Checks a parameter against a regular expression.
@@ -276,6 +276,8 @@ Currently, this package offers 2 validators:
 * __ExceptionHandler__:
 
 ### Decoders
+
+Currently, the package can decode from JSON and JWT. 
 
 * __decode_json__: decodes a string to json
 * __decode_jwt__: decodes a string to a JWT
