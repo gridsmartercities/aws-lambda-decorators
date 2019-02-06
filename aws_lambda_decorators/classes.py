@@ -69,12 +69,12 @@ class SSMParameter(BaseParameter):
         return self._ssm_name
 
 
-class ValidationParameter(BaseParameter):
+class ValidatedParameter(BaseParameter):
     """Class used to encapsulate the validation methods parameters data."""
 
     def __init__(self, func_param_name=None, validators=None, var_name=None):
         """
-        Sets the private variables of the ValidationParameter object.
+        Sets the private variables of the ValidatedParameter object.
 
         Args:
             func_param_name (str): the name for the dictionary in the function signature
@@ -108,7 +108,7 @@ class ValidationParameter(BaseParameter):
         return True
 
 
-class Parameter(ValidationParameter):
+class Parameter(ValidatedParameter):
     """Class used to encapsulate the extract methods parameters data."""
 
     def __init__(self, path='', func_param_name=None, validators=None, var_name=None):
@@ -135,7 +135,7 @@ class Parameter(ValidationParameter):
                 value is the last element of the path (e.g. 'c' in the case above)
         """
         self._path = path
-        ValidationParameter.__init__(self, func_param_name, validators, var_name)
+        ValidatedParameter.__init__(self, func_param_name, validators, var_name)
 
     @property
     def path(self):
