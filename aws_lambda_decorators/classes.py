@@ -52,7 +52,7 @@ class Parameter:
                 }
 
                 the path to c is "a/b[json]/c"
-            validators (list): A list of validators the value must conform to (e.g. Mandatory, RegexValidator(my_regex).
+            validators (list): A list of validators the value must conform to (e.g. Mandatory(), RegexValidator(my_regex).
             func_param_index (int): Optional, the index for the dictionary in the function signature e.g.:
                 def fun(event, context), to extract from context func_param_index has to be 1.
             var_name (str): Optional, the name of the variable we want to assign the extracted value to. The default
@@ -91,13 +91,15 @@ class Parameter:
         Raises:
             KeyError: if the parameter does not validate.
         """
+
+        print(is_type_in_list(Mandatory(), self._validators))
         dict_value = args[self._func_param_index]
 
         for path_key in filter(lambda item: item != '', self.path.split(PATH_DIVIDER)):
             real_key, annotation = Parameter.get_annotations_from_key(path_key)
             if real_key in dict_value:
                 dict_value = decode(annotation, dict_value[real_key])
-            elif self._validators and is_type_in_list(Mandatory, self._validators):
+            elif self._validators and is_type_in_list(Mandatory(), self._validators):
                 raise KeyError(real_key)
 
         val = dict_value.get(real_key, None) if isinstance(dict_value, dict) else dict_value

@@ -39,7 +39,7 @@ This decorator extracts a list of variables from a dictionary parameter passed t
 ```python
 @extract(parameters=[
     Parameter(path='/parent/my_param'),  # extracts a non mandatory my_param from dictionary
-    Parameter(path='/parent/child/id', validators=[Mandatory], var_name='user_id', func_param_index=1)  # extracts a mandatory id as "user_id" from another_dictionary
+    Parameter(path='/parent/child/id', validators=[Mandatory()], var_name='user_id', func_param_index=1)  # extracts a mandatory id as "user_id" from another_dictionary
 ])
 def lambda_handler(dictionary, another_dictionary, my_param='aDefaultValue', user_id=None):
     pass
@@ -51,8 +51,8 @@ This decorator is just a facade to the extract method to be used in AWS Api Gate
 
 ```python
 @extract_from_event(parameters=[
-    Parameter(path='/body[json]/my_param', validators=[Mandatory),  # extracts a mandatory my_param from the json body of the event
-    Parameter(path='/headers/Authorization[jwt]/sub', validators=[Mandatory], var_name='user_id')  # extract the mandatory sub value as user_id from the authorization JWT
+    Parameter(path='/body[json]/my_param', validators=[Mandatory()]),  # extracts a mandatory my_param from the json body of the event
+    Parameter(path='/headers/Authorization[jwt]/sub', validators=[Mandatory()], var_name='user_id')  # extract the mandatory sub value as user_id from the authorization JWT
 ])
 def api_gateway_lambda_handler(event, context, my_param=None, user_id=None):
     pass
@@ -64,7 +64,7 @@ This decorator is just a facade to the extract method to be used in AWS Api Gate
 
 ```python
 @extract_from_event(parameters=[
-    Parameter(path='/parent/my_param', validators=[Mandatory]),  # extracts a mandatory my_param from the parent element in context
+    Parameter(path='/parent/my_param', validators=[Mandatory()]),  # extracts a mandatory my_param from the parent element in context
 ])
 def api_gateway_lambda_handler(event, context, my_param=None):
     pass
