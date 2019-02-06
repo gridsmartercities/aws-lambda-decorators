@@ -180,7 +180,7 @@ def validate(parameters):
             pass
 
     Args:
-        parameters (list): A collection of Parameter type items.
+        parameters (list): A collection of ValidationParameter type items.
     """
     def decorator(func):
         def wrapper(*args, **kwargs):
