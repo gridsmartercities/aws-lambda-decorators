@@ -1,9 +1,8 @@
 """
 AWS lambda decorators.
 
-A set of Python decorators to ease the development of AWS lambda functions. It includes:
+A set of Python decorators to ease the development of AWS lambda functions.
 
-    extract_from_event
 """
 import json
 import logging
@@ -25,7 +24,10 @@ def extract_from_event(parameters):
 
     The extracted parameters are added as kwargs to the handler function.
 
-    Usage: see extract.
+    Usage:
+        @extract_from_event([Parameter('/body[json]/my_param')])
+        def api_gateway_lambda_handler(event, context, my_param=None)
+            pass
     """
     return extract(parameters)
 
@@ -36,7 +38,10 @@ def extract_from_context(parameters):
 
     The extracted parameters are added as kwargs to the handler function.
 
-    Usage: see extract.
+    Usage:
+        @extract_from_context([Parameter('/parent/my_param')])
+        def api_gateway_lambda_handler(event, context, my_param=None)
+            pass
     """
     for param in parameters:
         param.func_param_index = 1
@@ -50,8 +55,9 @@ def extract(parameters):
     The extracted parameters are added as kwargs to the handler function.
 
     Usage:
-        @extract[_from_event|_from_context]([Parameter('a/b[jwt]/c', 'var')])
-        def myFunction(event, context, var=None)
+        @extract([Parameter('headers/Authorization[jwt]/sub', 'user_id', func_param_index=0)])
+        def lambda_handler(event, context, user_id=None)
+            pass
 
     Args:
         parameters (list): A collection of Parameter type items.
@@ -78,7 +84,8 @@ def handle_exceptions(handlers):
 
     Usage:
         @handle_exceptions([ExceptionHandler(KeyError, 'Your message on KeyError except')]).
-        def myFunction(...)
+        def lambda_handler(params)
+            pass
 
     Args:
         handlers (list): A collection of ExceptionHandler type items.
@@ -119,7 +126,8 @@ def extract_from_ssm(ssm_parameters):
 
     Usage:
         @extract_from_ssm([SSMParameter('key', 'var')])
-        def myFunction(var=None)
+        def lambda_handler(var=None)
+            pass
 
     Args:
         ssm_parameters (list): A collection of SSMParameter type items.
@@ -143,8 +151,8 @@ def response_body_as_json(func):
 
     Usage:
         @response_body_as_json
-        def myFunc():
-            return {'responseCode': 200, 'body': {'a'}}
+        def lambda_handler():
+            return {'responseCode': 200, 'body': {'key': 'value'}}
     """
     def wrapper(*args, **kwargs):
         response = func(*args, **kwargs)

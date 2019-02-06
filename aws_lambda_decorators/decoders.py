@@ -17,7 +17,7 @@ def decode(annotation, value):
 
     If :annotation: is not empty, use decode_:annotation:(:value:) to convert to dictionary.
 
-    You can create extra decoders by following the same naming convention, e.g.:
+    You can contribute extra decoders (through a PR process) by following the same naming convention, e.g.:
          annotation     decoder
           [json]      decode_json
           [jwt]       decode_jwt
