@@ -1,8 +1,8 @@
 # aws-lambda-decorators
 
-![Build Status](https://codebuild.eu-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoibmNQU2ZnaE9MQWVvNTNucE1KQ2s1ZkZDa0lJSktLWVRXZlVab0tHQ0JKQXZlaXU0M1VwVDc3c3pTTThDZ0pZa0xEb090dVpvVnd2bHFURWN1VjdvcE9vPSIsIml2UGFyYW1ldGVyU3BlYyI6IkV2dWhnY1YvbC9TaWlhcWQiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
-[![Python 3.6+](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
-
+![Build Status](https://codebuild.eu-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiTG0rVyswNm1ZdDVQeGN3Zll4dDFqNFA3ckJvdlkrZEdnTUc1VVJ6YmtXZ21BeCtzRk5kS3gvNTRnbE5NdlQ0bE1LZnRZNExnVjB0OEJRKzFOTHZ3dlBNPSIsIml2UGFyYW1ldGVyU3BlYyI6IkloUWR5MG1BV3NzUDZlQ0kiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+[![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A set of Python decorators to ease the development of AWS lambda functions.
 
@@ -286,28 +286,7 @@ You can get the docstring help by running:
 >>> help(decorators.extract)
 ```
 
-## Contributing
-
-If you want to contribute to this project, clone the Github repo and install the requirements:
-
-`pip install -r requirements.txt`
-
-Before submitting the PR, please ensure that:
- 
-- you run prospector for code analysis, and all checks are passing:
-
-`prospector`
-
-- all unit tests are passing:
-
-`coverage run --branch --source='.' -m unittest`
-
-- you have 100% unit test coverage:
-
-`coverage report -m --fail-under=100 --omit=*/__init__.py,tests/*,setup.py`
-
 ## Links
 
 * [PyPi](https://test.pypi.org/project/aws-lambda-decorators/)
 * [Github](https://github.com/gridsmartercities/aws-lambda-decorators)
-
