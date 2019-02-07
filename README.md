@@ -186,7 +186,7 @@ This decorator extract a parameter from AWS SSM and passes the parameter down to
 * If no var_name is passed in, the extracted value is passed to the function with the ssm_name name
 
 ```python
-@extract_from_ssm(parameters=[
+@extract_from_ssm(ssm_parameters=[
     SSMParameter(ssm_name='one_key'),  # extracts the value of one_key from SSM as a kwarg named "one_key"
     SSMParameter(ssm_name='another_key', var_name="another"),  # extracts another_key as a kwarg named "another"
 ])

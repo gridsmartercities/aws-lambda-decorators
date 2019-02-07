@@ -1,6 +1,7 @@
 import unittest
-from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context
-from aws_lambda_decorators.classes import Parameter
+from unittest.mock import patch, MagicMock
+from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, extract_from_ssm
+from aws_lambda_decorators.classes import Parameter, SSMParameter
 from aws_lambda_decorators.validators import Mandatory
 
 
@@ -118,3 +119,27 @@ class ExamplesTests(unittest.TestCase):
             return my_param  # returns 'Hello!'
 
         self.assertEqual('Hello!', api_gateway_lambda_handler(None, context))
+
+    @patch("boto3.client")
+    def test_extract_from_ssm_example(self, mock_boto_client):
+        mock_ssm = MagicMock()
+        mock_ssm.get_parameters.return_value = {
+            "Parameters": [
+                {
+                    "Value": "test1"
+                },
+                {
+                    "Value": "test2"
+                }
+            ]
+        }
+        mock_boto_client.return_value = mock_ssm
+
+        @extract_from_ssm(ssm_parameters=[
+            SSMParameter(ssm_name='one_key'),  # extracts the value of one_key from SSM as a kwarg named "one_key"
+            SSMParameter(ssm_name='another_key', var_name="another"),  # extracts another_key as a kwarg named "another"
+        ])
+        def your_function(your_func_params, one_key=None, another=None):
+            return your_func_params, one_key, another
+
+        self.assertEqual((None, 'test1', 'test2'), your_function(None))
