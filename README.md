@@ -19,8 +19,8 @@ The easiest way to use these AWS Lambda Decorators is to install them through Pi
 The current list of AWS Lambda Python Decorators includes:
 
 * [__extract__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L56-L85): a decorator to extract and validate specific keys of a dictionary parameter passed to a AWS Lambda function.
-* [__extract_from_event__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L24-L37): a facade of __extract__ to extract and validate keys from an AWS API Gateway lambda function _event_ parameter.
-* [__extract_from_context__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L40-L53): a facade of __extract__ to extract and validate keys from an AWS API Gateway lambda function _context_ parameter.
+* [__extract_from_event__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L24-L37): a facade of [__extract__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L56-L85) to extract and validate keys from an AWS API Gateway lambda function _event_ parameter.
+* [__extract_from_context__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L40-L53): a facade of [__extract__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L56-L85) to extract and validate keys from an AWS API Gateway lambda function _context_ parameter.
 * [__extract_from_ssm__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L130-L152): a decorator to extract from AWS SSM the values of a set of parameter keys.
 * [__validate__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L175-L198): a decorator to validate a list of function parameters.
 * [__log__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L116-L127): a decorator to log the parameters passed to the lambda function and/or the response of the lambda function.
@@ -47,8 +47,8 @@ The package offers functions to decode from JSON and JWT.
 
 This decorator extracts and validates values from dictionary parameters passed to a Lambda Function.
 
-* The decorator takes a list of Parameter objects.
-* Each Parameter object requires a non-empty path to the parameter in the dictionary, and the name of the dictionary (func_param_name)
+* The decorator takes a list of [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/classes.py#L111-L192) objects.
+* Each [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/classes.py#L111-L192) object requires a non-empty path to the parameter in the dictionary, and the name of the dictionary (func_param_name)
 * The parameter value is extracted and added as a kwarg to the lambda handler.
 * You can add the parameter to the handler signature, or access it in the handler through kwargs.
 * The name of the extracted parameter is defaulted to the last element of the path name, but can be changed by passing a (valid pythonic variable name) var_name
@@ -143,7 +143,7 @@ def extract_from_json_example(a_dictionary, my_param=None):
 
 ### [extract_from_event](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L24-L37)
 
-This decorator is just a facade to the extract method to be used in AWS Api Gateway Lambdas. It automatically extracts from the event lambda parameter.
+This decorator is just a facade to the [extract](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L56-L85) method to be used in AWS Api Gateway Lambdas. It automatically extracts from the event lambda parameter.
 
 [view example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L60-L67)
 ```python
@@ -165,7 +165,7 @@ def extract_from_event_example(event, context, my_param=None, user_id=None):
 
 ### [extract_from_context](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L40-L53)
 
-This decorator is just a facade to the extract method to be used in AWS Api Gateway Lambdas. It automatically extracts from the context lambda parameter.
+This decorator is just a facade to the [extract](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L56-L85) method to be used in AWS Api Gateway Lambdas. It automatically extracts from the context lambda parameter.
 
 [view example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L70-L75)
 ```python
@@ -185,10 +185,10 @@ def extract_from_context_example(event, context, my_param=None):
 
 ### [extract_from_ssm](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/decorators.py#L130-L152)
 
-This decorator extract a parameter from AWS SSM and passes the parameter down to your function as a kwarg.
+This decorator extracts a parameter from AWS SSM and passes the parameter down to your function as a kwarg.
 
-* The decorator takes a list of SSMParameter objects.
-* Each SSMParameter object requires the name of the SSM parameter (ssm_name)
+* The decorator takes a list of [SSMParameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/classes.py#L53-L69) objects.
+* Each [SSMParameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/classes.py#L53-L69) object requires the name of the SSM parameter (ssm_name)
 * If no var_name is passed in, the extracted value is passed to the function with the ssm_name name
 
 [view example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L78-L83)
@@ -205,7 +205,7 @@ def extract_from_ssm_example(your_func_params, one_key=None, another=None):
 
 This decorator validates a list of non dictionary parameters from your lambda function.
 
-* The decorator takes a list of Parameter objects.
+* The decorator takes a list of [ValidatedParameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/classes.py#L72-L89) objects.
 * Each parameter object needs the name of the lambda function parameter that it is going to be validated, and the list of rules to validate.
 * A 400 exception is raised when the parameter does not validate.
 
@@ -244,8 +244,8 @@ log_example('Hello!')  # logs 'Hello!' and 'Done!'
 
 This decorator handles a list of exceptions, returning a 400 response containing the specified friendly message to the caller.
 
-* The decorator takes a list of ExceptionHandler objects.
-* Each ExceptionHandler requires the type of exception to check, and the friendly message to return to the caller.
+* The decorator takes a list of [ExceptionHandler](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/classes.py#L11-L33) objects.
+* Each [ExceptionHandler](https://github.com/gridsmartercities/aws-lambda-decorators/blob/8d7f189d3f88c12cf547681fb3ee8785542b5680/aws_lambda_decorators/classes.py#L11-L33) requires the type of exception to check, and the friendly message to return to the caller.
 
 [view example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L100-L106)
 ```python
