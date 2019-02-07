@@ -96,7 +96,7 @@ def lambda_handler(a_dictionary, **kwargs):
     """
         a_dictionary = { 
             'parent': { 
-                'my_param': 'Hello!" 
+                'my_param': 'Hello!' 
             }, 
             'other': 'other value' 
         }

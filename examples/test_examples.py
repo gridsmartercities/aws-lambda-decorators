@@ -36,10 +36,23 @@ class ExamplesTests(unittest.TestCase):
         def lambda_handler(a_dictionary, another_dictionary, my_param='aDefaultValue',
                            missing_non_mandatory='I am missing', missing_mandatory=None, user_id=None):
             #  you can now access the extracted parameters directly:
-            print(my_param)  # prints 'Hello!'
-            print(missing_non_mandatory)  # prints 'I am missing'
-            print(missing_mandatory)  # prints 'None'
-            print(user_id)  # prints '123'
             return [my_param, missing_non_mandatory, missing_mandatory, user_id]
 
         self.assertEqual(['Hello!', 'I am missing', None, '123'], lambda_handler(a_dictionary, another_dictionary))
+
+    def test_extract_to_kwrags_example(self):
+        dictionary = {
+            'parent': {
+                'my_param': 'Hello!'
+            },
+            'other': 'other value'
+        }
+
+        @extract(parameters=[
+            Parameter(path='/parent/my_param', func_param_name='a_dictionary'),
+            # extracts a non mandatory my_param from a_dictionary
+        ])
+        def lambda_handler(a_dictionary, **kwargs):
+            return kwargs['my_param']
+
+        self.assertEqual('Hello!', lambda_handler(dictionary))
