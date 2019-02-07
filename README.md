@@ -59,7 +59,7 @@ This decorator extracts and validates values from dictionary parameters passed t
     Parameter(path='/parent/missing_mandatory', func_param_name='a_dictionary'),  # does not fail as the parameter is not validated as mandatory
     Parameter(path='/parent/child/id', validators=[Mandatory], var_name='user_id', func_param_name='another_dictionary')  # extracts a mandatory id as "user_id" from another_dictionary
 ])
-def lambda_handler(a_dictionary, another_dictionary, my_param='aDefaultValue', missing_non_mandatory='I am missing', missing_mandatory=None, user_id=None):
+def extract_example(a_dictionary, another_dictionary, my_param='aDefaultValue', missing_non_mandatory='I am missing', missing_mandatory=None, user_id=None):
     """
         Given these two dictionaries:
         
@@ -80,10 +80,7 @@ def lambda_handler(a_dictionary, another_dictionary, my_param='aDefaultValue', m
     
         you can now access the extracted parameters directly: 
     """
-    print(my_param)  # prints 'Hello!'
-    print(missing_non_mandatory)  # prints 'I am missing'
-    print(missing_mandatory)  # prints 'None'
-    print(user_id)  # prints '123'
+    return my_param, missing_non_mandatory, missing_mandatory, user_id
 ```
 
 Or you can use kwargs instead of specific parameter names:
@@ -92,7 +89,7 @@ Or you can use kwargs instead of specific parameter names:
 @extract(parameters=[
     Parameter(path='/parent/my_param', func_param_name='a_dictionary'),  # extracts a non mandatory my_param from a_dictionary
 ])
-def lambda_handler(a_dictionary, **kwargs):
+def extract_to_kwargs_example(a_dictionary, **kwargs):
     """
         a_dictionary = { 
             'parent': { 
@@ -101,7 +98,7 @@ def lambda_handler(a_dictionary, **kwargs):
             'other': 'other value' 
         }
     """
-    print(kwargs['my_param'])  # prints 'Hello!'
+    return kwargs['my_param']  # returns 'Hello!'
 ```
 
 A missing mandatory parameter, or a parameter that fails validation, will raise an exception:
@@ -110,10 +107,10 @@ A missing mandatory parameter, or a parameter that fails validation, will raise 
 @extract(parameters=[
     Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory]),  # extracts a mandatory mandatory_param from a_dictionary
 ])
-def lambda_handler(a_dictionary, mandatory_param=None):
-    print('Here!')  # this message will never be reached
+def extract_missing_mandatory_param_example(a_dictionary, mandatory_param=None):
+    print('Here!')  # this message will never be reached, if the mandatory_param is missing
     
-response = lambda_handler({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
+response = extract_missing_mandatory_param_example({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
 
 print(response)  # prints { 'statusCode': 400, 'body': 'Error extracting parameters' } and logs a more detailed error
 
@@ -125,14 +122,14 @@ You can decode any part of the parameter path from json or any other existing an
 @extract(parameters=[
     Parameter(path='/parent[json]/my_param', func_param_name='a_dictionary'),  # extracts a non mandatory my_param from a_dictionary
 ])
-def lambda_handler(a_dictionary, my_param=None):
+def extract_from_json_example(a_dictionary, my_param=None):
     """
         a_dictionary = { 
             'parent': '{"my_param": "Hello!" }', 
             'other': 'other value' 
         }
     """
-    print(my_param)  # prints 'Hello!'
+    return my_param  # returns 'Hello!'
 
 ```
 
@@ -145,7 +142,7 @@ This decorator is just a facade to the extract method to be used in AWS Api Gate
     Parameter(path='/body[json]/my_param', validators=[Mandatory]),  # extracts a mandatory my_param from the json body of the event
     Parameter(path='/headers/Authorization[jwt]/sub', validators=[Mandatory], var_name='user_id')  # extract the mandatory sub value as user_id from the authorization JWT
 ])
-def api_gateway_lambda_handler(event, context, my_param=None, user_id=None):
+def extract_from_event_example(event, context, my_param=None, user_id=None):
     """
         event = { 
             'body': '{"my_param": "Hello!"}', 
@@ -154,8 +151,7 @@ def api_gateway_lambda_handler(event, context, my_param=None, user_id=None):
             } 
         }
     """
-    print(my_param)  # prints 'Hello!'
-    print(user_id)  # prints '1234567890'
+    return my_param, user_id  # returns ('Hello!', '1234567890')
 ```
 
 ### extract_from_context
@@ -166,7 +162,7 @@ This decorator is just a facade to the extract method to be used in AWS Api Gate
 @extract_from_context(parameters=[
     Parameter(path='/parent/my_param', validators=[Mandatory]),  # extracts a mandatory my_param from the parent element in context
 ])
-def api_gateway_lambda_handler(event, context, my_param=None):
+def extract_from_context_example(event, context, my_param=None):
     """
         context = {
             'parent': {
@@ -174,7 +170,7 @@ def api_gateway_lambda_handler(event, context, my_param=None):
             }
         }
     """    
-    print(my_param)  # prints 'Hello!'
+    return my_param  # returns 'Hello!'
 ```
 
 ### extract_from_ssm
@@ -190,8 +186,8 @@ This decorator extract a parameter from AWS SSM and passes the parameter down to
     SSMParameter(ssm_name='one_key'),  # extracts the value of one_key from SSM as a kwarg named "one_key"
     SSMParameter(ssm_name='another_key', var_name="another"),  # extracts another_key as a kwarg named "another"
 ])
-def your_function(your_func_params, one_key=None, another=None):
-    pass
+def extract_from_ssm_example(your_func_params, one_key=None, another=None):
+    return your_func_params, one_key, another
 ```
 
 ### validate
@@ -207,17 +203,16 @@ This decorator validates a list of non dictionary parameters from your lambda fu
     ValidatedParameter(func_param_name='a_param', validators=[Mandatory]),  # validates a_param as mandatory
     ValidatedParameter(func_param_name='another_param', validators=[Mandatory, RegexValidator(r'\d+')])  # validates another_param as mandatory and containing only digits
 ])
-def your_function(a_param, another_param):
-    print(a_param)  # prints 'Hello!'
-    print(another_param)  # prints '123456'
+def validate_example(a_param, another_param):
+    return a_param, another_param  # returns 'Hello!', '123456
     
-your_function('Hello!', '123456')
+validate_example('Hello!', '123456')
 ```
 
-Given the same function `your_function`, a 400 exception is returned/raised if at least one parameter does not validate:
+Given the same function `validate_example`, a 400 exception is returned/raised if at least one parameter does not validate:
 
 ```python
-your_function('Hello!', 'ABCD')
+validate_example('Hello!', 'ABCD')
 ```
 
 ### log
@@ -226,10 +221,10 @@ This decorator allows for logging the function arguments and/or the lambda respo
 
 ```python
 @log(parameters=True, response=True)
-def lambda_handler(parameters): 
+def log_example(parameters): 
     return 'Done!'
     
-lambda_handler('Hello!')  # logs 'Hello!' and 'Done!'
+log_example('Hello!')  # logs 'Hello!' and 'Done!'
 ```
 
 ### handle_exceptions
@@ -243,12 +238,12 @@ This decorator handles a list of exceptions, returning a 400 response containing
 @handle_exceptions(handlers=[
     ExceptionHandler(ClientError, "Your message when a client error happens.")
 ])
-def lambda_handler():
+def handle_exceptions_example():
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('non_existing_table')
     table.query(KeyConditionExpression=Key('user_id').eq(user_id))
     
-lambda_handler()  # returns {'body': 'Your message when a client error happens.', 'statusCode': 400}
+handle_exceptions_example()  # returns {'body': 'Your message when a client error happens.', 'statusCode': 400}
 ```
 
 ### response_body_as_json
@@ -257,10 +252,10 @@ This decorator ensures that, if the response contains a body, the body is dumped
 
 ```python
 @response_body_as_json
-def lambda_handler():
-    return { 'statusCode': 400, 'body': { 'param': 'hello!' } }
+def response_body_as_json_example():
+    return {'statusCode': 400, 'body': {'param': 'hello!'}}
     
-lambda_handler()  # returns { 'statusCode': 400, 'body': "{ 'param': 'hello!' }" }
+response_body_as_json_example()  # returns { 'statusCode': 400, 'body': "{ 'param': 'hello!' }" }
 ```
 
 ### Writing your own Validators
