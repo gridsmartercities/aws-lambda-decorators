@@ -324,7 +324,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         handler("first", "{'tests': 'a'}", "another")
 
-        mock_logger.info.assert_called_once_with(("first", "{'tests': 'a'}", "another"))
+        mock_logger.info.assert_called_once_with('Parameters: %s', ("first", "{'tests': 'a'}", "another"))
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_log_decorator_can_log_response(self, mock_logger):
@@ -335,7 +335,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         handler()
 
-        mock_logger.info.assert_called_once_with({'responseCode': 201})
+        mock_logger.info.assert_called_once_with('Response: %s', {'responseCode': 201})
 
     @patch("boto3.client")
     def test_get_valid_ssm_parameter(self, mock_boto_client):
