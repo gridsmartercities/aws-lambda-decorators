@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import patch, MagicMock, call
-from examples.examples import *
+from examples.examples import extract_example, extract_to_kwargs_example, extract_missing_mandatory_param_example, \
+    extract_from_json_example, extract_from_event_example, extract_from_context_example, extract_from_ssm_example, \
+    validate_example, log_example, handle_exceptions_example, response_body_as_json_example
 
 
 class ExamplesTests(unittest.TestCase):
@@ -23,7 +25,7 @@ class ExamplesTests(unittest.TestCase):
 
         self.assertEqual(('Hello!', 'I am missing', None, '123'), extract_example(a_dict, b_dict))
 
-    def test_extract_to_kwrags_example(self):
+    def test_extract_to_kwargs_example(self):
         dictionary = {
             'parent': {
                 'my_param': 'Hello!'
@@ -50,7 +52,8 @@ class ExamplesTests(unittest.TestCase):
         event = {
             'body': '{"my_param": "Hello!"}',
             'headers': {
-                'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+                'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9l'
+                                 'IiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
             }
         }
 
@@ -88,8 +91,9 @@ class ExamplesTests(unittest.TestCase):
     def test_validate_raises_exception_example(self):
         self.assertEqual({'statusCode': 400, 'body': 'Error validating parameters'}, validate_example('Hello!', 'ABCD'))
 
+    @staticmethod
     @patch('aws_lambda_decorators.decorators.LOGGER')
-    def test_log_example(self, mock_logger):
+    def test_log_example(mock_logger):
         log_example('Hello!')  # logs 'Hello!' and 'Done!'
 
         mock_logger.info.assert_has_calls([

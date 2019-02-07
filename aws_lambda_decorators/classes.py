@@ -111,7 +111,7 @@ class ValidatedParameter(BaseParameter):
 class Parameter(ValidatedParameter):
     """Class used to encapsulate the extract methods parameters data."""
 
-    def __init__(self, path='', func_param_name=None, validators=None, var_name=None, default=None):
+    def __init__(self, path='', func_param_name=None, validators=None, var_name=None, default=None):  # noqa: pylint - too-many-arguments
         """
         Sets the private variables of the Parameter object.
 
