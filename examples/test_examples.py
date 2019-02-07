@@ -68,3 +68,18 @@ class ExamplesTests(unittest.TestCase):
         response = lambda_handler({'parent': {'my_param': 'Hello!'}, 'other': 'other value'})
 
         self.assertEqual({'statusCode': 400, 'body': 'Error extracting parameters'}, response)
+
+    def test_extract_from_json_example(self):
+        dictionary = {
+            'parent': '{"my_param": "Hello!" }',
+            'other': 'other value'
+        }
+
+        @extract(parameters=[
+            Parameter(path='/parent[json]/my_param', func_param_name='a_dictionary'),
+            # extracts a non mandatory my_param from a_dictionary
+        ])
+        def lambda_handler(a_dictionary, my_param=None):
+            return my_param
+
+        self.assertEqual('Hello!', lambda_handler(dictionary))
