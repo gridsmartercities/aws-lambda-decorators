@@ -40,6 +40,11 @@ class ExamplesTests(unittest.TestCase):
 
         self.assertEqual({'statusCode': 400, 'body': 'Error extracting parameters'}, response)
 
+    def test_extract_not_missing_mandatory_example(self):
+        response = extract_missing_mandatory_param_example({'parent': {'mandatory_param': 'Hello!'}})
+
+        self.assertEqual('Here!', response)
+
     def test_extract_from_json_example(self):
         dictionary = {
             'parent': '{"my_param": "Hello!" }',
