@@ -258,7 +258,7 @@ This decorator ensures that, if the response contains a body, the body is dumped
 ```python
 @response_body_as_json
 def lambda_handler():
-    return { 'responseCode': 400, 'body': { 'param': 'hello!' } }
+    return { 'statusCode': 400, 'body': { 'param': 'hello!' } }
     
 lambda_handler()  # returns { 'statusCode': 400, 'body': "{ 'param': 'hello!' }" }
 ```

@@ -6,7 +6,7 @@ from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, extract_from_ssm, \
-    validate, log, handle_exceptions
+    validate, log, handle_exceptions, response_body_as_json
 from aws_lambda_decorators.classes import Parameter, SSMParameter, ValidatedParameter, ExceptionHandler
 from aws_lambda_decorators.validators import Mandatory, RegexValidator
 
@@ -195,3 +195,10 @@ class ExamplesTests(unittest.TestCase):
             table.query(KeyConditionExpression=Key('user_id').eq('1234'))
 
         self.assertEqual({'body': 'Your message when a client error happens.', 'statusCode': 400}, lambda_handler())
+
+    def test_response_as_json_example(self):
+        @response_body_as_json
+        def lambda_handler():
+            return {'statusCode': 400, 'body': {'param': 'hello!'}}
+
+        self.assertEqual('{"param": "hello!"}', lambda_handler()['body'])
