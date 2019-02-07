@@ -278,4 +278,3 @@ You can get the docstring help by running:
 
 * [PyPi](https://test.pypi.org/project/aws-lambda-decorators/)
 * [Github](https://github.com/gridsmartercities/aws-lambda-decorators)
-
