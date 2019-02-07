@@ -1,5 +1,7 @@
 # aws-lambda-decorators
 
+![Build Status](https://s3-eu-west-2.amazonaws.com/codefactory-eu-west-2-prod-default-build-badges/failing.svg)
+
 A set of Python decorators to ease the development of AWS lambda functions.
 
 ## Installation
