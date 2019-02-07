@@ -111,7 +111,7 @@ class ValidatedParameter(BaseParameter):
 class Parameter(ValidatedParameter):
     """Class used to encapsulate the extract methods parameters data."""
 
-    def __init__(self, path='', func_param_name=None, validators=None, var_name=None):
+    def __init__(self, path='', func_param_name=None, validators=None, var_name=None, default=None):
         """
         Sets the private variables of the Parameter object.
 
@@ -133,14 +133,22 @@ class Parameter(ValidatedParameter):
                 RegexValidator(my_regex), ...)
             var_name (str): Optional, the name of the variable we want to assign the extracted value to. The default
                 value is the last element of the path (e.g. 'c' in the case above)
+            default (any): Optional, a default value if the value is missing and not mandatory.
+                The default value is None
         """
         self._path = path
+        self._default = default
         ValidatedParameter.__init__(self, func_param_name, validators, var_name)
 
     @property
     def path(self):
         """Getter for the path parameter."""
         return self._path
+
+    @property
+    def default(self):
+        """Getter for the default parameter."""
+        return self._default
 
     def get_value_by_path(self, dict_value):
         """
@@ -161,13 +169,13 @@ class Parameter(ValidatedParameter):
             elif self._validators and is_type_in_list(Mandatory, self._validators):
                 raise KeyError(real_key)
 
-        val = dict_value.get(real_key, None) if isinstance(dict_value, dict) else dict_value
+        val = dict_value.get(real_key, self.default) if isinstance(dict_value, dict) else dict_value
         if not self.validate(val):
             raise KeyError(real_key)
 
         if not self._name:
             self._name = real_key
-        return dict_value
+        return val
 
     @staticmethod
     def get_annotations_from_key(key):

@@ -55,8 +55,8 @@ This decorator extracts and validates values from dictionary parameters passed t
 ```python
 @extract(parameters=[
     Parameter(path='/parent/my_param', func_param_name='a_dictionary'),  # extracts a non mandatory my_param from a_dictionary
-    Parameter(path='/parent/missing_non_mandatory', func_param_name='a_dictionary'),  # extracts a non mandatory missing_non_mandatory from a_dictionary
-    Parameter(path='/parent/missing_mandatory', func_param_name='a_dictionary'),  # does not fail as the parameter is not mandatory
+    Parameter(path='/parent/missing_non_mandatory', func_param_name='a_dictionary', default='I am missing'),  # extracts a non mandatory missing_non_mandatory from a_dictionary
+    Parameter(path='/parent/missing_mandatory', func_param_name='a_dictionary'),  # does not fail as the parameter is not validated as mandatory
     Parameter(path='/parent/child/id', validators=[Mandatory], var_name='user_id', func_param_name='another_dictionary')  # extracts a mandatory id as "user_id" from another_dictionary
 ])
 def lambda_handler(a_dictionary, another_dictionary, my_param='aDefaultValue', missing_non_mandatory='I am missing', missing_mandatory=None, user_id=None):
@@ -65,7 +65,7 @@ def lambda_handler(a_dictionary, another_dictionary, my_param='aDefaultValue', m
         
         a_dictionary = { 
             'parent': { 
-                'my_param': 'Hello!" 
+                'my_param': 'Hello!' 
             }, 
             'other': 'other value' 
         }
