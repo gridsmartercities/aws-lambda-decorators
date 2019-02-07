@@ -248,7 +248,7 @@ def lambda_handler():
     table = dynamodb.Table('non_existing_table')
     table.query(KeyConditionExpression=Key('user_id').eq(user_id))
     
-lambda_handler()  # returns { 'responseCode': 400, 'body': 'Your message when a client error happens.' } and logs the error.
+lambda_handler()  # returns {'body': 'Your message when a client error happens.', 'statusCode': 400}
 ```
 
 ### response_body_as_json
@@ -260,7 +260,7 @@ This decorator ensures that, if the response contains a body, the body is dumped
 def lambda_handler():
     return { 'responseCode': 400, 'body': { 'param': 'hello!' } }
     
-lambda_handler()  # returns { 'responseCode': 400, 'body': "{ 'param': 'hello!' }" }
+lambda_handler()  # returns { 'statusCode': 400, 'body': "{ 'param': 'hello!' }" }
 ```
 
 ### Writing your own Validators

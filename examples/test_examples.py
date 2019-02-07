@@ -1,8 +1,13 @@
 import unittest
 from unittest.mock import patch, MagicMock, call
+
+import boto3
+from boto3.dynamodb.conditions import Key
+from botocore.exceptions import ClientError
+
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, extract_from_ssm, \
-    validate, log
-from aws_lambda_decorators.classes import Parameter, SSMParameter, ValidatedParameter
+    validate, log, handle_exceptions
+from aws_lambda_decorators.classes import Parameter, SSMParameter, ValidatedParameter, ExceptionHandler
 from aws_lambda_decorators.validators import Mandatory, RegexValidator
 
 
@@ -179,3 +184,14 @@ class ExamplesTests(unittest.TestCase):
             call('Parameters: %s', ('Hello!',)),
             call('Response: %s', 'Done!')
         ])
+
+    def test_handle_exceptions_example(self):
+        @handle_exceptions(handlers=[
+            ExceptionHandler(ClientError, "Your message when a client error happens.")
+        ])
+        def lambda_handler():
+            dynamodb = boto3.resource('dynamodb')
+            table = dynamodb.Table('non_existing_table')
+            table.query(KeyConditionExpression=Key('user_id').eq('1234'))
+
+        self.assertEqual({'body': 'Your message when a client error happens.', 'statusCode': 400}, lambda_handler())
