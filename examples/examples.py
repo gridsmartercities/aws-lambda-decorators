@@ -17,15 +17,15 @@ from aws_lambda_decorators import extract, extract_from_event, extract_from_cont
 
 
 @extract(parameters=[
-            Parameter(path='/parent/my_param', func_param_name='a_dictionary'),
             # extracts a non mandatory my_param from a_dictionary
-            Parameter(path='/parent/missing_non_mandatory', func_param_name='a_dictionary', default='I am missing'),
+            Parameter(path='/parent/my_param', func_param_name='a_dictionary'),
             # extracts a non mandatory missing_non_mandatory from a_dictionary
-            Parameter(path='/parent/missing_mandatory', func_param_name='a_dictionary'),
+            Parameter(path='/parent/missing_non_mandatory', func_param_name='a_dictionary', default='I am missing'),
             # does not fail as the parameter is not validated as mandatory
+            Parameter(path='/parent/missing_mandatory', func_param_name='a_dictionary'),
+            # extracts a mandatory id as "user_id" from another_dictionary
             Parameter(path='/parent/child/id', validators=[Mandatory], var_name='user_id',
                       func_param_name='another_dictionary')
-            # extracts a mandatory id as "user_id" from another_dictionary
         ])
 def extract_example(a_dictionary, another_dictionary, my_param='aDefaultValue',
                     missing_non_mandatory='I am missing', missing_mandatory=None, user_id=None):
@@ -34,59 +34,62 @@ def extract_example(a_dictionary, another_dictionary, my_param='aDefaultValue',
 
 
 @extract(parameters=[
-            Parameter(path='/parent/my_param', func_param_name='a_dictionary')
             # extracts a non mandatory my_param from a_dictionary
+            Parameter(path='/parent/my_param', func_param_name='a_dictionary')
         ])
 def extract_to_kwargs_example(a_dictionary, **kwargs):
     return kwargs['my_param']
 
 
 @extract(parameters=[
-            Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])
             # extracts a mandatory my_param from a_dictionary
+            Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])
         ])
 def extract_missing_mandatory_param_example(a_dictionary, mandatory_param=None):
     return 'Here!'  # this part will never be reached, if the mandatory_param is missing
 
 
 @extract(parameters=[
-    Parameter(path='/parent[json]/my_param', func_param_name='a_dictionary')
     # extracts a non mandatory my_param from a_dictionary
+    Parameter(path='/parent[json]/my_param', func_param_name='a_dictionary')
 ])
 def extract_from_json_example(a_dictionary, my_param=None):
     return my_param
 
 
 @extract_from_event(parameters=[
-            Parameter(path='/body[json]/my_param', validators=[Mandatory]),
             # extracts a mandatory my_param from the json body of the event
-            Parameter(path='/headers/Authorization[jwt]/sub', validators=[Mandatory], var_name='user_id')
+            Parameter(path='/body[json]/my_param', validators=[Mandatory]),
             # extract the mandatory sub value as user_id from the authorization JWT
+            Parameter(path='/headers/Authorization[jwt]/sub', validators=[Mandatory], var_name='user_id')
         ])
 def extract_from_event_example(event, context, my_param=None, user_id=None):
     return my_param, user_id  # returns ('Hello!', '1234567890')
 
 
 @extract_from_context(parameters=[
-    Parameter(path='/parent/my_param', validators=[Mandatory])
     # extracts a mandatory my_param from the parent element in context
+    Parameter(path='/parent/my_param', validators=[Mandatory])
 ])
 def extract_from_context_example(event, context, my_param=None):
     return my_param  # returns 'Hello!'
 
 
 @extract_from_ssm(ssm_parameters=[
-            SSMParameter(ssm_name='one_key'),  # extracts the value of one_key from SSM as a kwarg named "one_key"
-            SSMParameter(ssm_name='another_key', var_name="another")  # extracts another_key as a kwarg named "another"
+            # extracts the value of one_key from SSM as a kwarg named "one_key"
+            SSMParameter(ssm_name='one_key'),
+            # extracts another_key as a kwarg named "another"
+            SSMParameter(ssm_name='another_key', var_name="another")
         ])
 def extract_from_ssm_example(your_func_params, one_key=None, another=None):
     return your_func_params, one_key, another
 
 
 @validate(parameters=[
-    ValidatedParameter(func_param_name='a_param', validators=[Mandatory]),  # validates a_param as mandatory
-    ValidatedParameter(func_param_name='another_param', validators=[Mandatory, RegexValidator(r'\d+')])
+    # validates a_param as mandatory
+    ValidatedParameter(func_param_name='a_param', validators=[Mandatory]),
     # validates another_param as mandatory and containing only digits
+    ValidatedParameter(func_param_name='another_param', validators=[Mandatory, RegexValidator(r'\d+')])
 ])
 def validate_example(a_param, another_param):
     return a_param, another_param  # returns a_param, another_param
