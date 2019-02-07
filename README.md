@@ -3,7 +3,6 @@
 ![Build Status](https://codebuild.eu-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiTG0rVyswNm1ZdDVQeGN3Zll4dDFqNFA3ckJvdlkrZEdnTUc1VVJ6YmtXZ21BeCtzRk5kS3gvNTRnbE5NdlQ0bE1LZnRZNExnVjB0OEJRKzFOTHZ3dlBNPSIsIml2UGFyYW1ldGVyU3BlYyI6IkloUWR5MG1BV3NzUDZlQ0kiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 [![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![](https://img.shields.io/github/issues/gridsmartercities/aws-lambda-decorators.svg?style=flat)
 
 A set of Python decorators to ease the development of AWS lambda functions.
 
