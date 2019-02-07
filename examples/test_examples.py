@@ -1,5 +1,5 @@
 import unittest
-from aws_lambda_decorators.decorators import extract, extract_from_event
+from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context
 from aws_lambda_decorators.classes import Parameter
 from aws_lambda_decorators.validators import Mandatory
 
@@ -102,3 +102,19 @@ class ExamplesTests(unittest.TestCase):
             return my_param, user_id  # returns ('Hello!', '1234567890')
 
         self.assertEqual(('Hello!', '1234567890'), api_gateway_lambda_handler(event, None))
+
+    def test_extract_from_context_example(self):
+        context = {
+            'parent': {
+                'my_param': 'Hello!'
+            }
+        }
+
+        @extract_from_context(parameters=[
+            Parameter(path='/parent/my_param', validators=[Mandatory]),
+            # extracts a mandatory my_param from the parent element in context
+        ])
+        def api_gateway_lambda_handler(event, context, my_param=None):
+            return my_param  # returns 'Hello!'
+
+        self.assertEqual('Hello!', api_gateway_lambda_handler(None, context))
