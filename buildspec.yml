@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - pip install prospector
+      - pip install PyJWT boto3 prospector
   pre_build:
     commands:
       - export OUR_COMMIT_SHA=`git rev-parse HEAD`
