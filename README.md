@@ -274,26 +274,6 @@ You can get the docstring help by running:
 >>> help(decorators.extract)
 ```
 
-## Contributing
-
-If you want to contribute to this project, clone the Github repo and install the requirements:
-
-`pip install -r requirements.txt`
-
-Before submitting the PR, please ensure that:
- 
-- you run prospector for code analysis, and all checks are passing:
-
-`prospector`
-
-- all unit tests are passing:
-
-`coverage run --branch --source='.' -m unittest`
-
-- you have 100% unit test coverage:
-
-`coverage report -m --fail-under=100 --omit=*/__init__.py,tests/*,setup.py`
-
 ## Links
 
 * [PyPi](https://test.pypi.org/project/aws-lambda-decorators/)
