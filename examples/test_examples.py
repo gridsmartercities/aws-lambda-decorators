@@ -1,7 +1,7 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, extract_from_ssm, \
-    validate
+    validate, log
 from aws_lambda_decorators.classes import Parameter, SSMParameter, ValidatedParameter
 from aws_lambda_decorators.validators import Mandatory, RegexValidator
 
@@ -166,3 +166,16 @@ class ExamplesTests(unittest.TestCase):
             return a_param, another_param  # returns a_param, another_param
 
         self.assertEqual({'statusCode': 400, 'body': 'Error validating parameters'}, your_function('Hello!', 'ABCD'))
+
+    @patch('aws_lambda_decorators.decorators.LOGGER')
+    def test_log_example(self, mock_logger):
+        @log(parameters=True, response=True)
+        def lambda_handler(parameters):
+            return 'Done!'
+
+        lambda_handler('Hello!')  # logs 'Hello!' and 'Done!'
+
+        mock_logger.info.assert_has_calls([
+            call('Parameters: %s', ('Hello!',)),
+            call('Response: %s', 'Done!')
+        ])
