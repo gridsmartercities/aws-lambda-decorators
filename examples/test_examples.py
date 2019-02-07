@@ -1,8 +1,9 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, extract_from_ssm
-from aws_lambda_decorators.classes import Parameter, SSMParameter
-from aws_lambda_decorators.validators import Mandatory
+from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, extract_from_ssm, \
+    validate
+from aws_lambda_decorators.classes import Parameter, SSMParameter, ValidatedParameter
+from aws_lambda_decorators.validators import Mandatory, RegexValidator
 
 
 class ExamplesTests(unittest.TestCase):
@@ -143,3 +144,25 @@ class ExamplesTests(unittest.TestCase):
             return your_func_params, one_key, another
 
         self.assertEqual((None, 'test1', 'test2'), your_function(None))
+
+    def test_validate_example(self):
+        @validate(parameters=[
+            ValidatedParameter(func_param_name='a_param', validators=[Mandatory]),  # validates a_param as mandatory
+            ValidatedParameter(func_param_name='another_param', validators=[Mandatory, RegexValidator(r'\d+')])
+            # validates another_param as mandatory and containing only digits
+        ])
+        def your_function(a_param, another_param):
+            return a_param, another_param  # returns a_param, another_param
+
+        self.assertEqual(('Hello!', '123456'), your_function('Hello!', '123456'))
+
+    def test_validate_raises_exception_example(self):
+        @validate(parameters=[
+            ValidatedParameter(func_param_name='a_param', validators=[Mandatory]),  # validates a_param as mandatory
+            ValidatedParameter(func_param_name='another_param', validators=[Mandatory, RegexValidator(r'\d+')])
+            # validates another_param as mandatory and containing only digits
+        ])
+        def your_function(a_param, another_param):
+            return a_param, another_param  # returns a_param, another_param
+
+        self.assertEqual({'statusCode': 400, 'body': 'Error validating parameters'}, your_function('Hello!', 'ABCD'))

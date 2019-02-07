@@ -214,6 +214,12 @@ def your_function(a_param, another_param):
 your_function('Hello!', '123456')
 ```
 
+Given the same function `your_function`, a 400 exception is returned/raised if at least one parameter does not validate:
+
+```python
+your_function('Hello!', 'ABCD')
+```
+
 ### log
 
 This decorator allows for logging the function arguments and/or the lambda response.
