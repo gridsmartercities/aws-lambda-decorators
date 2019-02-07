@@ -56,3 +56,15 @@ class ExamplesTests(unittest.TestCase):
             return kwargs['my_param']
 
         self.assertEqual('Hello!', lambda_handler(dictionary))
+
+    def test_extract_missing_mandatory_example(self):
+        @extract(parameters=[
+            Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory]),
+            # extracts a mandatory my_param from a_dictionary
+        ])
+        def lambda_handler(a_dictionary, mandatory_param=None):
+            print('Here!')  # this message will never be reached
+
+        response = lambda_handler({'parent': {'my_param': 'Hello!'}, 'other': 'other value'})
+
+        self.assertEqual({'statusCode': 400, 'body': 'Error extracting parameters'}, response)
