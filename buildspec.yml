@@ -1,0 +1,16 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - pip install PyJWT boto3 prospector coverage bandit
+  pre_build:
+    commands:
+      - export OUR_COMMIT_SHA=`git rev-parse HEAD`
+      - bandit -r .
+      - prospector
+      - coverage run --source='.' -m unittest
+      - coverage report -m --fail-under=100 --omit=*/__init__.py,tests/*,setup.py
+
+
+
