@@ -1,7 +1,7 @@
 # aws-lambda-decorators
 
 ![Build Status](https://codebuild.eu-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoibmNQU2ZnaE9MQWVvNTNucE1KQ2s1ZkZDa0lJSktLWVRXZlVab0tHQ0JKQXZlaXU0M1VwVDc3c3pTTThDZ0pZa0xEb090dVpvVnd2bHFURWN1VjdvcE9vPSIsIml2UGFyYW1ldGVyU3BlYyI6IkV2dWhnY1YvbC9TaWlhcWQiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
-[![Python 3.6+](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
 
 
 A set of Python decorators to ease the development of AWS lambda functions.
