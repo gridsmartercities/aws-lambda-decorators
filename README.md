@@ -87,7 +87,7 @@ Or you can use kwargs instead of specific parameter names:
 
 ```python
 @extract(parameters=[
-    Parameter(path='/parent/my_param', func_param_name='a_dictionary'),  # extracts a non mandatory my_param from a_dictionary
+    Parameter(path='/parent/my_param', func_param_name='a_dictionary')  # extracts a non mandatory my_param from a_dictionary
 ])
 def extract_to_kwargs_example(a_dictionary, **kwargs):
     """
@@ -105,7 +105,7 @@ A missing mandatory parameter, or a parameter that fails validation, will raise 
 
 ```python
 @extract(parameters=[
-    Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory]),  # extracts a mandatory mandatory_param from a_dictionary
+    Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])  # extracts a mandatory mandatory_param from a_dictionary
 ])
 def extract_missing_mandatory_param_example(a_dictionary, mandatory_param=None):
     print('Here!')  # this message will never be reached, if the mandatory_param is missing
@@ -120,7 +120,7 @@ You can decode any part of the parameter path from json or any other existing an
 
 ```python
 @extract(parameters=[
-    Parameter(path='/parent[json]/my_param', func_param_name='a_dictionary'),  # extracts a non mandatory my_param from a_dictionary
+    Parameter(path='/parent[json]/my_param', func_param_name='a_dictionary')  # extracts a non mandatory my_param from a_dictionary
 ])
 def extract_from_json_example(a_dictionary, my_param=None):
     """
@@ -160,7 +160,7 @@ This decorator is just a facade to the extract method to be used in AWS Api Gate
 
 ```python
 @extract_from_context(parameters=[
-    Parameter(path='/parent/my_param', validators=[Mandatory]),  # extracts a mandatory my_param from the parent element in context
+    Parameter(path='/parent/my_param', validators=[Mandatory])  # extracts a mandatory my_param from the parent element in context
 ])
 def extract_from_context_example(event, context, my_param=None):
     """
@@ -184,7 +184,7 @@ This decorator extract a parameter from AWS SSM and passes the parameter down to
 ```python
 @extract_from_ssm(ssm_parameters=[
     SSMParameter(ssm_name='one_key'),  # extracts the value of one_key from SSM as a kwarg named "one_key"
-    SSMParameter(ssm_name='another_key', var_name="another"),  # extracts another_key as a kwarg named "another"
+    SSMParameter(ssm_name='another_key', var_name="another")  # extracts another_key as a kwarg named "another"
 ])
 def extract_from_ssm_example(your_func_params, one_key=None, another=None):
     return your_func_params, one_key, another

@@ -1,11 +1,19 @@
+# flake8: noqa
+import boto3
+from boto3.dynamodb.conditions import Key
+from botocore.exceptions import ClientError
+
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, extract_from_ssm, \
     validate, log, handle_exceptions, response_body_as_json
 from aws_lambda_decorators.classes import Parameter, SSMParameter, ValidatedParameter, ExceptionHandler
 from aws_lambda_decorators.validators import Mandatory, RegexValidator
+"""
+or import from a single namespace:
 
-import boto3
-from boto3.dynamodb.conditions import Key
-from botocore.exceptions import ClientError
+from aws_lambda_decorators import extract, extract_from_event, extract_from_context, extract_from_ssm, \
+    validate, log, handle_exceptions, response_body_as_json, Parameter, SSMParameter, ValidatedParameter, \
+    ExceptionHandler, Mandatory, RegexValidator
+"""
 
 
 @extract(parameters=[
@@ -20,13 +28,13 @@ from botocore.exceptions import ClientError
             # extracts a mandatory id as "user_id" from another_dictionary
         ])
 def extract_example(a_dictionary, another_dictionary, my_param='aDefaultValue',
-                   missing_non_mandatory='I am missing', missing_mandatory=None, user_id=None):
+                    missing_non_mandatory='I am missing', missing_mandatory=None, user_id=None):
     #  you can now access the extracted parameters directly:
     return my_param, missing_non_mandatory, missing_mandatory, user_id
 
 
 @extract(parameters=[
-            Parameter(path='/parent/my_param', func_param_name='a_dictionary'),
+            Parameter(path='/parent/my_param', func_param_name='a_dictionary')
             # extracts a non mandatory my_param from a_dictionary
         ])
 def extract_to_kwargs_example(a_dictionary, **kwargs):
@@ -34,7 +42,7 @@ def extract_to_kwargs_example(a_dictionary, **kwargs):
 
 
 @extract(parameters=[
-            Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory]),
+            Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])
             # extracts a mandatory my_param from a_dictionary
         ])
 def extract_missing_mandatory_param_example(a_dictionary, mandatory_param=None):
@@ -42,7 +50,7 @@ def extract_missing_mandatory_param_example(a_dictionary, mandatory_param=None):
 
 
 @extract(parameters=[
-    Parameter(path='/parent[json]/my_param', func_param_name='a_dictionary'),
+    Parameter(path='/parent[json]/my_param', func_param_name='a_dictionary')
     # extracts a non mandatory my_param from a_dictionary
 ])
 def extract_from_json_example(a_dictionary, my_param=None):
@@ -60,7 +68,7 @@ def extract_from_event_example(event, context, my_param=None, user_id=None):
 
 
 @extract_from_context(parameters=[
-    Parameter(path='/parent/my_param', validators=[Mandatory]),
+    Parameter(path='/parent/my_param', validators=[Mandatory])
     # extracts a mandatory my_param from the parent element in context
 ])
 def extract_from_context_example(event, context, my_param=None):
@@ -69,7 +77,7 @@ def extract_from_context_example(event, context, my_param=None):
 
 @extract_from_ssm(ssm_parameters=[
             SSMParameter(ssm_name='one_key'),  # extracts the value of one_key from SSM as a kwarg named "one_key"
-            SSMParameter(ssm_name='another_key', var_name="another"),  # extracts another_key as a kwarg named "another"
+            SSMParameter(ssm_name='another_key', var_name="another")  # extracts another_key as a kwarg named "another"
         ])
 def extract_from_ssm_example(your_func_params, one_key=None, another=None):
     return your_func_params, one_key, another
