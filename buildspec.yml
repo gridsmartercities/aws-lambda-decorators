@@ -9,7 +9,7 @@ phases:
       - export OUR_COMMIT_SHA=`git rev-parse HEAD`
       - prospector
       - coverage run --source='.' -m unittest
-      - coverage report -m --fail-under=100 --omit=*/__init__.py,tests/*
+      - coverage report -m --fail-under=100 --omit=*/__init__.py,tests/*,setup.py
 artifacts:
   type: zip
   files:
