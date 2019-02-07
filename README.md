@@ -1,6 +1,6 @@
 # aws-lambda-decorators
 
-![Build Status](https://codebuild.eu-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoibmNQU2ZnaE9MQWVvNTNucE1KQ2s1ZkZDa0lJSktLWVRXZlVab0tHQ0JKQXZlaXU0M1VwVDc3c3pTTThDZ0pZa0xEb090dVpvVnd2bHFURWN1VjdvcE9vPSIsIml2UGFyYW1ldGVyU3BlYyI6IkV2dWhnY1YvbC9TaWlhcWQiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+![Build Status](https://codebuild.eu-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiVExJTDNjTUtldjhzQjFQdWpiayt6cnBkczFhSlk4K1owa1VybzRnbWYzVDRKMFpDMGd6K2JaWUpFNXVQN0VsNkh2NGlkMWdYWS9GQmI3dmFtMGdSektZPSIsIml2UGFyYW1ldGVyU3BlYyI6IlczSUM0dXZGN1pNYW83QWMiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 [![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
