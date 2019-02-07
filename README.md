@@ -115,7 +115,7 @@ A missing mandatory parameter, or a parameter that fails validation, will raise 
     Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])  # extracts a mandatory mandatory_param from a_dictionary
 ])
 def extract_missing_mandatory_param_example(a_dictionary, mandatory_param=None):
-    print('Here!')  # this message will never be reached, if the mandatory_param is missing
+    return 'Here!'  # this part will never be reached, if the mandatory_param is missing
     
 response = extract_missing_mandatory_param_example({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
 
