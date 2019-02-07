@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - pip install PyJWT
+  pre_build:
+    commands:
+      - export OUR_COMMIT_SHA=`git rev-parse HEAD`
+      - prospector
+      - coverage run --source='.' -m unittest
+      - coverage report -m --fail-under=100 --omit=*/__init__.py,tests/*
+artifacts:
+  type: zip
+  files:
+    - NewSamTemplate.yaml
+
+
+
