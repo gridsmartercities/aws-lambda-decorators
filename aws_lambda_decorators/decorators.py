@@ -17,6 +17,8 @@ BODY_NOT_JSON_ERROR = 'Response body is not JSON serializable'
 PARAM_EXTRACT_ERROR = 'Error extracting parameters'
 PARAM_EXTRACT_LOG_MESSAGE = "%s: '%s' in argument %s for path %s"
 PARAM_INVALID_ERROR = "Error validating parameters"
+PARAM_LOG_MESSAGE = "Parameters: %s"
+RESPONSE_LOG_MESSAGE = "Response: %s"
 
 
 def extract_from_event(parameters):
@@ -116,10 +118,10 @@ def log(parameters=False, response=False):
     def decorator(func):
         def wrapper(*args, **kwargs):
             if parameters:
-                LOGGER.info(args)
+                LOGGER.info(PARAM_LOG_MESSAGE, args)
             func_response = func(*args, **kwargs)
             if response:
-                LOGGER.info(func_response)
+                LOGGER.info(RESPONSE_LOG_MESSAGE, func_response)
             return func_response
         return wrapper
     return decorator

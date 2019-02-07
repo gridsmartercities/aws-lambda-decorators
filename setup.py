@@ -3,13 +3,13 @@ from setuptools import setup, find_packages
 LONG_DESCRIPTION = open('README.md').read()
 
 setup(name='aws_lambda_decorators',
-      version='0.8',
+      version='0.11',
       description='A set of python decorators to simplify aws python lambda development',
       long_description=LONG_DESCRIPTION,
       long_description_content_type="text/markdown",
       url='https://github.com/gridsmartercities/aws-lambda-decorators',
-      author='Grid Developers',
-      author_email='developers@gridsmartercities.com',
+      author='Grid Smarter Cities',
+      author_email='open-source@gridsmartercities.com',
       license='MIT',
       classifiers=['Intended Audience :: Developers',
                    'Development Status :: 2 - Pre-Alpha',
