@@ -1,8 +1,3 @@
-
-Test example:
-
-https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L19-L33
-
 # aws-lambda-decorators
 
 A set of Python decorators to ease the development of AWS lambda functions.
@@ -57,7 +52,7 @@ This decorator extracts and validates values from dictionary parameters passed t
 * A 400 exception is raised when the parameter cannot be extracted or when it does not validate.
 * A variable path (e.g. '/headers/Authorization[jwt]/sub') can be annotated to specify a decoding. In the example, Authorization might contain a JWT, which needs to be decoded before accessing the "sub" element.
 
-[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L19)
+[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L19-L33)
 ```python
 @extract(parameters=[
     Parameter(path='/parent/my_param', func_param_name='a_dictionary'),  # extracts a non mandatory my_param from a_dictionary
@@ -91,7 +86,7 @@ def extract_example(a_dictionary, another_dictionary, my_param='aDefaultValue', 
 
 Or you can use kwargs instead of specific parameter names:
 
-[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L36)
+[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L36-L41)
 ```python
 @extract(parameters=[
     Parameter(path='/parent/my_param', func_param_name='a_dictionary')  # extracts a non mandatory my_param from a_dictionary
@@ -110,7 +105,7 @@ def extract_to_kwargs_example(a_dictionary, **kwargs):
 
 A missing mandatory parameter, or a parameter that fails validation, will raise an exception:
 
-[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L44)
+[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L44-L49)
 ```python
 @extract(parameters=[
     Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])  # extracts a mandatory mandatory_param from a_dictionary
@@ -126,7 +121,7 @@ print(response)  # prints { 'statusCode': 400, 'body': 'Error extracting paramet
 
 You can decode any part of the parameter path from json or any other existing annotation.
 
-[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L52)
+[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L52-L57)
 ```python
 @extract(parameters=[
     Parameter(path='/parent[json]/my_param', func_param_name='a_dictionary')  # extracts a non mandatory my_param from a_dictionary
@@ -146,7 +141,7 @@ def extract_from_json_example(a_dictionary, my_param=None):
 
 This decorator is just a facade to the extract method to be used in AWS Api Gateway Lambdas. It automatically extracts from the event lambda parameter.
 
-[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L60)
+[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L60-L67)
 ```python
 @extract_from_event(parameters=[
     Parameter(path='/body[json]/my_param', validators=[Mandatory]),  # extracts a mandatory my_param from the json body of the event
@@ -168,7 +163,7 @@ def extract_from_event_example(event, context, my_param=None, user_id=None):
 
 This decorator is just a facade to the extract method to be used in AWS Api Gateway Lambdas. It automatically extracts from the context lambda parameter.
 
-[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L70)
+[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L70-L75)
 ```python
 @extract_from_context(parameters=[
     Parameter(path='/parent/my_param', validators=[Mandatory])  # extracts a mandatory my_param from the parent element in context
@@ -192,7 +187,7 @@ This decorator extract a parameter from AWS SSM and passes the parameter down to
 * Each SSMParameter object requires the name of the SSM parameter (ssm_name)
 * If no var_name is passed in, the extracted value is passed to the function with the ssm_name name
 
-[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L78)
+[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L78-L83)
 ```python
 @extract_from_ssm(ssm_parameters=[
     SSMParameter(ssm_name='one_key'),  # extracts the value of one_key from SSM as a kwarg named "one_key"
@@ -210,7 +205,7 @@ This decorator validates a list of non dictionary parameters from your lambda fu
 * Each parameter object needs the name of the lambda function parameter that it is going to be validated, and the list of rules to validate.
 * A 400 exception is raised when the parameter does not validate.
 
-[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L86)
+[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L86-L92)
 ```python
 @validate(parameters=[
     ValidatedParameter(func_param_name='a_param', validators=[Mandatory]),  # validates a_param as mandatory
@@ -232,7 +227,7 @@ validate_example('Hello!', 'ABCD')
 
 This decorator allows for logging the function arguments and/or the lambda response.
 
-[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L95)
+[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L95-L97)
 ```python
 @log(parameters=True, response=True)
 def log_example(parameters): 
@@ -248,7 +243,7 @@ This decorator handles a list of exceptions, returning a 400 response containing
 * The decorator takes a list of ExceptionHandler objects.
 * Each ExceptionHandler requires the type of exception to check, and the friendly message to return to the caller.
 
-[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L100)
+[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L100-L106)
 ```python
 @handle_exceptions(handlers=[
     ExceptionHandler(ClientError, "Your message when a client error happens.")
@@ -265,7 +260,7 @@ handle_exceptions_example()  # returns {'body': 'Your message when a client erro
 
 This decorator ensures that, if the response contains a body, the body is dumped as json.
 
-[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L109)
+[example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L109-L111)
 ```python
 @response_body_as_json
 def response_body_as_json_example():
