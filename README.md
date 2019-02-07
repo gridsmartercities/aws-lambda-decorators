@@ -1,3 +1,8 @@
+
+Test example:
+
+https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L19-L33
+
 # aws-lambda-decorators
 
 A set of Python decorators to ease the development of AWS lambda functions.
