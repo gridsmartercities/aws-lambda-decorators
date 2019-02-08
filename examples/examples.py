@@ -98,6 +98,7 @@ def handle_exceptions_example():
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('your_table_name')
     table.query(KeyConditionExpression=Key('user_id').eq('1234'))
+    # ...
 
 
 @response_body_as_json
