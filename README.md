@@ -2,13 +2,13 @@
 
 ![Build Status](https://codebuild.eu-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiQjBXUGt0ZUFsYzJjMmlIclVRc2FvM3NmTm9pQVAyWlhKZmJVd09nQUQyMnZkTUhDaUVKSEVSb2VtMmNoaEVDTU5sRXdvVzFrQkhQdTljNWVzM2ZzUWxBPSIsIml2UGFyYW1ldGVyU3BlYyI6IjVnK0tZOXZCUXU3UXAyaXkiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![](https://img.shields.io/github/release/gridsmartercities/aws-lambda-decorators.svg?style=flat)
+![Github Release](https://img.shields.io/github/release/gridsmartercities/aws-lambda-decorators.svg?style=flat)
 \
 \
-![](https://img.shields.io/pypi/pyversions/aws-lambda-decorators.svg?style=flat)
-![](https://img.shields.io/pypi/v/aws-lambda-decorators.svg?style=flat)
-![](https://img.shields.io/pypi/dm/aws-lambda-decorators.svg?style=flat)
-![](https://img.shields.io/pypi/status/aws-lambda-decorators.svg?style=flat)
+![Python Versions](https://img.shields.io/pypi/pyversions/aws-lambda-decorators.svg?style=flat)
+![PyPi Version](https://img.shields.io/pypi/v/aws-lambda-decorators.svg?style=flat)
+![PyPi Downloads](https://img.shields.io/pypi/dm/aws-lambda-decorators.svg?style=flat)
+![PyPi Status](https://img.shields.io/pypi/status/aws-lambda-decorators.svg?style=flat)
 
 # aws-lambda-decorators
 
