@@ -6,7 +6,7 @@
 ![](https://img.shields.io/pypi/dm/aws-lambda-decorators.svg?style=flat)
 ![](https://img.shields.io/pypi/status/aws-lambda-decorators.svg?style=flat)
 
-[<img align="right" alt="Grid Smarter Cities" width="200" height="200" src="https://s3.eu-west-2.amazonaws.com/open-source-resources/grid_smarter_cities.png">](https://www.gridsmartercities.com/)
+[<img align="right" alt="Grid Smarter Cities" width="100" height="100" src="https://s3.eu-west-2.amazonaws.com/open-source-resources/grid_smarter_cities.png">](https://www.gridsmartercities.com/)
 
 # aws-lambda-decorators
 
