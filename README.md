@@ -61,7 +61,7 @@ This decorator extracts and validates values from dictionary parameters passed t
 * A 400 exception is raised when the parameter cannot be extracted or when it does not validate.
 * A variable path (e.g. '/headers/Authorization[jwt]/sub') can be annotated to specify a decoding. In the example, Authorization might contain a JWT, which needs to be decoded before accessing the "sub" element.
 
-[view example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L19-L33)
+[view example](https://github.com/gridsmartercities/aws-lambda-decorators/blob/70caf63f9153cc2ea9d60ea3ffde445cb09a7091/examples/examples.py#L19-L33) | [view test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/b2a55124da83e79e2797cc35b1fc76a2e47a95f6/examples/test_examples.py#L8-L26)
 ```python
 @extract(parameters=[
     Parameter(path='/parent/my_param', func_param_name='a_dictionary'),  # extracts a non mandatory my_param from a_dictionary
