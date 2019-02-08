@@ -1,6 +1,6 @@
 # Contributing
 
-If you want to contribute to this project, please submit an issue describing your proposed change. We will responde to you as soon as we can.
+If you want to contribute to this project, please submit an issue describing your proposed change. We will respond to you as soon as we can.
  
 If you want to work on that change, fork this Github repo and clone the fork locally. Install the requirements in a python3 virtual environment, using the appropriate version of pip:
 
