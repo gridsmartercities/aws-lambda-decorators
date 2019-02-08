@@ -1,10 +1,12 @@
+[<img align="right" alt="Grid Smarter Cities" src="https://s3.eu-west-2.amazonaws.com/open-source-resources/grid_smarter_cities.png">](https://www.gridsmartercities.com/)
+
 # aws-lambda-decorators
 
 ![Build Status](https://codebuild.eu-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiTG0rVyswNm1ZdDVQeGN3Zll4dDFqNFA3ckJvdlkrZEdnTUc1VVJ6YmtXZ21BeCtzRk5kS3gvNTRnbE5NdlQ0bE1LZnRZNExnVjB0OEJRKzFOTHZ3dlBNPSIsIml2UGFyYW1ldGVyU3BlYyI6IkloUWR5MG1BV3NzUDZlQ0kiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![](https://img.shields.io/github/release/gridsmartercities/aws-lambda-decorators.svg?style=flat)
 
-A set of Python decorators to ease the development of AWS lambda functions. [<img align="right" alt="Grid Smarter Cities" width="100" height="100" src="https://s3.eu-west-2.amazonaws.com/open-source-resources/grid_smarter_cities.png">](https://www.gridsmartercities.com/)
+A set of Python decorators to ease the development of AWS lambda functions.
 
 ## Installation!
 
