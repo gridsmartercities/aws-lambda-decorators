@@ -119,10 +119,10 @@ Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/
 @extract(parameters=[
     Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])  # extracts a mandatory mandatory_param from a_dictionary
 ])
-def extract_missing_mandatory_param_example(a_dictionary, mandatory_param=None):
+def extract_mandatory_param_example(a_dictionary, mandatory_param=None):
     return 'Here!'  # this part will never be reached, if the mandatory_param is missing
     
-response = extract_missing_mandatory_param_example({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
+response = extract_mandatory_param_example({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
 
 print(response)  # prints { 'statusCode': 400, 'body': 'Error extracting parameters' } and logs a more detailed error
 
