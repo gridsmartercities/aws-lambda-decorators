@@ -13,7 +13,7 @@
 
 A set of Python decorators to ease the development of AWS lambda functions.
 
-## Installation!
+## Installation
 
 The easiest way to use these AWS Lambda Decorators is to install them through Pip:
 
