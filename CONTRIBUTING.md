@@ -1,10 +1,12 @@
 # Contributing
 
-If you want to contribute to this project, fork this Github repo and clone the fork locally. Install the requirements in a python3 virtual environment, using pip/pip3:
+If you want to contribute to this project, please submit an issue describing your proposed change. We will responde to you as soon as we can.
+ 
+If you want to work on that change, fork this Github repo and clone the fork locally. Install the requirements in a python3 virtual environment, using the appropriate version of pip:
 
 `pip install -r requirements.txt`
 
-Before submitting the PR, please ensure that:
+Before submitting a PR, please ensure that:
 
 - you run [__Bandit__](https://pypi.org/project/bandit/) for security checking and all checks are passing:
 
