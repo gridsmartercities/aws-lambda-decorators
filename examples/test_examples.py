@@ -174,7 +174,7 @@ class ExamplesTests(unittest.TestCase):
         mock_dynamo.return_value.Table.return_value = mock_table
 
         # we can automatically handle the ClientError, using the 'exception_handler' decorator.
-        response = handle_exceptions_example()
+        response = handle_exceptions_example()  # noqa: pylint - assignment-from-no-return
 
         # and return the error supplied to the caller.
         self.assertEqual(response["statusCode"], 400)
