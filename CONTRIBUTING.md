@@ -22,6 +22,6 @@ Before submitting a PR, please ensure that:
 
 - you have 100% unit test coverage:
 
-`coverage report -m --fail-under=100 --omit=*/__init__.py,tests/*,setup.py`
+`coverage report -m --fail-under=100 --omit=*/__init__.py,tests/*,setup.py,examples/test_examples.py`
 
 Thanks for contributing!

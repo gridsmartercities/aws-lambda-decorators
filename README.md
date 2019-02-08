@@ -46,8 +46,8 @@ Currently, the package offers 2 validators:
 
 The package offers functions to decode from JSON and JWT. 
 
-* [__decode_json__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L45-L47): decodes a string to json
-* [__decode_jwt__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L50-L52): decodes a string to a JWT
+* [__decode_json__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L45-L47): decodes/converts a json string to a python dictionary
+* [__decode_jwt__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L50-L52): decodes/converts a JWT string to a python dictionary
 
 ## Examples
 
@@ -57,7 +57,7 @@ This decorator extracts and validates values from dictionary parameters passed t
 
 * The decorator takes a list of [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L111-L192) objects.
 * Each [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L111-L192) object requires a non-empty path to the parameter in the dictionary, and the name of the dictionary (func_param_name)
-* The parameter value is extracted and added as a kwarg to the lambda handler.
+* The parameter value is extracted and added as a kwarg to the lambda handler (or any other decorated function/method).
 * You can add the parameter to the handler signature, or access it in the handler through kwargs.
 * The name of the extracted parameter is defaulted to the last element of the path name, but can be changed by passing a (valid pythonic variable name) var_name
 * You can define a default value for the parameter in the [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L111-L192) or in the lambda handler itself.
@@ -237,7 +237,7 @@ validate_example('Hello!', 'ABCD')  # returns a 400 status code and an error mes
 
 ### [log](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L116-L127)
 
-This decorator allows for logging the function arguments and/or the lambda response.
+This decorator allows for logging the function arguments and/or the response.
 
 Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L89-L91) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L157-L165)
 ```python
