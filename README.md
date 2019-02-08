@@ -1,4 +1,4 @@
-[<img align="right" alt="Grid Smarter Cities" src="https://s3.eu-west-2.amazonaws.com/open-source-resources/grid_smarter_cities.png">](https://www.gridsmartercities.com/)
+[<img align="right" alt="Grid Smarter Cities" width="50%" height="50%" src="https://s3.eu-west-2.amazonaws.com/open-source-resources/grid_smarter_cities.png">](https://www.gridsmartercities.com/)
 
 # aws-lambda-decorators
 
