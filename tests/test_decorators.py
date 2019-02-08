@@ -32,7 +32,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
         param = Parameter(path)
-        response = param.get_value_by_path(dictionary)
+        response = param.extract_validated_value(dictionary)
         self.assertEqual("hello", response)
 
     def test_raises_decode_error_convert_json_string_to_dict(self):
@@ -45,7 +45,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         }
         param = Parameter(path)
         with self.assertRaises(JSONDecodeError) as context:
-            param.get_value_by_path(dictionary)
+            param.extract_validated_value(dictionary)
 
         self.assertTrue("Expecting property name enclosed in double quotes" in context.exception.msg)
 
@@ -58,7 +58,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
         param = Parameter(path, 'event')
-        response = param.get_value_by_path(dictionary)
+        response = param.extract_validated_value(dictionary)
         self.assertEqual("hello", response)
 
     def test_can_get_value_from_dict_with_jwt_by_path(self):
@@ -69,7 +69,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
         param = Parameter(path, 'event')
-        response = param.get_value_by_path(dictionary)
+        response = param.extract_validated_value(dictionary)
         self.assertEqual("aadd1e0e-5807-4763-b1e8-5823bf631bb6", response)
 
     def test_extract_from_event_calls_function_with_extra_kwargs(self):

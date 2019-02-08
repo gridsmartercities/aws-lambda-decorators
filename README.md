@@ -55,12 +55,12 @@ The package offers functions to decode from JSON and JWT.
 
 This decorator extracts and validates values from dictionary parameters passed to a Lambda Function.
 
-* The decorator takes a list of [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L109-L191) objects.
-* Each [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L109-L191) object requires a non-empty path to the parameter in the dictionary, and the name of the dictionary (func_param_name)
+* The decorator takes a list of [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L109-L207) objects.
+* Each [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L109-L207) object requires a non-empty path to the parameter in the dictionary, and the name of the dictionary (func_param_name)
 * The parameter value is extracted and added as a kwarg to the lambda handler (or any other decorated function/method).
 * You can add the parameter to the handler signature, or access it in the handler through kwargs.
 * The name of the extracted parameter is defaulted to the last element of the path name, but can be changed by passing a (valid pythonic variable name) var_name
-* You can define a default value for the parameter in the [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L109-L191) or in the lambda handler itself.
+* You can define a default value for the parameter in the [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L109-L207) or in the lambda handler itself.
 * A 400 exception is raised when the parameter cannot be extracted or when it does not validate.
 * A variable path (e.g. '/headers/Authorization[jwt]/sub') can be annotated to specify a decoding. In the example, Authorization might contain a JWT, which needs to be decoded before accessing the "sub" element.
 

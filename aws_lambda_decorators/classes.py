@@ -149,9 +149,31 @@ class Parameter(ValidatedParameter, BaseParameter):
         """Getter for the default parameter."""
         return self._default
 
-    def get_value_by_path(self, dict_value):
+    def extract_value(self, dict_value):
         """
         Calculate and decode the value of the variable in the given path.
+
+        Used by the extract_validated_value.
+
+        Args:
+            dict_value (dict): dictionary to be parsed.
+        """
+        for path_key in filter(lambda item: item != '', self.path.split(PATH_DIVIDER)):
+            real_key, annotation = Parameter.get_annotations_from_key(path_key)
+            if real_key in dict_value:
+                dict_value = decode(annotation, dict_value[real_key])
+            else:
+                break
+
+        val = dict_value.get(real_key, self.default) if isinstance(dict_value, dict) else dict_value
+
+        if not self._name:
+            self._name = real_key
+        return val
+
+    def extract_validated_value(self, dict_value):
+        """
+        Extract and validate the extracted value
 
         Used by the decorators.
 
@@ -161,19 +183,13 @@ class Parameter(ValidatedParameter, BaseParameter):
         Raises:
             KeyError: if the parameter does not validate.
         """
-        for path_key in filter(lambda item: item != '', self.path.split(PATH_DIVIDER)):
-            real_key, annotation = Parameter.get_annotations_from_key(path_key)
-            if real_key in dict_value:
-                dict_value = decode(annotation, dict_value[real_key])
-            elif self._validators and is_type_in_list(Mandatory, self._validators):
-                raise KeyError(real_key)
+        val = self.extract_value(dict_value)
+        real_key = self.path.split(PATH_DIVIDER)[-1]
 
-        val = dict_value.get(real_key, self.default) if isinstance(dict_value, dict) else dict_value
-        if not self.validate(val):
+        if (val == self.default and self._validators and is_type_in_list(Mandatory, self._validators)) \
+                or not self.validate(val):
             raise KeyError(real_key)
 
-        if not self._name:
-            self._name = real_key
         return val
 
     @staticmethod
