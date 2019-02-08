@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock, call
+from botocore.exceptions import ClientError
 from examples.examples import extract_example, extract_to_kwargs_example, extract_missing_mandatory_param_example, \
     extract_from_json_example, extract_from_event_example, extract_from_context_example, extract_from_ssm_example, \
     validate_example, log_example, handle_exceptions_example, response_body_as_json_example
@@ -106,9 +107,18 @@ class ExamplesTests(unittest.TestCase):
             call('Response: %s', 'Done!')
         ])
 
-    def test_handle_exceptions_example(self):
-        self.assertEqual({'body': 'Your message when a client error happens.', 'statusCode': 400},
-                         handle_exceptions_example())
+    @patch("boto3.resource")
+    def test_handle_exceptions_example(self, mock_dynamo):
+        mock_table = MagicMock()
+        client_error = ClientError({}, '')
+        mock_table.query.side_effect = client_error
+
+        mock_dynamo.return_value.Table.return_value = mock_table
+
+        response = handle_exceptions_example()
+
+        self.assertEqual(response["statusCode"], 400)
+        self.assertEqual(response['body'], 'Your message when a client error happens.')
 
     def test_response_as_json_example(self):
 
