@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![](https://img.shields.io/github/release/gridsmartercities/aws-lambda-decorators.svg?style=flat)
 
-A set of Python decorators to ease the development of AWS lambda functions. [![Grid Smarter Cities](https://s3.eu-west-2.amazonaws.com/open-source-resources/grid_smarter_cities.png){:height="50%" width="50%" float="right"}](https://www.gridsmartercities.com/)
+A set of Python decorators to ease the development of AWS lambda functions. [<img align="right" alt="Grid Smarter Cities" width="100" height="100" src="https://s3.eu-west-2.amazonaws.com/open-source-resources/grid_smarter_cities.png">](https://www.gridsmartercities.com/)
 
 ## Installation!
 
