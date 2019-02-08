@@ -23,7 +23,11 @@ class ExamplesTests(unittest.TestCase):
             }
         }
 
-        self.assertEqual(('Hello!', 'I am missing', None, '123'), extract_example(a_dict, b_dict))
+        # calling the decorated extract_example:
+        response = extract_example(a_dict, b_dict)
+
+        # will return the values of the extracted parameters
+        self.assertEqual(('Hello!', 'I am missing', None, '123'), response)
 
     def test_extract_to_kwargs_example(self):
         dictionary = {
