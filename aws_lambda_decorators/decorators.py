@@ -28,7 +28,7 @@ def extract_from_event(parameters):
     The extracted parameters are added as kwargs to the handler function.
 
     Usage:
-        @extract_from_event([Parameter('/body[json]/my_param')])
+        @extract_from_event([Parameter(path='/body[json]/my_param')])
         def api_gateway_lambda_handler(event, context, my_param=None)
             pass
     """
@@ -44,7 +44,7 @@ def extract_from_context(parameters):
     The extracted parameters are added as kwargs to the handler function.
 
     Usage:
-        @extract_from_context([Parameter('/parent/my_param')])
+        @extract_from_context([Parameter(path='/parent/my_param')])
         def api_gateway_lambda_handler(event, context, my_param=None)
             pass
     """
@@ -60,7 +60,7 @@ def extract(parameters):
     The extracted parameters are added as kwargs to the handler function.
 
     Usage:
-        @extract([Parameter('headers/Authorization[jwt]/sub', var_name='user_id', func_param_name=None)])
+        @extract([Parameter(path='headers/Authorization[jwt]/sub', var_name='user_id', func_param_name='event')])
         def lambda_handler(event, context, user_id=None)
             pass
 
@@ -90,7 +90,7 @@ def handle_exceptions(handlers):
     Handles exceptions thrown by the wrapped/decorated function.
 
     Usage:
-        @handle_exceptions([ExceptionHandler(KeyError, 'Your message on KeyError except')]).
+        @handle_exceptions([ExceptionHandler(exception=KeyError, friendly_message='Your message on KeyError except')]).
         def lambda_handler(params)
             pass
 
@@ -132,7 +132,7 @@ def extract_from_ssm(ssm_parameters):
     Load given ssm parameters from AWS parameter store to the handler variables.
 
     Usage:
-        @extract_from_ssm([SSMParameter('key', 'var')])
+        @extract_from_ssm([SSMParameter(ssm_name='key', var_name='var')])
         def lambda_handler(var=None)
             pass
 
@@ -160,6 +160,8 @@ def response_body_as_json(func):
         @response_body_as_json
         def lambda_handler():
             return {'responseCode': 200, 'body': {'key': 'value'}}
+
+        will return {'responseCode': 200, 'body': "{'key':'value'}"}
     """
     def wrapper(*args, **kwargs):
         response = func(*args, **kwargs)
@@ -177,8 +179,8 @@ def validate(parameters):
     Validates a set of function parameters.
 
     Usage:
-        @validate([ValidatedParameter('var_name', validators=[...])])
-        def func(var_name)
+        @validate([ValidatedParameter(func_param_name='my_param', validators=[...])])
+        def func(my_param)
             pass
 
     Args:
