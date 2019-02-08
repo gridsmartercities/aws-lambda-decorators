@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock, call
+from botocore.exceptions import ClientError
 from examples.examples import extract_example, extract_to_kwargs_example, extract_mandatory_param_example, \
     extract_from_json_example, extract_from_event_example, extract_from_context_example, extract_from_ssm_example, \
     validate_example, log_example, handle_exceptions_example, response_body_as_json_example
@@ -26,7 +27,7 @@ class ExamplesTests(unittest.TestCase):
         # calling the decorated extract_example:
         response = extract_example(a_dict, b_dict)
 
-        # will return the values of the extracted parameters
+        # will return the values of the extracted parameters.
         self.assertEqual(('Hello!', 'I am missing', None, '123'), response)
 
     def test_extract_to_kwargs_example(self):
@@ -37,10 +38,10 @@ class ExamplesTests(unittest.TestCase):
             },
             'other': 'other value'
         }
-        # we can extract my_param
+        # we can extract 'my_param'.
         response = extract_to_kwargs_example(dictionary)
 
-        # and get the value from kwargs
+        # and get the value from kwargs.
         self.assertEqual('Hello!', response)
 
     def test_extract_missing_mandatory_example(self):
@@ -51,10 +52,10 @@ class ExamplesTests(unittest.TestCase):
             },
             'other': 'other value'
         }
-        # we can try to extract a missing mandatory parameter
+        # we can try to extract a missing mandatory parameter.
         response = extract_mandatory_param_example(dictionary)
 
-        # but we will get an error response as it is missing and it was mandatory
+        # but we will get an error response as it is missing and it was mandatory.
         self.assertEqual({'statusCode': 400, 'body': 'Error extracting parameters'}, response)
 
     def test_extract_not_missing_mandatory_example(self):
@@ -65,10 +66,10 @@ class ExamplesTests(unittest.TestCase):
             }
         }
 
-        # we can try to extract a mandatory parameter
+        # we can try to extract a mandatory parameter.
         response = extract_mandatory_param_example(dictionary)
 
-        # we will get the coded lambda response as the parameter is not missing
+        # we will get the coded lambda response as the parameter is not missing.
         self.assertEqual('Here!', response)
 
     def test_extract_from_json_example(self):
@@ -78,10 +79,10 @@ class ExamplesTests(unittest.TestCase):
             'other': 'other value'
         }
 
-        # we can extract from a json string by adding the [json] annotation to parent
+        # we can extract from a json string by adding the [json] annotation to parent.
         response = extract_from_json_example(dictionary)
 
-        # and we will get the value of the 'my_param' parameter inside the 'parent' json
+        # and we will get the value of the 'my_param' parameter inside the 'parent' json.
         self.assertEqual('Hello!', response)
 
     def test_extract_from_event_example(self):
@@ -94,10 +95,11 @@ class ExamplesTests(unittest.TestCase):
             }
         }
 
-        # we can extract 'my_param' from event, and 'sub' from Authorization JWT, using the extract_from_event decorator
+        # we can extract 'my_param' from event, and 'sub' from Authorization JWT
+        # using the 'extract_from_event' decorator.
         response = extract_from_event_example(event, None)
 
-        # and return both values in the lambda response
+        # and return both values in the lambda response.
         self.assertEqual(('Hello!', '1234567890'), response)
 
     def test_extract_from_context_example(self):
@@ -108,10 +110,10 @@ class ExamplesTests(unittest.TestCase):
             }
         }
 
-        # we can extract 'my_param' from context using the 'extract_from_context' decorator
+        # we can extract 'my_param' from context using the 'extract_from_context' decorator.
         response = extract_from_context_example(None, context)
 
-        # and return the value in the lambda response
+        # and return the value in the lambda response.
         self.assertEqual('Hello!', response)
 
     @patch("boto3.client")
@@ -130,21 +132,21 @@ class ExamplesTests(unittest.TestCase):
         }
         mock_boto_client.return_value = mock_ssm
 
-        # we can extract the value of that parameter
+        # we can extract the value of that parameter.
         response = extract_from_ssm_example(None)
 
-        # and return the mocked SSM parameters from the lambda
+        # and return the mocked SSM parameters from the lambda.
         self.assertEqual((None, 'test1', 'test2'), response)
 
     def test_validate_example(self):
-        # We can validate non-dictionary parameters too, using the 'validate' decorator
+        # We can validate non-dictionary parameters too, using the 'validate' decorator.
         response = validate_example('Hello!', '123456')
 
-        # in this case the parameters are valid and are returned by the function
+        # in this case the parameters are valid and are returned by the function.
         self.assertEqual(('Hello!', '123456'), response)
 
     def test_validate_raises_exception_example(self):
-        # We can validate non-dictionary parameters too, using the 'validate' decorator
+        # We can validate non-dictionary parameters too, using the 'validate' decorator.
         response = validate_example('Hello!', 'ABCD')
 
         # in this case at least one parameter is not valid and a 400 error is returned to the caller.
@@ -156,18 +158,31 @@ class ExamplesTests(unittest.TestCase):
         # We can use the 'log' decorator to log the parameters passed to a lambda and/or the response from the lambda.
         log_example('Hello!')  # logs 'Hello!' and 'Done!'
 
+        # and check the log messages were produced.
         mock_logger.info.assert_has_calls([
             call('Parameters: %s', ('Hello!',)),
             call('Response: %s', 'Done!')
         ])
 
-    def test_handle_exceptions_example(self):
-        self.assertEqual({'body': 'Your message when a client error happens.', 'statusCode': 400},
-                         handle_exceptions_example())
+    @patch("boto3.resource")
+    def test_handle_exceptions_example(self, mock_dynamo):
+        # Mocking the dynamo query to return a ClientError.
+        mock_table = MagicMock()
+        client_error = ClientError({}, '')
+        mock_table.query.side_effect = client_error
+
+        mock_dynamo.return_value.Table.return_value = mock_table
+
+        # we can automatically handle the ClientError, using the 'exception_handler' decorator.
+        response = handle_exceptions_example()
+
+        # and return the error supplied to the caller.
+        self.assertEqual(response["statusCode"], 400)
+        self.assertEqual(response['body'], 'Your message when a client error happens.')
 
     def test_response_as_json_example(self):
         # We can automatically json dump a body dictionary:
         response = response_body_as_json_example()['body']
 
-        # the response body is a string
+        # the response body is a string.
         self.assertEqual('{"param": "hello!"}', response['body'])
