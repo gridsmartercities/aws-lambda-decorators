@@ -182,7 +182,7 @@ class ExamplesTests(unittest.TestCase):
 
     def test_response_as_json_example(self):
         # We can automatically json dump a body dictionary:
-        response = response_body_as_json_example()['body']
+        response = response_body_as_json_example()
 
         # the response body is a string.
         self.assertEqual('{"param": "hello!"}', response['body'])

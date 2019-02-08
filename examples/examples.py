@@ -2,18 +2,9 @@
 import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
-
-from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, extract_from_ssm, \
-    validate, log, handle_exceptions, response_body_as_json
-from aws_lambda_decorators.classes import Parameter, SSMParameter, ValidatedParameter, ExceptionHandler
-from aws_lambda_decorators.validators import Mandatory, RegexValidator
-"""
-or import from a single namespace:
-
 from aws_lambda_decorators import extract, extract_from_event, extract_from_context, extract_from_ssm, \
     validate, log, handle_exceptions, response_body_as_json, Parameter, SSMParameter, ValidatedParameter, \
     ExceptionHandler, Mandatory, RegexValidator
-"""
 
 
 @extract(parameters=[
