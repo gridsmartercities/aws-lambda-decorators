@@ -70,10 +70,10 @@ class SSMParameter(BaseParameter):
         return self._ssm_name
 
 
-class ValidatedParameter(BaseParameter):
+class ValidatedParameter:
     """Class used to encapsulate the validation methods parameter data."""
 
-    def __init__(self, func_param_name=None, validators=None, var_name=None):
+    def __init__(self, func_param_name=None, validators=None):
         """
         Sets the private variables of the ValidatedParameter object.
 
@@ -82,12 +82,9 @@ class ValidatedParameter(BaseParameter):
                 def fun(event, context). To extract from context func_param_name has to be 'context'
             validators (list): A list of validators the value must conform to (e.g. Mandatory(),
                 RegexValidator(my_regex), ...)
-            var_name (str): Optional, the name of the variable we want to assign the extracted value to. The default
-                value is the last element of the path (e.g. 'c' in the case above)
         """
         self._func_param_name = func_param_name
         self._validators = validators
-        BaseParameter.__init__(self, var_name)
 
     @property
     def func_param_name(self):
@@ -109,7 +106,7 @@ class ValidatedParameter(BaseParameter):
         return True
 
 
-class Parameter(ValidatedParameter):
+class Parameter(ValidatedParameter, BaseParameter):
     """Class used to encapsulate the extract methods parameter data."""
 
     def __init__(self, path='', func_param_name=None, validators=None, var_name=None, default=None):  # noqa: pylint - too-many-arguments
@@ -139,7 +136,8 @@ class Parameter(ValidatedParameter):
         """
         self._path = path
         self._default = default
-        ValidatedParameter.__init__(self, func_param_name, validators, var_name)
+        ValidatedParameter.__init__(self, func_param_name, validators)
+        BaseParameter.__init__(self, var_name)
 
     @property
     def path(self):
