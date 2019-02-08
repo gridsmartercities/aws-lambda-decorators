@@ -45,7 +45,7 @@ def extract_to_kwargs_example(a_dictionary, **kwargs):
             # extracts a mandatory my_param from a_dictionary
             Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])
         ])
-def extract_missing_mandatory_param_example(a_dictionary, mandatory_param=None):
+def extract_mandatory_param_example(a_dictionary, mandatory_param=None):
     return 'Here!'  # this part will never be reached, if the mandatory_param is missing
 
 
