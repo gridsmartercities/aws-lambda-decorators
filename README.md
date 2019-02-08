@@ -255,7 +255,7 @@ This decorator handles a list of exceptions, returning a 400 response containing
 * The decorator takes a list of [ExceptionHandler](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L11-L33) objects.
 * Each [ExceptionHandler](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L11-L33) requires the type of exception to check, and the friendly message to return to the caller.
 
-Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L100-L107) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L168-L181)
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L94-L101) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L168-L181)
 ```python
 @handle_exceptions(handlers=[
     ExceptionHandler(ClientError, "Your message when a client error happens.")
@@ -273,7 +273,7 @@ handle_exceptions_example()  # returns {'body': 'Your message when a client erro
 
 This decorator ensures that, if the response contains a body, the body is dumped as json.
 
-Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L109-L111) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L183-L188)
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L104-L106) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L183-L188)
 ```python
 @response_body_as_json
 def response_body_as_json_example():
