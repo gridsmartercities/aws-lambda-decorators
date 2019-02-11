@@ -40,7 +40,7 @@ The current list of AWS Lambda Python Decorators includes:
 
 Currently, the package offers 2 validators:
 
-* [__Mandatory__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py#L5-L16): Checks if a parameter has a not None value.
+* [__Mandatory__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py#L5-L16): Checks if a parameter has a value.
 * [__RegexValidator__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py#L19-L38): Checks a parameter against a regular expression.
 
 ### [Decoders](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py)
@@ -273,6 +273,8 @@ handle_exceptions_example()  # returns {'body': 'Your message when a client erro
 ### [response_body_as_json](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L155-L174)
 
 This decorator ensures that, if the response contains a body, the body is dumped as json.
+
+* Returns a 500 error if the response body cannot be dumped as json.
 
 Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L104-L106) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L183-L188)
 ```python
