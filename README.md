@@ -7,7 +7,6 @@
 \
 ![Python Versions](https://img.shields.io/pypi/pyversions/aws-lambda-decorators.svg?style=flat)
 ![PyPi Version](https://img.shields.io/pypi/v/aws-lambda-decorators.svg?style=flat)
-![PyPi Downloads](https://img.shields.io/pypi/dm/aws-lambda-decorators.svg?style=flat)
 ![PyPi Status](https://img.shields.io/pypi/status/aws-lambda-decorators.svg?style=flat)
 
 # aws-lambda-decorators
@@ -18,7 +17,7 @@ A set of Python decorators to ease the development of AWS lambda functions.
 
 The easiest way to use these AWS Lambda Decorators is to install them through Pip:
 
-`pip install -i https://test.pypi.org/simple/ aws-lambda-decorators`
+`pip install aws-lambda-decorators`
 
 ## Package Contents
 
@@ -296,5 +295,6 @@ You can get the docstring help by running:
 
 ## Links
 
-* [PyPi](https://test.pypi.org/project/aws-lambda-decorators/)
+* [PyPi](https://pypi.org/project/aws-lambda-decorators/)
+* [Test PyPi](https://test.pypi.org/project/aws-lambda-decorators/)
 * [Github](https://github.com/gridsmartercities/aws-lambda-decorators)
