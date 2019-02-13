@@ -8,6 +8,7 @@
 ![Python Versions](https://img.shields.io/pypi/pyversions/aws-lambda-decorators.svg?style=flat)
 ![PyPi Version](https://img.shields.io/pypi/v/aws-lambda-decorators.svg?style=flat)
 ![PyPi Status](https://img.shields.io/pypi/status/aws-lambda-decorators.svg?style=flat)
+![Pypi Downloads](https://img.shields.io/pypi/dm/aws-lambda-decorators.svg?style=flat&logo=pypi)
 
 # aws-lambda-decorators
 
