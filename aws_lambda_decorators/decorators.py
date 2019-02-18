@@ -23,13 +23,13 @@ RESPONSE_LOG_MESSAGE = "Response: %s"
 
 def extract_from_event(parameters):
     """
-    Extracts a set of parameters from the event dictionary in an API Gateway lambda handler.
+    Extracts a set of parameters from the event dictionary in a lambda handler.
 
     The extracted parameters are added as kwargs to the handler function.
 
     Usage:
         @extract_from_event([Parameter(path='/body[json]/my_param')])
-        def api_gateway_lambda_handler(event, context, my_param=None)
+        def lambda_handler(event, context, my_param=None)
             pass
     """
     for param in parameters:
@@ -39,13 +39,13 @@ def extract_from_event(parameters):
 
 def extract_from_context(parameters):
     """
-    Extracts a set of parameters from the context dictionary in an API Gateway lambda handler.
+    Extracts a set of parameters from the context dictionary in a lambda handler.
 
     The extracted parameters are added as kwargs to the handler function.
 
     Usage:
         @extract_from_context([Parameter(path='/parent/my_param')])
-        def api_gateway_lambda_handler(event, context, my_param=None)
+        def lambda_handler(event, context, my_param=None)
             pass
     """
     for param in parameters:
@@ -55,7 +55,7 @@ def extract_from_context(parameters):
 
 def extract(parameters):
     """
-    Extracts a set of parameters from any function parameter passed to any AWS lambda handler.
+    Extracts a set of parameters from any function parameter passed to an AWS lambda handler.
 
     The extracted parameters are added as kwargs to the handler function.
 
