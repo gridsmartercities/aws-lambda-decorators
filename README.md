@@ -47,8 +47,8 @@ Currently, the package offers 2 validators:
 
 The package offers functions to decode from JSON and JWT. 
 
-* [__decode_json__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L44-L46): decodes/converts a json string to a python dictionary
-* [__decode_jwt__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L49-L51): decodes/converts a JWT string to a python dictionary
+* [__decode_json__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L48-L50): decodes/converts a json string to a python dictionary
+* [__decode_jwt__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L53-L55): decodes/converts a JWT string to a python dictionary
 
 ## Examples
 
