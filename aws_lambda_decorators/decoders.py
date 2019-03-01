@@ -33,14 +33,14 @@ def decode(annotation, value):
     if annotation:
         if annotation.isdigit():
             return value[int(annotation)]
-        else:
-            module_name = sys.modules[__name__]
-            func_name = DECODE_FUNC_NAME % annotation
-            if hasattr(module_name, func_name):
-                func = getattr(module_name, func_name)
-                return func(value)
 
-            LOGGER.error(DECODE_FUNC_MISSING_ERROR, annotation)
+        module_name = sys.modules[__name__]
+        func_name = DECODE_FUNC_NAME % annotation
+        if hasattr(module_name, func_name):
+            func = getattr(module_name, func_name)
+            return func(value)
+
+        LOGGER.error(DECODE_FUNC_MISSING_ERROR, annotation)
 
     return value
 

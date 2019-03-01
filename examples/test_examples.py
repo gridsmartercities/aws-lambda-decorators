@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock, call
 from botocore.exceptions import ClientError
 from examples.examples import extract_example, extract_to_kwargs_example, extract_mandatory_param_example, \
     extract_from_json_example, extract_from_event_example, extract_from_context_example, extract_from_ssm_example, \
-    validate_example, log_example, handle_exceptions_example, response_body_as_json_example
+    validate_example, log_example, handle_exceptions_example, response_body_as_json_example, extract_from_list_example
 
 
 class ExamplesTests(unittest.TestCase):
@@ -186,3 +186,19 @@ class ExamplesTests(unittest.TestCase):
 
         # the response body is a string.
         self.assertEqual('{"param": "hello!"}', response['body'])
+
+    def test_extract_from_list_example(self):
+        # Given this dictionary:
+        dictionary = {
+            'parent': [
+                {'my_param': 'Hello!'},
+                {'my_param': 'Bye!'}
+            ],
+            'other': 'other value'
+        }
+
+        # we can extract from a json string by adding the [json] annotation to parent.
+        response = extract_from_list_example(dictionary)
+
+        # and we will get the value of the 'my_param' parameter inside the 'parent' correct item.
+        self.assertEqual('Bye!', response)

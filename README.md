@@ -150,6 +150,26 @@ def extract_from_json_example(a_dictionary, my_param=None):
 
 ```
 
+You can also use an integer annotation to access an specific list element by index.
+
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L109-L114) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L190-L204)
+```python
+@extract(parameters=[
+    Parameter(path='/parent[1]/my_param', func_param_name='a_dictionary')  # extracts a non mandatory my_param from a_dictionary
+])
+def extract_from_list_example(a_dictionary, my_param=None):
+    """
+        a_dictionary = { 
+            'parent': [
+                {'my_param': 'Hello!'},
+                {'my_param': 'Bye!'}
+            ]
+        }
+    """
+    return my_param  # returns 'Bye!'
+
+```
+
 ### [extract_from_event](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L24-L37)
 
 This decorator is just a facade to the [extract](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L56-L85) method to be used in AWS Api Gateway Lambdas. It automatically extracts from the event lambda parameter.
