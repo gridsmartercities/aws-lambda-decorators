@@ -61,3 +61,27 @@ class DecodersTests(unittest.TestCase):
                                                   'Not enough segments',
                                                   'event',
                                                   '/a/b[jwt]/c')
+
+    def test_extracts_from_array_successfully(self):
+        path = "/a/b[1]/c"
+        dictionary = {
+            "a": {
+                "b": [
+                    {
+                        "c": 2
+                    },
+                    {
+                        "c": 3
+                    }
+                ]
+            }
+        }
+
+        @extract([Parameter(path, 'event')])
+        def handler(event, context, c=None):  # noqa
+            print(c)
+            return c
+
+        response = handler(dictionary, None)
+
+        self.assertEqual(3, response)
