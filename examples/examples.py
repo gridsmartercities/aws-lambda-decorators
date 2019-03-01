@@ -104,3 +104,11 @@ def handle_exceptions_example():
 @response_body_as_json
 def response_body_as_json_example():
     return {'statusCode': 400, 'body': {'param': 'hello!'}}
+
+
+@extract(parameters=[
+    # extracts a non mandatory my_param from a_dictionary
+    Parameter(path='/parent[1]/my_param', func_param_name='a_dictionary')
+])
+def extract_from_list_example(a_dictionary, my_param=None):
+    return my_param

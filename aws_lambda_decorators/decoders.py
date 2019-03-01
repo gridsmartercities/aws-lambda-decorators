@@ -21,6 +21,7 @@ def decode(annotation, value):
          annotation     decoder
           [json]      decode_json
           [jwt]       decode_jwt
+           [n]        where n is a number. Decodes the value as an array, and picks item n from the array
 
     Args:
         annotation (str): the type of encoding of the value (e.g. 'json', 'jwt').
@@ -30,6 +31,9 @@ def decode(annotation, value):
         decoded dictionary.
     """
     if annotation:
+        if annotation.isdigit():
+            return value[int(annotation)]
+
         module_name = sys.modules[__name__]
         func_name = DECODE_FUNC_NAME % annotation
         if hasattr(module_name, func_name):

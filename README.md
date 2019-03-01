@@ -47,8 +47,8 @@ Currently, the package offers 2 validators:
 
 The package offers functions to decode from JSON and JWT. 
 
-* [__decode_json__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L44-L46): decodes/converts a json string to a python dictionary
-* [__decode_jwt__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L49-L51): decodes/converts a JWT string to a python dictionary
+* [__decode_json__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L48-L50): decodes/converts a json string to a python dictionary
+* [__decode_jwt__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L53-L55): decodes/converts a JWT string to a python dictionary
 
 ## Examples
 
@@ -147,6 +147,26 @@ def extract_from_json_example(a_dictionary, my_param=None):
         }
     """
     return my_param  # returns 'Hello!'
+
+```
+
+You can also use an integer annotation to access an specific list element by index.
+
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L109-L114) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L190-L204)
+```python
+@extract(parameters=[
+    Parameter(path='/parent[1]/my_param', func_param_name='a_dictionary')  # extracts a non mandatory my_param from a_dictionary
+])
+def extract_from_list_example(a_dictionary, my_param=None):
+    """
+        a_dictionary = { 
+            'parent': [
+                {'my_param': 'Hello!'},
+                {'my_param': 'Bye!'}
+            ]
+        }
+    """
+    return my_param  # returns 'Bye!'
 
 ```
 
