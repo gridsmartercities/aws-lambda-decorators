@@ -35,6 +35,19 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = param.extract_validated_value(dictionary)
         self.assertEqual("hello", response)
 
+    def test_can_get_dict_value_from_dict_by_path(self):
+        path = "/a/b"
+        dictionary = {
+            "a": {
+                "b": {
+                    "c": "hello"
+                }
+            }
+        }
+        param = Parameter(path)
+        response = param.extract_validated_value(dictionary)
+        self.assertEqual({"c": "hello"}, response)
+
     def test_raises_decode_error_convert_json_string_to_dict(self):
         path = "/a/b[json]/c"
         dictionary = {

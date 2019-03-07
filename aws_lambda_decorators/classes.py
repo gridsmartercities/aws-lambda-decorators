@@ -163,13 +163,13 @@ class Parameter(ValidatedParameter, BaseParameter):
             if real_key in dict_value:
                 dict_value = decode(annotation, dict_value[real_key])
             else:
+                dict_value = self.default
                 break
-
-        val = dict_value.get(real_key, self.default) if isinstance(dict_value, dict) else dict_value
 
         if not self._name:
             self._name = real_key
-        return val
+
+        return dict_value
 
     def extract_validated_value(self, dict_value):
         """
