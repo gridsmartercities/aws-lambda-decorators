@@ -11,7 +11,7 @@ from aws_lambda_decorators import extract, extract_from_event, extract_from_cont
             # extracts a non mandatory my_param from a_dictionary
             Parameter(path='/parent/my_param', func_param_name='a_dictionary'),
             # extracts a non mandatory missing_non_mandatory from a_dictionary
-            Parameter(path='/parent/missing_non_mandatory', func_param_name='a_dictionary', default='I am missing'),
+            Parameter(path='/parent/missing_non_mandatory', func_param_name='a_dictionary'),
             # does not fail as the parameter is not validated as mandatory
             Parameter(path='/parent/missing_mandatory', func_param_name='a_dictionary'),
             # extracts a mandatory id as "user_id" from another_dictionary
