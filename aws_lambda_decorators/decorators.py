@@ -73,7 +73,9 @@ def extract(parameters):
                 arg_dictionary = all_func_args(func, args, kwargs)
                 for param in parameters:
                     param_val = arg_dictionary[param.func_param_name]
-                    kwargs[param.get_var_name()] = param.extract_validated_value(param_val)
+                    return_val = param.extract_validated_value(param_val)
+                    if return_val:
+                        kwargs[param.get_var_name()] = return_val
                 return func(*args, **kwargs)
             except Exception as ex:  # noqa: pylint - broad-except
                 LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE, full_name(ex), str(ex), param.func_param_name, param.path)  # noqa: pylint - logging-fstring-interpolation
