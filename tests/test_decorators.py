@@ -356,6 +356,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         mock_ssm.get_parameters.return_value = {
             "Parameters": [
                 {
+                    "Name": "key",
                     "Value": "tests"
                 }
             ]
@@ -374,6 +375,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         mock_ssm.get_parameters.return_value = {
             "Parameters": [
                 {
+                    "Name": "key",
                     "Value": "tests"
                 }
             ]
@@ -392,10 +394,12 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         mock_ssm.get_parameters.return_value = {
             "Parameters": [
                 {
-                    "Value": "test1"
+                    "Name": "key2",
+                    "Value": "test2"
                 },
                 {
-                    "Value": "test2"
+                    "Name": "key1",
+                    "Value": "test1"
                 }
             ]
         }
