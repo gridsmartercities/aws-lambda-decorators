@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock, call
 from botocore.exceptions import ClientError
-from examples.examples import extract_example, extract_to_kwargs_example, extract_mandatory_param_example, \
+from examples import extract_example, extract_to_kwargs_example, extract_mandatory_param_example, \
     extract_from_json_example, extract_from_event_example, extract_from_context_example, extract_from_ssm_example, \
     validate_example, log_example, handle_exceptions_example, response_body_as_json_example, extract_from_list_example
 
@@ -123,10 +123,12 @@ class ExamplesTests(unittest.TestCase):
         mock_ssm.get_parameters.return_value = {
             "Parameters": [
                 {
-                    "Value": "test1"
+                    "Value": "test1",
+                    "Name": "one_key"
                 },
                 {
-                    "Value": "test2"
+                    "Value": "test2",
+                    "Name": "another_key"
                 }
             ]
         }

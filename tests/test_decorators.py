@@ -363,7 +363,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         }
         mock_boto_client.return_value = mock_ssm
 
-        @extract_from_ssm([SSMParameter("key", "key")])
+        @extract_from_ssm([SSMParameter("key")])
         def handler(key=None):
             return key
 
