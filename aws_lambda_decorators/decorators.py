@@ -74,7 +74,7 @@ def extract(parameters):
                 for param in parameters:
                     param_val = arg_dictionary[param.func_param_name]
                     return_val = param.extract_validated_value(param_val)
-                    if return_val:
+                    if return_val is not None:
                         kwargs[param.get_var_name()] = return_val
                 return func(*args, **kwargs)
             except Exception as ex:  # noqa: pylint - broad-except

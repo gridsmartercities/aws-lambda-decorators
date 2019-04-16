@@ -101,6 +101,40 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         self.assertEqual(handler(dictionary, None), "hello")
 
+    def test_extract_from_event_calls_function_with_extra_kwargs_bool_true(self):
+        path = "/a/b/c"
+        dictionary = {
+            "a": {
+                "b": {
+                    "c": True
+                }
+            }
+        }
+
+        @extract_from_event([Parameter(path)])
+        def handler(event, context, c=None):  # noqa
+            return c
+
+        self.assertFalse(handler(dictionary, None) is None)
+        self.assertEqual(True, handler(dictionary, None))
+
+    def test_extract_from_event_calls_function_with_extra_kwargs_bool_false(self):
+        path = "/a/b/c"
+        dictionary = {
+            "a": {
+                "b": {
+                    "c": False
+                }
+            }
+        }
+
+        @extract_from_event([Parameter(path)])
+        def handler(event, context, c=None):  # noqa
+            return c
+
+        self.assertFalse(handler(dictionary, None) is None)
+        self.assertEqual(False, handler(dictionary, None))
+
     def test_extract_from_context_calls_function_with_extra_kwargs(self):
         path = "/a/b/c"
         dictionary = {
