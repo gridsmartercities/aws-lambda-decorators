@@ -152,7 +152,7 @@ def extract_from_json_example(a_dictionary, my_param=None):
 
 You can also use an integer annotation to access an specific list element by index.
 
-Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L109-L114) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L190-L204)
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L109-L114) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L192-L206)
 ```python
 @extract(parameters=[
     Parameter(path='/parent[1]/my_param', func_param_name='a_dictionary')  # extracts a non mandatory my_param from a_dictionary
@@ -212,7 +212,7 @@ def extract_from_context_example(event, context, my_param=None):
     return my_param  # returns 'Hello!'
 ```
 
-### [extract_from_ssm](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L132-L154)
+### [extract_from_ssm](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L132-L156)
 
 This decorator extracts a parameter from AWS SSM and passes the parameter down to your function as a kwarg.
 
@@ -220,7 +220,7 @@ This decorator extracts a parameter from AWS SSM and passes the parameter down t
 * Each [SSMParameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L54-L70) object requires the name of the SSM parameter (ssm_name)
 * If no var_name is passed in, the extracted value is passed to the function with the ssm_name name
 
-Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L69-L76) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L120-L139)
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L69-L76) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L120-L141)
 ```python
 @extract_from_ssm(ssm_parameters=[
     SSMParameter(ssm_name='one_key'),  # extracts the value of one_key from SSM as a kwarg named "one_key"
@@ -230,7 +230,7 @@ def extract_from_ssm_example(your_func_params, one_key=None, another=None):
     return your_func_params, one_key, another
 ```
 
-### [validate](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L179-L202)
+### [validate](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L181-L204)
 
 This decorator validates a list of non dictionary parameters from your lambda function.
 
@@ -238,7 +238,7 @@ This decorator validates a list of non dictionary parameters from your lambda fu
 * Each parameter object needs the name of the lambda function parameter that it is going to be validated, and the list of rules to validate.
 * A 400 exception is raised when the parameter does not validate.
 
-Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L79-L86) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L141-L146)
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L79-L86) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L143-L148)
 ```python
 @validate(parameters=[
     ValidatedParameter(func_param_name='a_param', validators=[Mandatory]),  # validates a_param as mandatory
@@ -260,7 +260,7 @@ validate_example('Hello!', 'ABCD')  # returns a 400 status code and an error mes
 
 This decorator allows for logging the function arguments and/or the response.
 
-Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#Lƒ-L91) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L157-L165)
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#Lƒ-L91) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L159-L167)
 ```python
 @log(parameters=True, response=True)
 def log_example(parameters): 
@@ -276,7 +276,7 @@ This decorator handles a list of exceptions, returning a 400 response containing
 * The decorator takes a list of [ExceptionHandler](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L11-L33) objects.
 * Each [ExceptionHandler](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L11-L33) requires the type of exception to check, and the friendly message to return to the caller.
 
-Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L94-L101) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L168-L181)
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L94-L101) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L170-L183)
 ```python
 @handle_exceptions(handlers=[
     ExceptionHandler(ClientError, "Your message when a client error happens.")
@@ -290,13 +290,13 @@ def handle_exceptions_example():
 handle_exceptions_example()  # returns {'body': 'Your message when a client error happens.', 'statusCode': 400}
 ```
 
-### [response_body_as_json](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L157-L176)
+### [response_body_as_json](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L159-L178)
 
 This decorator ensures that, if the response contains a body, the body is dumped as json.
 
 * Returns a 500 error if the response body cannot be dumped as json.
 
-Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L104-L106) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L183-L188)
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L104-L106) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L185-L190)
 ```python
 @response_body_as_json
 def response_body_as_json_example():
