@@ -148,9 +148,10 @@ def extract_from_ssm(ssm_parameters):
                 Names=[ssm_parameter.get_ssm_name() for ssm_parameter in ssm_parameters],
                 WithDecryption=True)
             for key_container in server_key_containers['Parameters']:
-                for ssm_parameter in ssm_parameters:
+                for ssm_parameter in ssm_parameters:  # pragma: no cover
                     if ssm_parameter.get_ssm_name() == key_container['Name']:
                         kwargs[ssm_parameter.get_var_name()] = key_container['Value']
+                        break
             return func(*args, **kwargs)
         return wrapper
     return decorator
