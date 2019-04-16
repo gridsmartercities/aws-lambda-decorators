@@ -76,13 +76,13 @@ def extract(parameters):
                     return_val = param.extract_validated_value(param_val)
                     if return_val is not None:
                         kwargs[param.get_var_name()] = return_val
-                return func(*args, **kwargs)
             except Exception as ex:  # noqa: pylint - broad-except
                 LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE, full_name(ex), str(ex), param.func_param_name, param.path)  # noqa: pylint - logging-fstring-interpolation
                 return {
                     'statusCode': 400,
                     'body': PARAM_EXTRACT_ERROR
                 }
+            return func(*args, **kwargs)
         return wrapper
     return decorator
 
