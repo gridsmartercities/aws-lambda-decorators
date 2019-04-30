@@ -13,10 +13,10 @@ from aws_lambda_decorators.utils import full_name, all_func_args
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
 
-BODY_NOT_JSON_ERROR = 'Response body is not JSON serializable'
-PARAM_EXTRACT_ERROR = 'Error extracting parameters'
+BODY_NOT_JSON_ERROR = '{"message": "Response body is not JSON serializable"}'
+PARAM_EXTRACT_ERROR = '{"message": "Error extracting parameters"}'
 PARAM_EXTRACT_LOG_MESSAGE = "%s: '%s' in argument %s for path %s"
-PARAM_INVALID_ERROR = "Error validating parameters"
+PARAM_INVALID_ERROR = '{"message": "Error validating parameters"}'
 PARAM_LOG_MESSAGE = "Parameters: %s"
 RESPONSE_LOG_MESSAGE = "Response: %s"
 
@@ -109,7 +109,7 @@ def handle_exceptions(handlers):
                 LOGGER.error(log_message)
                 return {
                     'statusCode': 400,
-                    'body': message
+                    'body': '{"message": "%s"}' % message
                 }
         return wrapper
     return decorator
@@ -164,9 +164,9 @@ def response_body_as_json(func):
     Usage:
         @response_body_as_json
         def lambda_handler():
-            return {'responseCode': 200, 'body': {'key': 'value'}}
+            return {'statusCode': 200, 'body': {'key': 'value'}}
 
-        will return {'responseCode': 200, 'body': "{'key':'value'}"}
+        will return {'statusCode': 200, 'body': "{'key':'value'}"}
     """
     def wrapper(*args, **kwargs):
         response = func(*args, **kwargs)
@@ -174,7 +174,7 @@ def response_body_as_json(func):
             try:
                 response['body'] = json.dumps(response['body'])
             except TypeError:
-                return {'responseCode': 500, 'body': BODY_NOT_JSON_ERROR}
+                return {'statusCode': 500, 'body': BODY_NOT_JSON_ERROR}
         return response
     return wrapper
 

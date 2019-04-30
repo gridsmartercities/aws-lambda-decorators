@@ -167,7 +167,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(dictionary, None)
 
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual('Error extracting parameters', response["body"])
+        self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
 
     def test_extract_returns_400_on_missing_mandatory_key(self):
         path = "/a/b/c"
@@ -185,7 +185,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(dictionary, None)
 
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual('Error extracting parameters', response["body"])
+        self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
 
     def test_can_add_name_to_parameter(self):
         path = "/a/b"
@@ -219,7 +219,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(dictionary, None)
 
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual('Error extracting parameters', response["body"])
+        self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
 
         mock_logger.error.assert_called_once_with("%s: '%s' in argument %s for path %s",
                                                   'SyntaxError',
@@ -243,7 +243,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(dictionary, None)
 
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual('Error extracting parameters', response["body"])
+        self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
 
         mock_logger.error.assert_called_once_with("%s: '%s' in argument %s for path %s",
                                                   'SyntaxError',
@@ -285,7 +285,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler(dictionary, None)
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual("Error extracting parameters", response["body"])
+        self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
 
     def test_extract_does_not_raise_an_error_on_valid_regex_key(self):
         path = "/a/b/c"
@@ -316,7 +316,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler("2019", "abcd")
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual("Error validating parameters", response["body"])
+        self.assertEqual('{"message": "Error validating parameters"}', response["body"])
 
     def test_validate_does_not_raise_an_error_on_valid_variables(self):
         @validate([
@@ -346,7 +346,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(dictionary, None)
 
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual('Error extracting parameters', response["body"])
+        self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_exception_handler_raises_exception(self, mock_logger):
@@ -378,11 +378,11 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         @log(False, True)
         def handler():
-            return {'responseCode': 201}
+            return {'statusCode': 201}
 
         handler()
 
-        mock_logger.info.assert_called_once_with('Response: %s', {'responseCode': 201})
+        mock_logger.info.assert_called_once_with('Response: %s', {'statusCode': 201})
 
     @patch("boto3.client")
     def test_get_valid_ssm_parameter(self, mock_boto_client):
@@ -476,28 +476,28 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         @response_body_as_json
         def handler():
-            return {'responseCode': 200, 'body': {'a': 'b'}}
+            return {'statusCode': 200, 'body': {'a': 'b'}}
 
         response = handler()
 
-        self.assertEqual(response, {'responseCode': 200, 'body': '{"a": "b"}'})
+        self.assertEqual(response, {'statusCode': 200, 'body': '{"a": "b"}'})
 
     def test_body_dump_raises_exception_on_invalid_json(self):
 
         @response_body_as_json
         def handler():
-            return {'responseCode': 200, 'body': {'a'}}
+            return {'statusCode': 200, 'body': {'a'}}
 
         response = handler()
 
-        self.assertEqual(response, {'responseCode': 500, 'body': 'Response body is not JSON serializable'})
+        self.assertEqual(response, {'statusCode': 500, 'body': '{"message": "Response body is not JSON serializable"}'})
 
     def test_response_as_json_invalid_application_does_nothing(self):
 
         @response_body_as_json
         def handler():
-            return {'responseCode': 200}
+            return {'statusCode': 200}
 
         response = handler()
 
-        self.assertEqual(response, {'responseCode': 200})
+        self.assertEqual(response, {'statusCode': 200})

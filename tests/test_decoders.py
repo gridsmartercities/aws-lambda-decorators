@@ -29,7 +29,7 @@ class DecodersTests(unittest.TestCase):
         response = handler(dictionary, None)
 
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual("Error extracting parameters", response["body"])
+        self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
 
         mock_logger.error.assert_called_once_with("%s: '%s' in argument %s for path %s",
                                                   'json.decoder.JSONDecodeError',
@@ -54,7 +54,7 @@ class DecodersTests(unittest.TestCase):
         response = handler(dictionary, None)
 
         self.assertEqual(400, response["statusCode"])
-        self.assertTrue("Error extracting parameters" in response["body"])
+        self.assertTrue('{"message": "Error extracting parameters"}' in response["body"])
 
         mock_logger.error.assert_called_once_with("%s: '%s' in argument %s for path %s",
                                                   'jwt.exceptions.DecodeError',
@@ -108,7 +108,7 @@ class DecodersTests(unittest.TestCase):
         response = handler(dictionary, None)
 
         self.assertEqual(400, response["statusCode"])  # noqa
-        self.assertTrue("Error extracting parameters" in response["body"])  # noqa
+        self.assertTrue('{"message": "Error extracting parameters"}' in response["body"])  # noqa
 
         mock_logger.error.assert_called_once_with("%s: '%s' in argument %s for path %s",
                                                   'IndexError',
