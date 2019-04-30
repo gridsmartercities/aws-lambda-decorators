@@ -56,7 +56,7 @@ class ExamplesTests(unittest.TestCase):
         response = extract_mandatory_param_example(dictionary)
 
         # but we will get an error response as it is missing and it was mandatory.
-        self.assertEqual({'statusCode': 400, 'body': 'Error extracting parameters'}, response)
+        self.assertEqual({'statusCode': 400, 'body': '{"message": "Error extracting parameters"}'}, response)
 
     def test_extract_not_missing_mandatory_example(self):
         # Given this dictionary:
@@ -152,7 +152,7 @@ class ExamplesTests(unittest.TestCase):
         response = validate_example('Hello!', 'ABCD')
 
         # in this case at least one parameter is not valid and a 400 error is returned to the caller.
-        self.assertEqual({'statusCode': 400, 'body': 'Error validating parameters'}, response)
+        self.assertEqual({'statusCode': 400, 'body': '{"message": "Error validating parameters"}'}, response)
 
     @staticmethod
     @patch('aws_lambda_decorators.decorators.LOGGER')
@@ -180,7 +180,7 @@ class ExamplesTests(unittest.TestCase):
 
         # and return the error supplied to the caller.
         self.assertEqual(response["statusCode"], 400)
-        self.assertEqual(response['body'], 'Your message when a client error happens.')
+        self.assertEqual(response['body'], '{"message": "Your message when a client error happens."}')
 
     def test_response_as_json_example(self):
         # We can automatically json dump a body dictionary:

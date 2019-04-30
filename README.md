@@ -128,7 +128,7 @@ def extract_mandatory_param_example(a_dictionary, mandatory_param=None):
     
 response = extract_mandatory_param_example({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
 
-print(response)  # prints { 'statusCode': 400, 'body': 'Error extracting parameters' } and logs a more detailed error
+print(response)  # prints { 'statusCode': 400, 'body': '{"message": "Error extracting parameters"}' } and logs a more detailed error
 
 ```
 
@@ -287,7 +287,7 @@ def handle_exceptions_example():
     table.query(KeyConditionExpression=Key('user_id').eq(user_id))
     # ...
     
-handle_exceptions_example()  # returns {'body': 'Your message when a client error happens.', 'statusCode': 400}
+handle_exceptions_example()  # returns {'body': '{"message": "Your message when a client error happens."}', 'statusCode': 400}
 ```
 
 ### [response_body_as_json](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L160-L179)
