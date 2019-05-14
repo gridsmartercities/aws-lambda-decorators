@@ -26,7 +26,7 @@ The easiest way to use these AWS Lambda Decorators is to install them through Pi
 
 The current list of AWS Lambda Python Decorators includes:
 
-* [__extract__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L56-L85): a decorator to extract and validate specific keys of a dictionary parameter passed to a AWS Lambda function.
+* [__extract__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L56-L87): a decorator to extract and validate specific keys of a dictionary parameter passed to a AWS Lambda function.
 * [__extract_from_event__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L24-L37): a facade of [__extract__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L56-L85) to extract and validate keys from an AWS API Gateway lambda function _event_ parameter.
 * [__extract_from_context__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L40-L53): a facade of [__extract__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L56-L85) to extract and validate keys from an AWS API Gateway lambda function _context_ parameter.
 * [__extract_from_ssm__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L132-L157): a decorator to extract from AWS SSM the values of a set of parameter keys.
@@ -261,7 +261,7 @@ validate_example('Hello!', 'ABCD')  # returns a 400 status code and an error mes
 
 This decorator allows for logging the function arguments and/or the response.
 
-Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#Lƒ-L91) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L160-L168)
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#Lƒ-L91) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L158-L168)
 ```python
 @log(parameters=True, response=True)
 def log_example(parameters): 
@@ -277,7 +277,7 @@ This decorator handles a list of exceptions, returning a 400 response containing
 * The decorator takes a list of [ExceptionHandler](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L11-L33) objects.
 * Each [ExceptionHandler](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L11-L33) requires the type of exception to check, and an optional friendly message to return to the caller.
 
-Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L94-L101) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L171-L184)
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L94-L101) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L170-L184)
 ```python
 @handle_exceptions(handlers=[
     ExceptionHandler(ClientError, "Your message when a client error happens.")
@@ -295,7 +295,7 @@ handle_exceptions_example()  # returns {'body': '{"message": "Your message when 
 
 This decorator handles all exceptions thrown by a lambda, returning a 400 response and the exception's message.
 
-Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L117-L122) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L210-L216)
+Example: [code](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/examples.py#L117-L122) | [test](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/examples/test_examples.py#L209-L215)
 ```python
 @handle_all_exceptions()
 def handle_exceptions_example():
