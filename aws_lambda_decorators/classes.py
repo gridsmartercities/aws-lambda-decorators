@@ -11,7 +11,7 @@ ANNOTATIONS_END = ']'
 class ExceptionHandler:
     """Class mapping a friendly error message to a given Exception."""
 
-    def __init__(self, exception, friendly_message):
+    def __init__(self, exception, friendly_message=None):
         """
         Sets the private variables of the ExceptionHandler object.
 

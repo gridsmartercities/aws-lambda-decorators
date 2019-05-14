@@ -5,7 +5,7 @@ from json import JSONDecodeError
 from botocore.exceptions import ClientError
 from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter, ValidatedParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
-    log, response_body_as_json, extract_from_ssm, validate
+    log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions
 from aws_lambda_decorators.validators import Mandatory, RegexValidator
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
@@ -363,6 +363,20 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         mock_logger.error.assert_called_once_with("msg: 'blank'")
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
+    def test_exception_handler_raises_exception_without_friendly_message(self, mock_logger):
+
+        @handle_exceptions(handlers=[ExceptionHandler(KeyError)])
+        def handler():
+            raise KeyError('blank')
+
+        response = handler()  # noqa
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertTrue("blank" in response["body"])
+
+        mock_logger.error.assert_called_once_with("'blank'")
+
+    @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_log_decorator_can_log_params(self, mock_logger):
 
         @log(True, False)
@@ -501,3 +515,17 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler()
 
         self.assertEqual(response, {'statusCode': 200})
+
+    @patch('aws_lambda_decorators.decorators.LOGGER')
+    def test_handle_all_exceptions(self, mock_logger):
+
+        @handle_all_exceptions()
+        def handler():
+            raise KeyError('blank')
+
+        response = handler()  # noqa
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertTrue("blank" in response["body"])
+
+        mock_logger.error.assert_called_once_with("'blank'")
