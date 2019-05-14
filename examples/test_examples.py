@@ -3,7 +3,8 @@ from unittest.mock import patch, MagicMock, call
 from botocore.exceptions import ClientError
 from examples import extract_example, extract_to_kwargs_example, extract_mandatory_param_example, \
     extract_from_json_example, extract_from_event_example, extract_from_context_example, extract_from_ssm_example, \
-    validate_example, log_example, handle_exceptions_example, response_body_as_json_example, extract_from_list_example
+    validate_example, log_example, handle_exceptions_example, response_body_as_json_example, \
+    extract_from_list_example, handle_all_exceptions_example
 
 
 class ExamplesTests(unittest.TestCase):
@@ -204,3 +205,11 @@ class ExamplesTests(unittest.TestCase):
 
         # and we will get the value of the 'my_param' parameter inside the 'parent' correct item.
         self.assertEqual('Bye!', response)
+
+    def test_handle_all_exceptions_example(self):
+        # we can automatically handle any exceptions, using the 'handle_all_exceptions' decorator.
+        response = handle_all_exceptions_example()  # noqa: pylint - assignment-from-no-return
+
+        # and return the error to the caller.
+        self.assertEqual(response['statusCode'], 400)
+        self.assertEqual(response['body'], '{"message": "list index out of range"}')

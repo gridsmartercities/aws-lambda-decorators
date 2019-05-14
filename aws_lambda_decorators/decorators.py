@@ -105,11 +105,11 @@ def handle_exceptions(handlers):
                 return func(*args, **kwargs)
             except tuple([handler.exception for handler in handlers]) as ex:  # noqa: pylint - catching-non-exception
                 message = [handler.friendly_message for handler in handlers if handler.exception is type(ex)][0]
-                log_message = message if str(ex) == '' else message + ': ' + str(ex)
+                log_message = message if not str(ex) else message + ': ' + str(ex) if message else str(ex)
                 LOGGER.error(log_message)
                 return {
                     'statusCode': 400,
-                    'body': '{"message": "%s"}' % message
+                    'body': '{"message": "%s"}' % message if message else str(ex)
                 }
         return wrapper
     return decorator
@@ -201,5 +201,28 @@ def validate(parameters):
                         'body': PARAM_INVALID_ERROR
                     }
             return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def handle_all_exceptions():
+    """
+    Handles all exceptions thrown by the wrapped/decorated function.
+
+    Usage:
+        @handle_all_exceptions()
+        def lambda_handler(params)
+            pass
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as ex:  # noqa: pylint - catching-non-exception
+                LOGGER.error(str(ex))
+                return {
+                    'statusCode': 400,
+                    'body': '{"message": "%s"}' % str(ex)
+                }
         return wrapper
     return decorator
