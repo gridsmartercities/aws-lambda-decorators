@@ -117,6 +117,5 @@ def extract_from_list_example(a_dictionary, my_param=None):
 @handle_all_exceptions()
 def handle_all_exceptions_example():
     test_list = [1, 2, 3]
-    invalid_value = test_list[5]
-    print(invalid_value)
+    test_list[5]
     # ...
