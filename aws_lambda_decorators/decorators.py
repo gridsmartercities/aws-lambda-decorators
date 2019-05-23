@@ -7,7 +7,7 @@ A set of Python decorators to ease the development of AWS lambda functions.
 import json
 import logging
 import boto3
-from aws_lambda_decorators.utils import full_name, all_func_args
+from aws_lambda_decorators.utils import full_name, all_func_args, find_key_case_insensitive
 
 
 LOGGER = logging.getLogger()
@@ -19,6 +19,8 @@ PARAM_EXTRACT_LOG_MESSAGE = "%s: '%s' in argument %s for path %s"
 PARAM_INVALID_ERROR = '{"message": "Error validating parameters"}'
 PARAM_LOG_MESSAGE = "Parameters: %s"
 RESPONSE_LOG_MESSAGE = "Response: %s"
+CORS_INVALID_TYPE_ERROR = "Invalid value type in CORS header"
+CORS_INVALID_TYPE_LOG_MESSAGE = "Cannot set %s header to a non %s value"
 
 
 def extract_from_event(parameters):
@@ -224,5 +226,62 @@ def handle_all_exceptions():
                     'statusCode': 400,
                     'body': '{"message": "%s"}' % str(ex)
                 }
+        return wrapper
+    return decorator
+
+
+def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None):
+    """
+    Adds CORS headers to the response of the decorated function
+
+    Usage:
+        @cors(allow_origin='http://example.com', allow_methods='POST,GET', allow_headers='Content-Type', max_age=86400)
+        def func(my_param)
+            pass
+
+    Args:
+        allow_origin: A string containing the comma-separated list of allowed origins
+        allow_methods: A string containing the comma-separated list of allowed methods
+        allow_headers: A string containing the comma-separated list of allowed headers
+        max_age: An integer to indicate the caching time (in seconds) for the CORS pre-flight request
+
+    Returns:
+        The original decorated function response with the additional cors headers
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+
+            def update_header(headers, header_name, value, value_type):
+                if value:
+                    if isinstance(value, value_type):
+                        key = find_key_case_insensitive(header_name, headers)
+                        header_key = key if key else header_name
+
+                        if header_key in headers and headers[header_key]:
+                            headers[header_key] += ',' + value
+                        else:
+                            headers[header_key] = value
+                    else:
+                        LOGGER.error(CORS_INVALID_TYPE_LOG_MESSAGE, header_name, value_type)
+                        raise TypeError
+
+                return headers
+
+            response = func(*args, **kwargs)
+
+            headers_key = 'Headers' if 'Headers' in response.keys() else 'headers'
+
+            resp_headers = response[headers_key] if headers_key in response else {}
+
+            try:
+                resp_headers = update_header(resp_headers, 'access-control-allow-origin', allow_origin, str)
+                resp_headers = update_header(resp_headers, 'access-control-allow-methods', allow_methods, str)
+                resp_headers = update_header(resp_headers, 'access-control-allow-headers', allow_headers, str)
+                resp_headers = update_header(resp_headers, 'access-control-max-age', max_age, int)
+
+                response[headers_key] = resp_headers
+                return response
+            except TypeError:
+                return {'statusCode': 500, 'body': CORS_INVALID_TYPE_ERROR}
         return wrapper
     return decorator
