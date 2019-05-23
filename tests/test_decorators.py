@@ -5,7 +5,7 @@ from json import JSONDecodeError
 from botocore.exceptions import ClientError
 from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter, ValidatedParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
-    log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions
+    log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors
 from aws_lambda_decorators.validators import Mandatory, RegexValidator
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
@@ -529,3 +529,112 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertTrue("blank" in response["body"])
 
         mock_logger.error.assert_called_once_with("'blank'")
+
+    def test_cors_no_headers_in_response(self):
+
+        @cors(allow_origin='*', allow_methods='POST', allow_headers='Content-Type', max_age=12)
+        def handler():
+            return {}
+
+        response = handler()
+
+        self.assertEqual(response['headers']['access-control-allow-headers'], 'Content-Type')
+        self.assertEqual(response['headers']['access-control-allow-methods'], 'POST')
+        self.assertEqual(response['headers']['access-control-allow-origin'], '*')
+        self.assertEqual(response['headers']['access-control-max-age'], 12)
+
+    def test_cors_adds_correct_headers_only(self):
+
+        @cors(allow_origin='*')
+        def handler():
+            return {}
+
+        response = handler()
+
+        self.assertEqual(response['headers']['access-control-allow-origin'], '*')
+        self.assertTrue('access-control-allow-methods' not in response['headers'])
+        self.assertTrue('access-control-allow-headers' not in response['headers'])
+        self.assertTrue('access-control-max-age' not in response['headers'])
+
+    def test_cors_with_headers_in_response(self):
+
+        @cors(allow_origin='*', allow_methods='POST', allow_headers='Content-Type', max_age=12)
+        def handler():
+            return {
+                'headers': {
+                    'content-type': 'application/json',
+                    'access-control-allow-origin': 'http://example.com'
+                }
+            }
+
+        response = handler()
+
+        self.assertEqual(response['headers']['access-control-allow-headers'], 'Content-Type')
+        self.assertEqual(response['headers']['access-control-allow-methods'], 'POST')
+        self.assertEqual(response['headers']['access-control-allow-origin'], 'http://example.com,*')
+        self.assertEqual(response['headers']['access-control-max-age'], 12)
+
+    def test_cors_with_headers_a_none_value_does_not_remove_headers(self):
+
+        @cors(allow_origin=None)
+        def handler():
+            return {
+                'headers': {
+                    'access-control-allow-origin': 'http://example.com'
+                }
+            }
+
+        response = handler()
+
+        self.assertEqual(response['headers']['access-control-allow-origin'], 'http://example.com')
+        self.assertTrue('access-control-allow-methods' not in response['headers'])
+        self.assertTrue('access-control-allow-headers' not in response['headers'])
+        self.assertTrue('access-control-max-age' not in response['headers'])
+
+    def test_cors_with_headers_an_empty_value_does_not_remove_headers(self):
+
+        @cors(allow_origin='')
+        def handler():
+            return {
+                'headers': {
+                    'access-control-allow-origin': 'http://example.com'
+                }
+            }
+
+        response = handler()
+
+        self.assertEqual(response['headers']['access-control-allow-origin'], 'http://example.com')
+
+    def test_cors_with_uppercase_headers_in_response(self):
+
+        @cors(allow_origin='*', allow_methods='POST', allow_headers='Content-Type', max_age=12)
+        def handler():
+            return {
+                'Headers': {
+                    'content-type': 'application/json',
+                    'Access-Control-Allow-Origin': 'http://example.com'
+                }
+            }
+
+        response = handler()
+
+        self.assertEqual(response['Headers']['access-control-allow-headers'], 'Content-Type')
+        self.assertEqual(response['Headers']['access-control-allow-methods'], 'POST')
+        self.assertEqual(response['Headers']['Access-Control-Allow-Origin'], 'http://example.com,*')
+        self.assertEqual(response['Headers']['access-control-max-age'], 12)
+
+    @patch('aws_lambda_decorators.decorators.LOGGER')
+    def test_cors_invalid_max_age_logs_error(self, mock_logger):
+
+        @cors(max_age='12')
+        def handler():
+            return {}
+
+        response = handler()
+
+        self.assertEqual(response['statusCode'], 500)
+        self.assertEqual(response['body'], 'Invalid value type in CORS header')
+
+        mock_logger.error.assert_called_once_with("Cannot set %s header to a non %s value",
+                                                  'access-control-max-age',
+                                                  int)

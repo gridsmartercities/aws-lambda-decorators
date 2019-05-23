@@ -64,3 +64,21 @@ def all_func_args(func, args, kwargs):
     arg_dictionary = {arg_spec[idx]: value for idx, value in enumerate(args)}
     arg_dictionary.update(kwargs)
     return arg_dictionary
+
+
+def find_key_case_insensitive(key_name, the_dict):
+    """
+    Finds if a dictionary (the_dict) has a string key (key_name) in any string case
+
+    Args:
+        key_name: the key to search in the dictionary
+        the_dict: the dictionary to search
+
+    Returns:
+        The found key name in its original case, if any
+
+    """
+    for key in the_dict:
+        if key.lower() == key_name:
+            return key
+    return None
