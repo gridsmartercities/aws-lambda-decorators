@@ -4,7 +4,7 @@ from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 from aws_lambda_decorators import extract, extract_from_event, extract_from_context, extract_from_ssm, \
     validate, log, handle_exceptions, response_body_as_json, Parameter, SSMParameter, ValidatedParameter, \
-    ExceptionHandler, Mandatory, RegexValidator, handle_all_exceptions
+    ExceptionHandler, Mandatory, RegexValidator, handle_all_exceptions, cors
 
 
 @extract(parameters=[
@@ -119,3 +119,8 @@ def handle_all_exceptions_example():
     test_list = [1, 2, 3]
     test_list[5]
     # ...
+
+
+@cors(allow_origin='*', allow_methods='POST', allow_headers='Content-Type', max_age=86400)
+def cors_example():
+    return {'statusCode': 200}

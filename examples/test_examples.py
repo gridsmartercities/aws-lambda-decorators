@@ -4,7 +4,7 @@ from botocore.exceptions import ClientError
 from examples import extract_example, extract_to_kwargs_example, extract_mandatory_param_example, \
     extract_from_json_example, extract_from_event_example, extract_from_context_example, extract_from_ssm_example, \
     validate_example, log_example, handle_exceptions_example, response_body_as_json_example, \
-    extract_from_list_example, handle_all_exceptions_example
+    extract_from_list_example, handle_all_exceptions_example, cors_example
 
 
 class ExamplesTests(unittest.TestCase):
@@ -213,3 +213,14 @@ class ExamplesTests(unittest.TestCase):
         # and return the error to the caller.
         self.assertEqual(response['statusCode'], 400)
         self.assertEqual(response['body'], '{"message": "list index out of range"}')
+
+    def test_cors(self):
+        # you can automatically add CORS headers to any function, using the 'cors' decorator.
+        response = cors_example()
+
+        # the response has been decorated with the access-control cors headers.
+        self.assertEqual(response['statusCode'], 200)
+        self.assertEqual(response['headers']['access-control-allow-origin'], '*')
+        self.assertEqual(response['headers']['access-control-allow-methods'], 'POST')
+        self.assertEqual(response['headers']['access-control-allow-headers'], 'Content-Type')
+        self.assertEqual(response['headers']['access-control-max-age'], 86400)
