@@ -75,10 +75,10 @@ def find_key_case_insensitive(key_name, the_dict):
         the_dict: the dictionary to search
 
     Returns:
-        The found key name in its original case, if any
+        The found key name in its original case, if found. Otherwise, returns the searching key name
 
     """
     for key in the_dict:
         if key.lower() == key_name:
             return key
-    return None
+    return key_name

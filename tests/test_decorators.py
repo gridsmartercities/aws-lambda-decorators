@@ -638,3 +638,17 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         mock_logger.error.assert_called_once_with("Cannot set %s header to a non %s value",
                                                   'access-control-max-age',
                                                   int)
+
+    @patch('aws_lambda_decorators.decorators.LOGGER')
+    def test_cors_cannot_decorate_non_dict(self, mock_logger):
+
+        @cors(allow_origin='*')
+        def handler():
+            return 'I am a string'
+
+        response = handler()
+
+        self.assertEqual(response['statusCode'], 500)
+        self.assertEqual(response['body'], "Invalid response type for CORS headers")
+
+        mock_logger.error.assert_called_once_with("Cannot add headers to a non dictionary response")
