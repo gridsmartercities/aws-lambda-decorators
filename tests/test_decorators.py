@@ -648,7 +648,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler()
 
-        self.assertEqual(response['statusCode'], 500)
-        self.assertEqual(response['body'], "Invalid response type for CORS headers")
+        self.assertEqual(response['statusCode'], 500)  # noqa: pylint-invalid-sequence-index
+        self.assertEqual(response['body'], "Invalid response type for CORS headers")  # noqa: pylint-invalid-sequence-index
 
         mock_logger.error.assert_called_once_with("Cannot add headers to a non dictionary response")
