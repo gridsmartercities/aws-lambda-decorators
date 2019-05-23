@@ -20,7 +20,9 @@ PARAM_INVALID_ERROR = '{"message": "Error validating parameters"}'
 PARAM_LOG_MESSAGE = "Parameters: %s"
 RESPONSE_LOG_MESSAGE = "Response: %s"
 CORS_INVALID_TYPE_ERROR = "Invalid value type in CORS header"
+CORS_NON_DICT_ERROR = "Invalid response type for CORS headers"
 CORS_INVALID_TYPE_LOG_MESSAGE = "Cannot set %s header to a non %s value"
+CORS_NON_DICT_LOG_MESSAGE = "Cannot add headers to a non dictionary response"
 
 
 def extract_from_event(parameters):
@@ -254,13 +256,8 @@ def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None
             def update_header(headers, header_name, value, value_type):
                 if value:
                     if isinstance(value, value_type):
-                        key = find_key_case_insensitive(header_name, headers)
-                        header_key = key if key else header_name
-
-                        if header_key in headers and headers[header_key]:
-                            headers[header_key] += ',' + value
-                        else:
-                            headers[header_key] = value
+                        header_key = find_key_case_insensitive(header_name, headers)
+                        headers[header_key] = headers[header_key] + ',' + value if header_key in headers else value
                     else:
                         LOGGER.error(CORS_INVALID_TYPE_LOG_MESSAGE, header_name, value_type)
                         raise TypeError
@@ -269,19 +266,23 @@ def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None
 
             response = func(*args, **kwargs)
 
-            headers_key = 'Headers' if 'Headers' in response.keys() else 'headers'
+            if isinstance(response, dict):
+                headers_key = find_key_case_insensitive('headers', response)
 
-            resp_headers = response[headers_key] if headers_key in response else {}
+                resp_headers = response[headers_key] if headers_key in response else {}
 
-            try:
-                resp_headers = update_header(resp_headers, 'access-control-allow-origin', allow_origin, str)
-                resp_headers = update_header(resp_headers, 'access-control-allow-methods', allow_methods, str)
-                resp_headers = update_header(resp_headers, 'access-control-allow-headers', allow_headers, str)
-                resp_headers = update_header(resp_headers, 'access-control-max-age', max_age, int)
+                try:
+                    resp_headers = update_header(resp_headers, 'access-control-allow-origin', allow_origin, str)
+                    resp_headers = update_header(resp_headers, 'access-control-allow-methods', allow_methods, str)
+                    resp_headers = update_header(resp_headers, 'access-control-allow-headers', allow_headers, str)
+                    resp_headers = update_header(resp_headers, 'access-control-max-age', max_age, int)
 
-                response[headers_key] = resp_headers
-                return response
-            except TypeError:
-                return {'statusCode': 500, 'body': CORS_INVALID_TYPE_ERROR}
+                    response[headers_key] = resp_headers
+                    return response
+                except TypeError:
+                    return {'statusCode': 500, 'body': CORS_INVALID_TYPE_ERROR}
+            else:
+                LOGGER.error(CORS_NON_DICT_LOG_MESSAGE)
+                return {'statusCode': 500, 'body': CORS_NON_DICT_ERROR}
         return wrapper
     return decorator
