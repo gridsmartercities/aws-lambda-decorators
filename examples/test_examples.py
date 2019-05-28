@@ -143,14 +143,14 @@ class ExamplesTests(unittest.TestCase):
 
     def test_validate_example(self):
         # We can validate non-dictionary parameters too, using the 'validate' decorator.
-        response = validate_example('Hello!', '123456')
+        response = validate_example('Hello!', '123456', {'a': {'b': 'c'}})
 
         # in this case the parameters are valid and are returned by the function.
-        self.assertEqual(('Hello!', '123456'), response)
+        self.assertEqual(('Hello!', '123456', {'a': {'b': 'c'}}), response)
 
     def test_validate_raises_exception_example(self):
         # We can validate non-dictionary parameters too, using the 'validate' decorator.
-        response = validate_example('Hello!', 'ABCD')
+        response = validate_example('Hello!', '123456', {'a': 123456})
 
         # in this case at least one parameter is not valid and a 400 error is returned to the caller.
         self.assertEqual({'statusCode': 400, 'body': '{"message": "Error validating parameters"}'}, response)

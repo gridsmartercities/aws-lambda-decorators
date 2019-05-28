@@ -2,9 +2,10 @@
 import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
+from schema import Schema, Or
 from aws_lambda_decorators import extract, extract_from_event, extract_from_context, extract_from_ssm, \
     validate, log, handle_exceptions, response_body_as_json, Parameter, SSMParameter, ValidatedParameter, \
-    ExceptionHandler, Mandatory, RegexValidator, handle_all_exceptions, cors
+    ExceptionHandler, Mandatory, RegexValidator, handle_all_exceptions, cors, SchemaValidator
 
 
 @extract(parameters=[
@@ -80,10 +81,12 @@ def extract_from_ssm_example(your_func_params, one_key=None, another=None):
     # validates a_param as mandatory
     ValidatedParameter(func_param_name='a_param', validators=[Mandatory]),
     # validates another_param as mandatory and containing only digits
-    ValidatedParameter(func_param_name='another_param', validators=[Mandatory, RegexValidator(r'\d+')])
+    ValidatedParameter(func_param_name='another_param', validators=[Mandatory, RegexValidator(r'\d+')]),
+    # validates param_with_schema as an object with specified schema
+    ValidatedParameter(func_param_name='param_with_schema', validators=[SchemaValidator(Schema({'a': Or(str, dict)}))])
 ])
-def validate_example(a_param, another_param):
-    return a_param, another_param  # returns a_param, another_param
+def validate_example(a_param, another_param, param_with_schema):
+    return a_param, another_param, param_with_schema  # returns a_param, another_param, param_with_schema
 
 
 @log(parameters=True, response=True)
