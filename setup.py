@@ -22,7 +22,8 @@ setup(name='aws-lambda-decorators',
       packages=find_packages(exclude=('tests', 'examples')),
       install_requires=[
           'boto3',
-          'PyJWT'
+          'PyJWT',
+          'schema'
       ],
       zip_safe=False
       )
