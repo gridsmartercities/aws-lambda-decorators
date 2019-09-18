@@ -61,3 +61,27 @@ class SchemaValidator:  # noqa: pylint - too-few-public-methods
             return self._schema.validate(value) == value
         except SchemaError:
             return False
+
+
+class Minimum:  # noqa: pylint - too-few-public-methods
+    """Validation rule to check if a value is greater than a minimum value."""
+
+    def __init__(self, minimum: (float, int)):
+        """
+        Set the minimum value.
+
+        Args:
+            minimum (float, int): The minimum value.
+        """
+        self._minimum = minimum
+
+    def validate(self, value=None):
+        """
+        Check if the value is greater than the minimum.
+
+        Args:
+            value (float, int): Value to be validated.
+        """
+        if isinstance(value, (float, int)):
+            return self._minimum <= value
+        return False
