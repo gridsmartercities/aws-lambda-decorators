@@ -7,7 +7,7 @@ from schema import Schema, And, Optional
 from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter, ValidatedParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors
-from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator
+from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
            "eyJzdWIiOiJhYWRkMWUwZS01ODA3LTQ3NjMtYjFlOC01ODIzYmY2MzFiYjYiLCJhdWQiOiIycjdtMW1mdWFiODg3ZmZvdG9iNWFjcX" \
@@ -712,3 +712,139 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
         self.assertEqual(expected, response)
+
+    def test_extract_parameter_with_minimum(self):
+        event = {
+            "value": 20
+        }
+
+        @extract([Parameter("/value", "event", validators=[Minimum(10.0)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_error_extracting_parameter_with_minimum(self):
+        event = {
+            "value": 5
+        }
+
+        @extract([Parameter("/value", "event", validators=[Minimum(10.0)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual(response["statusCode"], 400)
+        self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
+
+    def test_error_extracting_non_numeric_parameter_with_minimum(self):
+        event = {
+            "value": "20"
+        }
+
+        @extract([Parameter("/value", "event", validators=[Minimum(10.0)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual(response["statusCode"], 400)
+        self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
+
+    def test_extract_optional_null_parameter_with_minimum(self):
+        event = {
+        }
+
+        @extract([Parameter("/value", "event", validators=[Minimum(10.0)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_extract_mandatory_parameter_with_minimum(self):
+        event = {
+            "value": 20
+        }
+
+        @extract([Parameter("/value", "event", validators=[Minimum(10.0), Mandatory()])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_extract_parameter_with_maximum(self):
+        event = {
+            "value": 20
+        }
+
+        @extract([Parameter("/value", "event", validators=[Maximum(100.0)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_error_extracting_parameter_with_maximum(self):
+        event = {
+            "value": 105
+        }
+
+        @extract([Parameter("/value", "event", validators=[Maximum(100.0)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual(response["statusCode"], 400)
+        self.assertEqual(
+            '{"message": "Error extracting parameters"}', response["body"])
+
+    def test_error_extracting_non_numeric_parameter_with_maximum(self):
+        event = {
+            "value": "20"
+        }
+
+        @extract([Parameter("/value", "event", validators=[Maximum(100.0)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual(response["statusCode"], 400)
+        self.assertEqual(
+            '{"message": "Error extracting parameters"}', response["body"])
+
+    def test_extract_optional_null_parameter_with_maximum(self):
+        event = {
+        }
+
+        @extract([Parameter("/value", "event", validators=[Maximum(10.0)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_extract_mandatory_parameter_with_maximum(self):
+        event = {
+            "value": 20
+        }
+
+        @extract([Parameter("/value", "event", validators=[Maximum(100.0), Mandatory()])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_extract_mandatory_parameter_with_range(self):
+        event = {
+            "value": 20
+        }
+
+        @extract([Parameter("/value", "event", validators=[Minimum(10.0), Maximum(100.0), Mandatory()])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
