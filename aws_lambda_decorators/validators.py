@@ -82,6 +82,38 @@ class Minimum:  # noqa: pylint - too-few-public-methods
         Args:
             value (float, int): Value to be validated.
         """
+        if value is None:
+            return True
+
         if isinstance(value, (float, int)):
             return self._minimum <= value
+
+        return False
+
+
+class Maximum:  # noqa: pylint - too-few-public-methods
+    """Validation rule to check if a value is less than a maximum value."""
+
+    def __init__(self, maximum: (float, int)):
+        """
+        Set the maximum value.
+
+        Args:
+            maximum (float, int): The maximum value.
+        """
+        self._maximum = maximum
+
+    def validate(self, value=None):
+        """
+        Check if the value is less than the maximum.
+
+        Args:
+            value (float, int): Value to be validated.
+        """
+        if value is None:
+            return True
+
+        if isinstance(value, (float, int)):
+            return self._maximum >= value
+
         return False
