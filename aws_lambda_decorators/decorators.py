@@ -84,19 +84,26 @@ def extract(parameters):
                     if param_errors:
                         errors.append(param.validate(return_val))
                         LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE, param.func_param_name, param.path, errors)  # noqa: pylint - logging-fstring-interpolation
-                        return {
-                            'statusCode': 400,
-                            'body': json.dumps({"message": errors})
-                        }
+                        # if exit_on_error:
+                        #     return {
+                        #         'statusCode': 400,
+                        #         'body': json.dumps({"message": errors})
+                        #     }
                     else:
                         if return_val is not None:
                             kwargs[param.get_var_name()] = return_val
             except Exception as ex:
                 LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE_OLD, full_name(ex), str(ex), param.func_param_name, param.path)  # noqa: pylint - logging-fstring-interpolation
                 return {
-                        'statusCode': 400,
-                        'body': json.dumps({"message": "Error extracting parameters"})
-                    }
+                    'statusCode': 400,
+                    'body': json.dumps({"message": "Error extracting parameters"})
+                }
+
+            # if not exit_on_error and errors:
+            #     return {
+            #         'statusCode': 400,
+            #         'body': json.dumps({"message": errors})
+            #     }
             return func(*args, **kwargs)
         return wrapper
     return decorator
