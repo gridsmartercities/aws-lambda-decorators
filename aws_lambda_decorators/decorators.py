@@ -14,8 +14,9 @@ LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
 
 BODY_NOT_JSON_ERROR = '{"message": "Response body is not JSON serializable"}'
-PARAM_EXTRACT_ERROR = '{"message": "Error extracting parameters"}'
-PARAM_EXTRACT_LOG_MESSAGE = "%s: '%s' in argument %s for path %s"
+PARAM_EXTRACT_ERROR = '{"message": %s}'
+PARAM_EXTRACT_LOG_MESSAGE = "Error in argument %s for path %s. Errors: %s"
+PARAM_EXTRACT_LOG_MESSAGE_OLD = "%s: %s in argument %s for path %s"
 PARAM_INVALID_ERROR = '{"message": "Error validating parameters"}'
 PARAM_LOG_MESSAGE = "Parameters: %s"
 RESPONSE_LOG_MESSAGE = "Response: %s"
@@ -74,18 +75,28 @@ def extract(parameters):
     def decorator(func):
         def wrapper(*args, **kwargs):
             try:
+                errors = []
                 arg_dictionary = all_func_args(func, args, kwargs)
                 for param in parameters:
                     param_val = arg_dictionary[param.func_param_name]
-                    return_val = param.extract_validated_value(param_val)
-                    if return_val is not None:
-                        kwargs[param.get_var_name()] = return_val
-            except Exception as ex:  # noqa: pylint - broad-except
-                LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE, full_name(ex), str(ex), param.func_param_name, param.path)  # noqa: pylint - logging-fstring-interpolation
+                    return_val = param.extract_value(param_val)
+                    param_errors = param.validate(return_val)
+                    if param_errors:
+                        errors.append(param.validate(return_val))
+                        LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE, param.func_param_name, param.path, errors)  # noqa: pylint - logging-fstring-interpolation
+                        return {
+                            'statusCode': 400,
+                            'body': json.dumps({"message": errors})
+                        }
+                    else:
+                        if return_val is not None:
+                            kwargs[param.get_var_name()] = return_val
+            except Exception as ex:
+                LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE_OLD, full_name(ex), str(ex), param.func_param_name, param.path)  # noqa: pylint - logging-fstring-interpolation
                 return {
-                    'statusCode': 400,
-                    'body': PARAM_EXTRACT_ERROR
-                }
+                        'statusCode': 400,
+                        'body': json.dumps({"message": "Error extracting parameters"})
+                    }
             return func(*args, **kwargs)
         return wrapper
     return decorator
