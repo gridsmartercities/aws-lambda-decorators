@@ -5,6 +5,7 @@ A set of Python decorators to ease the development of AWS lambda functions.
 
 """
 import json
+from http import HTTPStatus
 import logging
 import boto3
 from aws_lambda_decorators.utils import full_name, all_func_args, find_key_case_insensitive, failure
@@ -16,8 +17,13 @@ LOGGER.setLevel(logging.INFO)
 
 PARAM_LOG_MESSAGE = "Parameters: %s"
 RESPONSE_LOG_MESSAGE = "Response: %s"
-# CORS_INVALID_TYPE_ERROR = "Invalid value type in CORS header"
-# CORS_NON_DICT_ERROR = "Invalid response type for CORS headers"
+ARGUMENT_LOG_MESSAGE = "Error in argument %s for path %s. Errors: %s"
+EXCEPTION_LOG_MESSAGE = "%s: %s in argument %s for path %s"
+ERROR_MESSAGE = "Error extracting parameters"
+VALIDATE_ERROR_MESSAGE = "Error validating parameters"
+NON_SERIALIZABLE_ERROR_MESSAGE = "Response body is not JSON serializable"
+CORS_INVALID_TYPE_ERROR = "Invalid value type in CORS header"
+CORS_NON_DICT_ERROR = "Invalid response type for CORS headers"
 CORS_INVALID_TYPE_LOG_MESSAGE = "Cannot set %s header to a non %s value"
 CORS_NON_DICT_LOG_MESSAGE = "Cannot add headers to a non dictionary response"
 
@@ -79,16 +85,15 @@ def extract(parameters, exit_on_error=True):
                     param_errors = param.validate_path(return_val, exit_on_error)
                     if param_errors:
                         errors.append(param_errors)
-                        LOGGER.error(
-                            f"Error in argument {param.func_param_name} for path {param.path}. Errors: {errors}")
+                        LOGGER.error(ARGUMENT_LOG_MESSAGE, param.func_param_name, param.path, errors)
                         if exit_on_error:
                             return failure(errors)
                     else:
                         if return_val is not None:
                             kwargs[param.get_var_name()] = return_val
             except Exception as ex:
-                LOGGER.error(f"{full_name(ex)}: {str(ex)} in argument {param.func_param_name} for path {param.path}")
-                return failure("Error extracting parameters")
+                LOGGER.error(EXCEPTION_LOG_MESSAGE, full_name(ex), str(ex), param.func_param_name, param.path)
+                return failure(ERROR_MESSAGE)
 
             if not exit_on_error and errors:
                 return failure(errors)
@@ -182,7 +187,7 @@ def response_body_as_json(func):
             try:
                 response['body'] = json.dumps(response['body'])
             except TypeError:
-                return failure("Response body is not JSON serializable", 500)
+                return failure(NON_SERIALIZABLE_ERROR_MESSAGE, 500)
         return response
     return wrapper
 
@@ -206,7 +211,7 @@ def validate(parameters, exit_on_error=True):
                 errors = param.validate(arg_dictionary[param.func_param_name], exit_on_error)
                 if errors:
                     # TODO: add multiple errors to this!
-                    return failure("Error validating parameters")
+                    return failure(VALIDATE_ERROR_MESSAGE)
             return func(*args, **kwargs)
         return wrapper
     return decorator
@@ -280,9 +285,9 @@ def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None
                     response[headers_key] = resp_headers
                     return response
                 except TypeError:
-                    return failure("Invalid value type in CORS header", 500)
+                    return failure(CORS_INVALID_TYPE_ERROR, 500)
             else:
                 LOGGER.error(CORS_NON_DICT_LOG_MESSAGE)
-                return failure("Invalid response type for CORS headers", 500)
+                return failure(CORS_NON_DICT_ERROR, 500)
         return wrapper
     return decorator
