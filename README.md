@@ -40,20 +40,20 @@ The current list of AWS Lambda Python Decorators includes:
 
 ### [Validators](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py)
 
-Currently, the package offers 3 validators:
+Currently, the package offers 5 validators:
 
-* [__Mandatory__]: Checks if a parameter has a value.
-* [__RegexValidator__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py#L19-L38): Checks a parameter against a regular expression.
-* [__SchemaValidator__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py#L41-L63): Checks if an object adheres to the schema. Uses [schema](https://github.com/keleshev/schema) library.
-* [__Minimum__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py#L66-L91): Checks if an optional numerical value is greater than a minimum value.
-* [__Maximum__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py#L94-L119): Checks if an optional numerical value is less than a maximum value.
+* __Mandatory__: Checks if a parameter has a value.
+* __RegexValidator__: Checks a parameter against a regular expression.
+* __SchemaValidator__: Checks if an object adheres to the schema. Uses [schema](https://github.com/keleshev/schema) library.
+* __Minimum__: Checks if an optional numerical value is greater than a minimum value.
+* __Maximum__: Checks if an optional numerical value is less than a maximum value.
 
 ### [Decoders](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py)
 
 The package offers functions to decode from JSON and JWT. 
 
-* [__decode_json__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L48-L50): decodes/converts a json string to a python dictionary
-* [__decode_jwt__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py#L53-L55): decodes/converts a JWT string to a python dictionary
+* __decode_json__: decodes/converts a json string to a python dictionary
+* __decode_jwt__: decodes/converts a JWT string to a python dictionary
 
 ## Examples
 
@@ -61,12 +61,12 @@ The package offers functions to decode from JSON and JWT.
 
 This decorator extracts and validates values from dictionary parameters passed to a Lambda Function.
 
-* The decorator takes a list of [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L109-L207) objects.
-* Each [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L109-L207) object requires a non-empty path to the parameter in the dictionary, and the name of the dictionary (func_param_name)
+* The decorator takes a list of __Parameter__ objects.
+* Each __Parameter__ object requires a non-empty path to the parameter in the dictionary, and the name of the dictionary (func_param_name)
 * The parameter value is extracted and added as a kwarg to the lambda handler (or any other decorated function/method).
 * You can add the parameter to the handler signature, or access it in the handler through kwargs.
 * The name of the extracted parameter is defaulted to the last element of the path name, but can be changed by passing a (valid pythonic variable name) var_name
-* You can define a default value for the parameter in the [Parameter](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/classes.py#L109-L207) or in the lambda handler itself.
+* You can define a default value for the parameter in the __Parameter__ or in the lambda handler itself.
 * A 400 exception is raised when the parameter cannot be extracted or when it does not validate.
 * A variable path (e.g. '/headers/Authorization[jwt]/sub') can be annotated to specify a decoding. In the example, Authorization might contain a JWT, which needs to be decoded before accessing the "sub" element.
 
