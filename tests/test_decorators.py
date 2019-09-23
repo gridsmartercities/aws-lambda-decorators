@@ -1,4 +1,5 @@
 # pylint:disable=no-self-use
+# pylint:disable=too-many-lines
 import unittest
 from unittest.mock import patch, MagicMock
 from json import JSONDecodeError
