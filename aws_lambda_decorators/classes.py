@@ -72,7 +72,7 @@ class SSMParameter(BaseParameter):
 class ValidatedParameter:
     """Class used to encapsulate the validation methods parameter data."""
 
-    def __init__(self, func_param_name=None, validators=None, default=None):
+    def __init__(self, func_param_name=None, validators=None):
         """
         Sets the private variables of the ValidatedParameter object.
         Args:
@@ -80,12 +80,9 @@ class ValidatedParameter:
                 def fun(event, context). To extract from context func_param_name has to be 'context'
             validators (list): A list of validators the value must conform to (e.g. Mandatory(),
                 RegexValidator(my_regex), ...)
-            default (any): Optional, a default value if the value is missing and not mandatory.
-                The default value is None
         """
         self._func_param_name = func_param_name
         self._validators = validators
-        self._default = default
 
     @property
     def func_param_name(self):
@@ -150,7 +147,8 @@ class Parameter(ValidatedParameter, BaseParameter):
                 The default value is None
         """
         self._path = path
-        ValidatedParameter.__init__(self, func_param_name, validators, default)
+        self._default = default
+        ValidatedParameter.__init__(self, func_param_name, validators)
         BaseParameter.__init__(self, var_name)
 
     @property
