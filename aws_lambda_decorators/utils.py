@@ -95,7 +95,7 @@ def failure(errors, status_code=HTTPStatus.BAD_REQUEST):
         status_code (int): the status code of the error
 
     Returns:
-        an object that contains the status code and the list of errors
+        An object that contains the status code and the list of errors
     """
     return {
         'statusCode': status_code,

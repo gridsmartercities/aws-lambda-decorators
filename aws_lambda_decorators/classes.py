@@ -108,7 +108,7 @@ class ValidatedParameter:
                 (if set to False, validation will end on first error)
 
         Returns:
-            a list of errors
+            A list of errors
         """
         errors = []
 
@@ -169,7 +169,7 @@ class Parameter(ValidatedParameter, BaseParameter):
             dict_value (dict): dictionary to be parsed.
 
         Returns:
-            the extracted value
+            The extracted value
         """
         for path_key in filter(lambda item: item != '', self._path.split(PATH_DIVIDER)):
             real_key, annotation = Parameter.get_annotations_from_key(path_key)
@@ -194,7 +194,7 @@ class Parameter(ValidatedParameter, BaseParameter):
                 (if set to False, validation will end on first error)
 
         Returns:
-            a list of validation key/pair errors
+            A list of validation key/pair errors
         """
         key = self._path.split(PATH_DIVIDER)[-1]
 
