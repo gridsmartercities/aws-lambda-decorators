@@ -143,14 +143,15 @@ Example:
 ```python
 @extract(parameters=[
     Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory]),  # extracts two mandatory parameters from a_dictionary
-    Parameter(path='/parent/another_mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])
+    Parameter(path='/parent/another_mandatory_param', func_param_name='a_dictionary', validators=[Mandatory]),
+    Parameter(path='/parent/an_int', func_param_name='a_dictionary', validators=[Maximum(10), Minimum(5)])
 ], group_errors=True)  # groups both errors together
-def extract_multiple_param_example(a_dictionary, mandatory_param=None, another_mandatory_param=None):
+def extract_multiple_param_example(a_dictionary, mandatory_param=None, another_mandatory_param=None, an_int=0):
     return 'Here!'  # this part will never be reached, if the mandatory_param is missing
     
-response = extract_multiple_param_example({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
+response = extract_multiple_param_example({'parent': {'my_param': 'Hello!', 'an_int': 20}, 'other': 'other value'})
 
-print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"mandatory_param": ["Missing mandatory value"]}, {"another_mandatory_param": ["Missing mandatory value]}]}' } and logs a more detailed error
+print(response)  # prints {'statusCode': 400, 'body': '{"message": [{"mandatory_param": ["Missing mandatory value"]}, {"another_mandatory_param": ["Missing mandatory value"]}, {"an_int": ["20 is bigger than maximum value (10)"]}]}'}
 
 ```
 
