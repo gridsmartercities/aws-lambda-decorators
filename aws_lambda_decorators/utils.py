@@ -1,4 +1,6 @@
 """Utility functions."""
+import json
+from http import HTTPStatus
 import keyword
 import inspect
 
@@ -82,3 +84,20 @@ def find_key_case_insensitive(key_name, the_dict):
         if key.lower() == key_name:
             return key
     return key_name
+
+
+def failure(errors, status_code=HTTPStatus.BAD_REQUEST):
+    """
+    Returns an error to the caller
+
+    Args:
+        errors (list): a list of errors to be returned
+        status_code (int): the status code of the error
+
+    Returns:
+        An object that contains the status code and the list of errors
+    """
+    return {
+        'statusCode': status_code,
+        'body': json.dumps({"message": errors})
+    }

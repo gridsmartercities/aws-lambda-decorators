@@ -2,6 +2,7 @@
 import re
 from schema import SchemaError
 
+
 class Mandatory:  # noqa: pylint - too-few-public-methods
     """Validation rule to check if the given mandatory value exists."""
 
@@ -15,6 +16,19 @@ class Mandatory:  # noqa: pylint - too-few-public-methods
         """
         return value is not None
 
+    @staticmethod
+    def message(value=None):  # noqa: pylint - unused-argument
+        """
+        Gets the formatted error message for a failed mandatory check
+
+        Args:
+            value (any): The validated value
+
+        Returns:
+            The error message
+        """
+        return "Missing mandatory value"
+
 
 class RegexValidator:  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a value matches a regular expression."""
@@ -26,6 +40,7 @@ class RegexValidator:  # noqa: pylint - too-few-public-methods
         Args:
             regex (str): Regular expression for parameter validation.
         """
+        self._regex = regex
         self._regexp = re.compile(regex)
 
     def validate(self, value=None):
@@ -35,7 +50,19 @@ class RegexValidator:  # noqa: pylint - too-few-public-methods
         Args:
             value (str): Value to be validated.
         """
-        return self._regexp.search(value) is not None
+        return self._regexp.fullmatch(value) is not None
+
+    def message(self, value=None):
+        """
+        Gets the formatted error message for a failed regex check
+
+        Args:
+            value (any): The validated value
+
+        Returns:
+            The error message
+        """
+        return f"{value} does not conform to regular expression {self._regex}"
 
 
 class SchemaValidator:  # noqa: pylint - too-few-public-methods
@@ -61,6 +88,18 @@ class SchemaValidator:  # noqa: pylint - too-few-public-methods
             return self._schema.validate(value) == value
         except SchemaError:
             return False
+
+    def message(self, value=None):
+        """
+        Gets the formatted error message for a failed schema check
+
+        Args:
+            value (dict): The validated value
+
+        Returns:
+            The error message
+        """
+        return f"{value} does not validate against schema {self._schema}"
 
 
 class Minimum:  # noqa: pylint - too-few-public-methods
@@ -90,6 +129,18 @@ class Minimum:  # noqa: pylint - too-few-public-methods
 
         return False
 
+    def message(self, value=None):
+        """
+        Gets the formatted error message for a failed minimum value check
+
+        Args:
+            value (int): The validated value
+
+        Returns:
+            The error message
+        """
+        return f"{value} is smaller than minimum value ({self._minimum})"
+
 
 class Maximum:  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a value is less than a maximum value."""
@@ -117,3 +168,15 @@ class Maximum:  # noqa: pylint - too-few-public-methods
             return self._maximum >= value
 
         return False
+
+    def message(self, value=None):
+        """
+        Gets the formatted error message for a failed maximum value check
+
+        Args:
+            value (int): The validated value
+
+        Returns:
+            The error message
+        """
+        return f"{value} is bigger than maximum value ({self._maximum})"

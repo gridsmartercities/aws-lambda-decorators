@@ -1,7 +1,6 @@
 """All the classes used as parameters for the decorators."""
 from aws_lambda_decorators.decoders import decode
-from aws_lambda_decorators.validators import Mandatory
-from aws_lambda_decorators.utils import is_type_in_list, is_valid_variable_name
+from aws_lambda_decorators.utils import is_valid_variable_name
 
 PATH_DIVIDER = '/'
 ANNOTATIONS_START = '['
@@ -73,18 +72,20 @@ class SSMParameter(BaseParameter):
 class ValidatedParameter:
     """Class used to encapsulate the validation methods parameter data."""
 
-    def __init__(self, func_param_name=None, validators=None):
+    def __init__(self, func_param_name=None, validators=None, default=None):
         """
         Sets the private variables of the ValidatedParameter object.
-
         Args:
             func_param_name (str): the name for the dictionary in the function signature
                 def fun(event, context). To extract from context func_param_name has to be 'context'
             validators (list): A list of validators the value must conform to (e.g. Mandatory(),
                 RegexValidator(my_regex), ...)
+            default (any): Optional, a default value if the value is missing and not mandatory.
+                The default value is None
         """
         self._func_param_name = func_param_name
         self._validators = validators
+        self._default = default
 
     @property
     def func_param_name(self):
@@ -96,14 +97,28 @@ class ValidatedParameter:
         """Setter for the func_param_name parameter."""
         self._func_param_name = value
 
-    def validate(self, value):
-        """Check if the given value adheres to the given validation rules."""
-        if not self._validators:
-            return True
-        for validator in self._validators:
-            if not validator.validate(value):
-                return False
-        return True
+    def validate(self, value, group_errors):
+        """
+        Validates a value against the passed in validators
+
+        Args:
+            value (any): value to be validated
+            group_errors (bool): flag that indicates if error messages are to be grouped together
+                (if set to False, validation will end on first error)
+
+        Returns:
+            A list of errors
+        """
+        errors = []
+
+        if self._validators:
+            for validator in self._validators:
+                if not validator.validate(value):
+                    errors.append(validator.message(value))
+                    if not group_errors:
+                        return errors
+
+        return errors
 
 
 class Parameter(ValidatedParameter, BaseParameter):
@@ -135,19 +150,13 @@ class Parameter(ValidatedParameter, BaseParameter):
                 The default value is None
         """
         self._path = path
-        self._default = default
-        ValidatedParameter.__init__(self, func_param_name, validators)
+        ValidatedParameter.__init__(self, func_param_name, validators, default)
         BaseParameter.__init__(self, var_name)
 
     @property
     def path(self):
         """Getter for the path parameter."""
         return self._path
-
-    @property
-    def default(self):
-        """Getter for the default parameter."""
-        return self._default
 
     def extract_value(self, dict_value):
         """
@@ -157,13 +166,16 @@ class Parameter(ValidatedParameter, BaseParameter):
 
         Args:
             dict_value (dict): dictionary to be parsed.
+
+        Returns:
+            The extracted value
         """
-        for path_key in filter(lambda item: item != '', self.path.split(PATH_DIVIDER)):
+        for path_key in filter(lambda item: item != '', self._path.split(PATH_DIVIDER)):
             real_key, annotation = Parameter.get_annotations_from_key(path_key)
             if real_key in dict_value:
                 dict_value = decode(annotation, dict_value[real_key])
             else:
-                dict_value = self.default
+                dict_value = self._default
                 break
 
         if not self._name:
@@ -171,26 +183,23 @@ class Parameter(ValidatedParameter, BaseParameter):
 
         return dict_value
 
-    def extract_validated_value(self, dict_value):
+    def validate_path(self, value, group_errors=False):
         """
-        Extract and validate the extracted value
-
-        Used by the decorators.
+        Validates a value against the passed in validators
 
         Args:
-            dict_value (dict): dictionary to be parsed.
+            value: value to be validated
+            group_errors (bool): flag that indicates if error messages are to be grouped together
+                (if set to False, validation will end on first error)
 
-        Raises:
-            KeyError: if the parameter does not validate.
+        Returns:
+            A list of validation key/pair errors
         """
-        val = self.extract_value(dict_value)
-        real_key = self.path.split(PATH_DIVIDER)[-1]
+        key = self._path.split(PATH_DIVIDER)[-1]
 
-        if (val == self.default and self._validators and is_type_in_list(Mandatory, self._validators)) \
-                or not self.validate(val):
-            raise KeyError(real_key)
+        errors = self.validate(value, group_errors)
 
-        return val
+        return {key: errors} if errors else {}
 
     @staticmethod
     def get_annotations_from_key(key):
