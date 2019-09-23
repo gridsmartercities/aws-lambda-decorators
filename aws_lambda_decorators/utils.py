@@ -87,6 +87,16 @@ def find_key_case_insensitive(key_name, the_dict):
 
 
 def failure(errors, status_code=HTTPStatus.BAD_REQUEST):
+    """
+    Returns an error to the caller
+
+    Args:
+        errors (list): a list of errors to be returned
+        status_code (int): the status code of the error
+
+    Returns:
+        an object that contains the status code and the list of errors
+    """
     return {
         'statusCode': status_code,
         'body': json.dumps({"message": errors})
