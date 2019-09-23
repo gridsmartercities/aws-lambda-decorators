@@ -137,6 +137,23 @@ print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"mandatory
 
 ```
 
+You can group the validation errors together (instead of exiting on first error).
+
+Example:
+```python
+@extract(parameters=[
+    Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory]),  # extracts two mandatory parameters from a_dictionary
+    Parameter(path='/parent/another_mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])
+], group_errors=True)  # groups both errors together
+def extract_multiple_param_example(a_dictionary, mandatory_param=None, another_mandatory_param=None):
+    return 'Here!'  # this part will never be reached, if the mandatory_param is missing
+    
+response = extract_multiple_param_example({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
+
+print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"mandatory_param": ["Missing mandatory value"]}, {"another_mandatory_param": ["Missing mandatory value]}]}' } and logs a more detailed error
+
+```
+
 You can decode any part of the parameter path from json or any other existing annotation.
 
 Example:
@@ -174,25 +191,6 @@ def extract_from_list_example(a_dictionary, my_param=None):
     return my_param  # returns 'Bye!'
 
 ```
-
-You can group the validation errors together (instead of exiting on first error).
-
-Example:
-```python
-@extract(parameters=[
-    Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory]),  # extracts two mandatory parameters from a_dictionary
-    Parameter(path='/parent/another_mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])
-], group_errors=True)  # groups both errors together
-def extract_multiple_param_example(a_dictionary, mandatory_param=None, another_mandatory_param):
-    return 'Here!'  # this part will never be reached, if the mandatory_param is missing
-    
-response = extract_multiple_param_example({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
-
-print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"mandatory_param": ["Missing mandatory value"]}, {"another_mandatory_param": ["Missing mandatory value]}]}' } and logs a more detailed error
-
-```
-
-
 
 ### extract_from_event
 
@@ -275,7 +273,7 @@ def validate_example(a_param, another_param, param_with_schema):
 validate_example('Hello!', '123456', {'a': {'b': 'c'}})
 ```
 
-Given the same function `validate_example`, a 400 exception is returned if at least one parameter does not validate:
+Given the same function `validate_example`, a 400 exception is returned if at least one parameter does not validate (as per the [extract](#extract) decorator, you can group errors with the group_errors flag):
 
 ```python
 validate_example('Hello!', 'ABCD')  # returns a 400 status code and an error message

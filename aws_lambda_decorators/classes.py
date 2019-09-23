@@ -72,7 +72,7 @@ class SSMParameter(BaseParameter):
 class ValidatedParameter:
     """Class used to encapsulate the validation methods parameter data."""
 
-    def __init__(self, func_param_name=None, validators=[], default=None):
+    def __init__(self, func_param_name=None, validators=None, default=None):
         """
         Sets the private variables of the ValidatedParameter object.
         Args:
@@ -111,11 +111,12 @@ class ValidatedParameter:
         """
         errors = []
 
-        for validator in self._validators:
-            if not validator.validate(value):
-                errors.append(validator.message(value))
-                if not group_errors:
-                    return errors
+        if self._validators:
+            for validator in self._validators:
+                if not validator.validate(value):
+                    errors.append(validator.message(value))
+                    if not group_errors:
+                        return errors
 
         return errors
 
@@ -123,7 +124,7 @@ class ValidatedParameter:
 class Parameter(ValidatedParameter, BaseParameter):
     """Class used to encapsulate the extract methods parameter data."""
 
-    def __init__(self, path='', func_param_name=None, validators=[], var_name=None, default=None):  # noqa: pylint - too-many-arguments
+    def __init__(self, path='', func_param_name=None, validators=None, var_name=None, default=None):  # noqa: pylint - too-many-arguments
         """
         Sets the private variables of the Parameter object.
 
