@@ -1,4 +1,3 @@
-# pylint:disable=no-self-use
 # pylint:disable=too-many-lines
 import unittest
 from unittest.mock import patch, MagicMock
@@ -441,7 +440,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         mock_logger.error.assert_called_once_with("'blank'")
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
-    def test_log_decorator_can_log_params(self, mock_logger):
+    def test_log_decorator_can_log_params(self, mock_logger):  # noqa: pylint - no-self-use
 
         @log(True, False)
         def handler(event, context, an_other):  # noqa
@@ -452,7 +451,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         mock_logger.info.assert_called_once_with('Parameters: %s', ("first", "{'tests': 'a'}", "another"))
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
-    def test_log_decorator_can_log_response(self, mock_logger):
+    def test_log_decorator_can_log_response(self, mock_logger):  # noqa: pylint - no-self-use
 
         @log(False, True)
         def handler():
