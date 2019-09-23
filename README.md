@@ -42,7 +42,7 @@ The current list of AWS Lambda Python Decorators includes:
 
 Currently, the package offers 3 validators:
 
-* [__Mandatory__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py#L5-L16): Checks if a parameter has a value.
+* [__Mandatory__]: Checks if a parameter has a value.
 * [__RegexValidator__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py#L19-L38): Checks a parameter against a regular expression.
 * [__SchemaValidator__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py#L41-L63): Checks if an object adheres to the schema. Uses [schema](https://github.com/keleshev/schema) library.
 * [__Minimum__](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py#L66-L91): Checks if an optional numerical value is greater than a minimum value.
