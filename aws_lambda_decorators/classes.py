@@ -70,11 +70,52 @@ class SSMParameter(BaseParameter):
         return self._ssm_name
 
 
-# class ValidatedParameter:
-#     ...
+class ValidatedParameter:
+    """Class used to encapsulate the validation methods parameter data."""
+
+    def __init__(self, func_param_name=None, validators=None, default=None):
+        """
+        Sets the private variables of the ValidatedParameter object.
+        Args:
+            func_param_name (str): the name for the dictionary in the function signature
+                def fun(event, context). To extract from context func_param_name has to be 'context'
+            validators (list): A list of validators the value must conform to (e.g. Mandatory(),
+                RegexValidator(my_regex), ...)
+        """
+        self._func_param_name = func_param_name
+        self._validators = validators
+        self._default = default
+
+    @property
+    def func_param_name(self):
+        """Getter for the func_param_name parameter."""
+        return self._func_param_name
+
+    @func_param_name.setter
+    def func_param_name(self, value):
+        """Setter for the func_param_name parameter."""
+        self._func_param_name = value
+
+    def validate(self, value, exit_on_error):
+        errors = []
+
+        if self._validators:
+            has_mandatory_error = False
+            for validator in self._validators:
+                if not validator.validate(value):
+                    has_mandatory_error = True if isinstance(validator, Mandatory) else False
+                    errors.append(validator.message(value))
+                    if exit_on_error:
+                        return errors
+
+            if not has_mandatory_error:
+                if value == self._default and is_type_in_list(Mandatory, self._validators):
+                    errors.append("Missing mandatory value")
+
+        return errors
 
 
-class Parameter(BaseParameter):
+class Parameter(ValidatedParameter, BaseParameter):
     """Class used to encapsulate the extract methods parameter data."""
 
     def __init__(self, path='', func_param_name=None, validators=None, var_name=None, default=None):  # noqa: pylint - too-many-arguments
@@ -103,47 +144,13 @@ class Parameter(BaseParameter):
                 The default value is None
         """
         self._path = path
-        self._default = default
-        self._func_param_name = func_param_name
-        self._validators = validators
+        ValidatedParameter.__init__(self, func_param_name, validators, default)
         BaseParameter.__init__(self, var_name)
 
     @property
     def path(self):
         """Getter for the path parameter."""
         return self._path
-
-    @property
-    def func_param_name(self):
-        """Getter for the func_param_name parameter."""
-        return self._func_param_name
-
-    @func_param_name.setter
-    def func_param_name(self, value):
-        """Setter for the func_param_name parameter."""
-        self._func_param_name = value
-
-    def validate(self, value):
-        # """Check if the given value adheres to the given validation rules."""
-        key = self._path.split(PATH_DIVIDER)[-1]
-
-        errors = []
-
-        if self._validators:
-            # has_mandatory_error = False
-            for validator in self._validators:
-                if not validator.validate(value):
-                    # has_mandatory_error = True if isinstance(validator, Mandatory) else False
-                    errors.append(validator.message(value))
-
-            # if not has_mandatory_error:
-            #     if value == self._default and is_type_in_list(Mandatory, self._validators):
-            #         errors.append("Missing mandatory value")
-
-        if errors:
-            return {key: errors}
-
-        return {}
 
     def extract_value(self, dict_value):
         """
@@ -166,6 +173,16 @@ class Parameter(BaseParameter):
             self._name = real_key
 
         return dict_value
+
+    def validate_path(self, value, exit_on_error=True):
+        key = self._path.split(PATH_DIVIDER)[-1]
+
+        errors = self.validate(value, exit_on_error)
+
+        if errors:
+            return {key: errors}
+
+        return {}
 
     @staticmethod
     def get_annotations_from_key(key):

@@ -1,4 +1,5 @@
 """Utility functions."""
+import json
 import keyword
 import inspect
 
@@ -82,3 +83,10 @@ def find_key_case_insensitive(key_name, the_dict):
         if key.lower() == key_name:
             return key
     return key_name
+
+
+def failure(errors, status_code=400):
+    return {
+        'statusCode': status_code,
+        'body': json.dumps({"message": errors})
+    }

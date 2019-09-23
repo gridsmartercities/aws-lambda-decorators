@@ -4,8 +4,7 @@ from unittest.mock import patch, MagicMock
 from json import JSONDecodeError
 from botocore.exceptions import ClientError
 from schema import Schema, And, Optional
-from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter\
-    # , ValidatedParameter
+from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter, ValidatedParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors
 from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum
@@ -308,28 +307,28 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         self.assertEqual({}, response)
 
-    # def test_validate_raises_an_error_on_invalid_variables(self):
-    #     @validate([
-    #         ValidatedParameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
-    #         ValidatedParameter(func_param_name="var2", validators=[RegexValidator(r'\d+')])
-    #     ])
-    #     def handler(var1=None, var2=None):  # noqa: pylint - unused-argument
-    #         return {}
-    #
-    #     response = handler("2019", "abcd")
-    #     self.assertEqual(400, response["statusCode"])
-    #     self.assertEqual('{"message": "Error validating parameters"}', response["body"])
-    #
-    # def test_validate_does_not_raise_an_error_on_valid_variables(self):
-    #     @validate([
-    #         ValidatedParameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
-    #         ValidatedParameter(func_param_name="var2", validators=[RegexValidator(r'[ab]+')])
-    #     ])
-    #     def handler(var1, var2=None):  # noqa: pylint - unused-argument
-    #         return {}
-    #
-    #     response = handler("2019", var2="abba")
-    #     self.assertEqual({}, response)
+    def test_validate_raises_an_error_on_invalid_variables(self):
+        @validate([
+            ValidatedParameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
+            ValidatedParameter(func_param_name="var2", validators=[RegexValidator(r'\d+')])
+        ])
+        def handler(var1=None, var2=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler("2019", "abcd")
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual('{"message": "Error validating parameters"}', response["body"])
+
+    def test_validate_does_not_raise_an_error_on_valid_variables(self):
+        @validate([
+            ValidatedParameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
+            ValidatedParameter(func_param_name="var2", validators=[RegexValidator(r'[ab]+')])
+        ])
+        def handler(var1, var2=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler("2019", var2="abba")
+        self.assertEqual({}, response)
 
     def test_extract_returns_400_on_type_error(self):
         path = "/a/b[json]/c"
@@ -635,7 +634,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler()
 
         self.assertEqual(response['statusCode'], 500)
-        self.assertEqual(response['body'], 'Invalid value type in CORS header')
+        self.assertEqual(response['body'], '{"message": "Invalid value type in CORS header"}')
 
         mock_logger.error.assert_called_once_with("Cannot set %s header to a non %s value",
                                                   'access-control-max-age',
@@ -651,7 +650,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler()
 
         self.assertEqual(response['statusCode'], 500)  # noqa: pylint-invalid-sequence-index
-        self.assertEqual(response['body'], "Invalid response type for CORS headers")  # noqa: pylint-invalid-sequence-index
+        self.assertEqual(response['body'], '{"message": "Invalid response type for CORS headers"}')  # noqa: pylint-invalid-sequence-index
 
         mock_logger.error.assert_called_once_with("Cannot add headers to a non dictionary response")
 
@@ -849,3 +848,64 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler(event)
         self.assertEqual({}, response)
+
+    def test_exit_on_error_false_bundles_all_errors(self):
+        path_1 = "/a/b/c"
+        path_2 = "/a/b/d"
+        path_3 = "/a/b/e"
+        path_4 = "/a/b/f"
+        path_5 = "/a/b/g"
+        dictionary = {
+            "a": {
+                "b": {
+                    "e": 23,
+                    "f": 15,
+                    "g": "a"
+                }
+            }
+        }
+
+        schema = Schema(
+            {
+                "g": int
+            }
+        )
+
+        @extract([
+            Parameter(path_1, 'event', validators=[Mandatory()]),
+            Parameter(path_2, 'event', validators=[Mandatory()]),
+            Parameter(path_3, 'event', validators=[Minimum(30)]),
+            Parameter(path_4, 'event', validators=[Maximum(10)]),
+            Parameter(path_5, 'event', validators=[RegexValidator(r'[0-9]+'), RegexValidator(r'[1][0-9]+'), SchemaValidator(schema)])
+        ], False)
+        def handler(event, context, c=None, d=None):  # noqa
+            return {}
+
+        response = handler(dictionary, None)
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual(
+            '{"message": [{"c": ["Missing mandatory value"]}, '
+            '{"d": ["Missing mandatory value"]}, '
+            '{"e": ["23 is smaller than minimum value (30)"]}, '
+            '{"f": ["15 is bigger than maximum value (10)"]}, '
+            '{"g": ["a does not conform to regular expression [0-9]+", '
+            '"a does not conform to regular expression [1][0-9]+", '
+            '"a does not validate against schema Schema({\'g\': <class \'int\'>})"]}]}',
+            response["body"])
+
+    def test_exit_on_error_false_returns_ok(self):
+        path = "/a/b"
+        dictionary = {
+            "a": {
+                "b": "hello"
+            }
+        }
+
+        @extract([Parameter(path, 'event', validators=[Mandatory()])], False)
+        def handler(event, context, b=None):  # noqa
+            return b
+
+        response = handler(dictionary, None)
+
+        self.assertEqual("hello", response)

@@ -7,7 +7,7 @@ A set of Python decorators to ease the development of AWS lambda functions.
 import json
 import logging
 import boto3
-from aws_lambda_decorators.utils import full_name, all_func_args, find_key_case_insensitive
+from aws_lambda_decorators.utils import full_name, all_func_args, find_key_case_insensitive, failure
 
 
 LOGGER = logging.getLogger()
@@ -58,7 +58,7 @@ def extract_from_context(parameters):
     return extract(parameters)
 
 
-def extract(parameters):
+def extract(parameters, exit_on_error=True):
     """
     Extracts a set of parameters from any function parameter passed to an AWS lambda handler.
 
@@ -80,30 +80,22 @@ def extract(parameters):
                 for param in parameters:
                     param_val = arg_dictionary[param.func_param_name]
                     return_val = param.extract_value(param_val)
-                    param_errors = param.validate(return_val)
+                    param_errors = param.validate_path(return_val, exit_on_error)
                     if param_errors:
-                        errors.append(param.validate(return_val))
+                        errors.append(param_errors)
                         LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE, param.func_param_name, param.path, errors)  # noqa: pylint - logging-fstring-interpolation
-                        # if exit_on_error:
-                        #     return {
-                        #         'statusCode': 400,
-                        #         'body': json.dumps({"message": errors})
-                        #     }
+                        if exit_on_error:
+                            return failure(errors)
                     else:
                         if return_val is not None:
                             kwargs[param.get_var_name()] = return_val
             except Exception as ex:
                 LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE_OLD, full_name(ex), str(ex), param.func_param_name, param.path)  # noqa: pylint - logging-fstring-interpolation
-                return {
-                    'statusCode': 400,
-                    'body': json.dumps({"message": "Error extracting parameters"})
-                }
+                return failure("Error extracting parameters")
 
-            # if not exit_on_error and errors:
-            #     return {
-            #         'statusCode': 400,
-            #         'body': json.dumps({"message": errors})
-            #     }
+            if not exit_on_error and errors:
+                return failure(errors)
+
             return func(*args, **kwargs)
         return wrapper
     return decorator
@@ -129,10 +121,7 @@ def handle_exceptions(handlers):
                 message = [handler.friendly_message for handler in handlers if handler.exception is type(ex)][0]
                 log_message = message if not str(ex) else message + ': ' + str(ex) if message else str(ex)
                 LOGGER.error(log_message)
-                return {
-                    'statusCode': 400,
-                    'body': '{"message": "%s"}' % message if message else str(ex)
-                }
+                return failure(message if message else str(ex))
         return wrapper
     return decorator
 
@@ -196,12 +185,12 @@ def response_body_as_json(func):
             try:
                 response['body'] = json.dumps(response['body'])
             except TypeError:
-                return {'statusCode': 500, 'body': BODY_NOT_JSON_ERROR}
+                return failure("Response body is not JSON serializable", 500)
         return response
     return wrapper
 
 
-def validate(parameters):
+def validate(parameters, exit_on_error=True):
     """
     Validates a set of function parameters.
 
@@ -217,11 +206,10 @@ def validate(parameters):
         def wrapper(*args, **kwargs):
             arg_dictionary = all_func_args(func, args, kwargs)
             for param in parameters:
-                if not param.validate(arg_dictionary[param.func_param_name]):
-                    return {
-                        'statusCode': 400,
-                        'body': PARAM_INVALID_ERROR
-                    }
+                errors = param.validate(arg_dictionary[param.func_param_name], exit_on_error)
+                if errors:
+                    # TODO: add multiple errors to this!
+                    return failure("Error validating parameters")
             return func(*args, **kwargs)
         return wrapper
     return decorator
@@ -242,10 +230,7 @@ def handle_all_exceptions():
                 return func(*args, **kwargs)
             except Exception as ex:  # noqa: pylint - catching-non-exception
                 LOGGER.error(str(ex))
-                return {
-                    'statusCode': 400,
-                    'body': '{"message": "%s"}' % str(ex)
-                }
+                return failure(str(ex))
         return wrapper
     return decorator
 
@@ -298,9 +283,9 @@ def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None
                     response[headers_key] = resp_headers
                     return response
                 except TypeError:
-                    return {'statusCode': 500, 'body': CORS_INVALID_TYPE_ERROR}
+                    return failure("Invalid value type in CORS header", 500)
             else:
                 LOGGER.error(CORS_NON_DICT_LOG_MESSAGE)
-                return {'statusCode': 500, 'body': CORS_NON_DICT_ERROR}
+                return failure("Invalid response type for CORS headers", 500)
         return wrapper
     return decorator

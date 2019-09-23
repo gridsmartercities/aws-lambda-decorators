@@ -103,7 +103,7 @@ class Minimum:  # noqa: pylint - too-few-public-methods
         return False
 
     def message(self, value=None):
-        return f"{value} is smaller than {self._minimum}"
+        return f"{value} is smaller than minimum value ({self._minimum})"
 
 
 class Maximum:  # noqa: pylint - too-few-public-methods
@@ -134,4 +134,4 @@ class Maximum:  # noqa: pylint - too-few-public-methods
         return False
 
     def message(self, value=None):
-        return f"{value} is bigger than {self._maximum}"
+        return f"{value} is bigger than maximum value ({self._maximum})"
