@@ -17,7 +17,6 @@ LOGGER.setLevel(logging.INFO)
 
 PARAM_LOG_MESSAGE = "Parameters: %s"
 RESPONSE_LOG_MESSAGE = "Response: %s"
-ARGUMENT_LOG_MESSAGE = "Error in argument %s for path %s. Errors: %s"
 EXCEPTION_LOG_MESSAGE = "%s: %s in argument %s for path %s"
 EXCEPTION_LOG_MESSAGE_PATHLESS = "%s: %s in argument %s"
 ERROR_MESSAGE = "Error extracting parameters"
@@ -86,8 +85,8 @@ def extract(parameters, exit_on_error=True):
                     param_errors = param.validate_path(return_val, exit_on_error)
                     if param_errors:
                         errors.append(param_errors)
-                        LOGGER.error(ARGUMENT_LOG_MESSAGE, param.func_param_name, param.path, errors)
                         if exit_on_error:
+                            LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
                             return failure(errors)
                     else:
                         if return_val is not None:
@@ -97,6 +96,7 @@ def extract(parameters, exit_on_error=True):
                 return failure(ERROR_MESSAGE)
 
             if not exit_on_error and errors:
+                LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
                 return failure(errors)
 
             return func(*args, **kwargs)

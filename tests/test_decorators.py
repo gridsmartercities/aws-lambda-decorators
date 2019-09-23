@@ -261,7 +261,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         self.assertEqual({}, response)
 
-    def test_extract_returns_400_on_invalid_regex_key(self):
+    @patch('aws_lambda_decorators.decorators.LOGGER')
+    def test_extract_returns_400_on_invalid_regex_key(self, mock_logger):
         path = "/a/b/c"
         dictionary = {
             "a": {
@@ -279,6 +280,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(dictionary, None)
         self.assertEqual(400, response["statusCode"])
         self.assertEqual(r'{"message": [{"c": ["hello does not conform to regular expression \\d+"]}]}', response["body"])
+
+        mock_logger.error.assert_called_once_with("Error validating parameters. Errors: %s", [{"c": ["hello does not conform to regular expression \\d+"]}])
 
     def test_extract_does_not_raise_an_error_on_valid_regex_key(self):
         path = "/a/b/c"
@@ -880,7 +883,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual({}, response)
 
-    def test_exit_on_error_false_bundles_all_errors(self):
+    @patch('aws_lambda_decorators.decorators.LOGGER')
+    def test_exit_on_error_false_bundles_all_errors(self, mock_logger):
         path_1 = "/a/b/c"
         path_2 = "/a/b/d"
         path_3 = "/a/b/e"
@@ -924,6 +928,21 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             '"a does not conform to regular expression [1][0-9]+", '
             '"a does not validate against schema Schema({\'g\': <class \'int\'>})"]}]}',
             response["body"])
+
+        mock_logger.error.assert_called_once_with(
+            'Error validating parameters. Errors: %s',
+            [
+                {'c': ['Missing mandatory value']},
+                {'d': ['Missing mandatory value']},
+                {'e': ['23 is smaller than minimum value (30)']},
+                {'f': ['15 is bigger than maximum value (10)']},
+                {'g': [
+                    'a does not conform to regular expression [0-9]+',
+                    'a does not conform to regular expression [1][0-9]+',
+                    "a does not validate against schema Schema({'g': <class 'int'>})"
+                ]}
+            ]
+        )
 
     def test_exit_on_error_false_returns_ok(self):
         path = "/a/b"
