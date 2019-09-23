@@ -1,5 +1,6 @@
 """Utility functions."""
 import json
+from http import HTTPStatus
 import keyword
 import inspect
 
@@ -85,7 +86,7 @@ def find_key_case_insensitive(key_name, the_dict):
     return key_name
 
 
-def failure(errors, status_code=400):
+def failure(errors, status_code=HTTPStatus.BAD_REQUEST):
     return {
         'statusCode': status_code,
         'body': json.dumps({"message": errors})

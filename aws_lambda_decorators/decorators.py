@@ -285,9 +285,9 @@ def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None
                     response[headers_key] = resp_headers
                     return response
                 except TypeError:
-                    return failure(CORS_INVALID_TYPE_ERROR, 500)
+                    return failure(CORS_INVALID_TYPE_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR)
             else:
                 LOGGER.error(CORS_NON_DICT_LOG_MESSAGE)
-                return failure(CORS_NON_DICT_ERROR, 500)
+                return failure(CORS_NON_DICT_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR)
         return wrapper
     return decorator
