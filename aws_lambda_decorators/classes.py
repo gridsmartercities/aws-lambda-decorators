@@ -198,10 +198,7 @@ class Parameter(ValidatedParameter, BaseParameter):
 
         errors = self.validate(value, group_errors)
 
-        if errors:
-            return {key: errors}
-
-        return {}
+        return {key: errors} if errors else {}
 
     @staticmethod
     def get_annotations_from_key(key):
