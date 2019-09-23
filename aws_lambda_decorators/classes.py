@@ -1,7 +1,6 @@
 """All the classes used as parameters for the decorators."""
 from aws_lambda_decorators.decoders import decode
-from aws_lambda_decorators.validators import Mandatory
-from aws_lambda_decorators.utils import is_type_in_list, is_valid_variable_name
+from aws_lambda_decorators.utils import is_valid_variable_name
 
 PATH_DIVIDER = '/'
 ANNOTATIONS_START = '['

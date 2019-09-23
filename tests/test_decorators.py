@@ -222,7 +222,12 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(400, response["statusCode"])
         self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
 
-        mock_logger.error.assert_called_once_with('%s: %s in argument %s for path %s', 'SyntaxError', 'with space', 'event', '/a/b')
+        mock_logger.error.assert_called_once_with(
+            '%s: %s in argument %s for path %s',
+            'SyntaxError',
+            'with space',
+            'event',
+            '/a/b')
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_can_not_add_pythonic_keyword_as_name_to_parameter(self, mock_logger):
@@ -242,7 +247,12 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(400, response["statusCode"])
         self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
 
-        mock_logger.error.assert_called_once_with('%s: %s in argument %s for path %s', 'SyntaxError', 'class', 'event', '/a/b')
+        mock_logger.error.assert_called_once_with(
+            '%s: %s in argument %s for path %s',
+            'SyntaxError',
+            'class',
+            'event',
+            '/a/b')
 
     def test_extract_does_not_raise_an_error_on_missing_optional_key(self):
         path = "/a/b/c"
@@ -279,9 +289,13 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler(dictionary, None)
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual(r'{"message": [{"c": ["hello does not conform to regular expression \\d+"]}]}', response["body"])
+        self.assertEqual(r'{"message": [{"c": ["hello does not conform to regular expression \\d+"]}]}',
+                         response["body"])
 
-        mock_logger.error.assert_called_once_with("Error validating parameters. Errors: %s", [{"c": ["hello does not conform to regular expression \\d+"]}])
+        mock_logger.error.assert_called_once_with(
+            "Error validating parameters. Errors: %s",
+            [{"c": ["hello does not conform to regular expression \\d+"]}]
+        )
 
     def test_extract_does_not_raise_an_error_on_valid_regex_key(self):
         path = "/a/b/c"
@@ -314,9 +328,15 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler("2019", "abcd")
 
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual('{"message": [{"var2": ["abcd does not conform to regular expression \\\\d+"]}]}', response["body"])
+        self.assertEqual(
+            '{"message": [{"var2": ["abcd does not conform to regular expression \\\\d+"]}]}',
+            response["body"]
+        )
 
-        mock_logger.error.assert_called_once_with('Error validating parameters. Errors: %s', [{"var2": ["abcd does not conform to regular expression \\d+"]}])
+        mock_logger.error.assert_called_once_with(
+            'Error validating parameters. Errors: %s',
+            [{"var2": ["abcd does not conform to regular expression \\d+"]}]
+        )
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_validate_raises_multiple_errors_on_exit_on_error_false(self, mock_logger):
@@ -330,10 +350,18 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler("20wq19", "abcd")
 
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual('{"message": [{"var1": ["20wq19 does not conform to regular expression \\\\d+"]}, {"var2": ["abcd does not conform to regular expression \\\\d+"]}]}', response["body"])
+        self.assertEqual(
+            '{"message": [{"var1": ["20wq19 does not conform to regular expression \\\\d+"]}, '
+            '{"var2": ["abcd does not conform to regular expression \\\\d+"]}]}',
+            response["body"])
 
-        mock_logger.error.assert_called_once_with('Error validating parameters. Errors: %s', [{"var1": ["20wq19 does not conform to regular expression \\d+"]}, {"var2": ["abcd does not conform to regular expression \\d+"]}])
-
+        mock_logger.error.assert_called_once_with(
+            'Error validating parameters. Errors: %s',
+            [
+                {"var1": ["20wq19 does not conform to regular expression \\d+"]},
+                {"var2": ["abcd does not conform to regular expression \\d+"]}
+            ]
+        )
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_can_not_validate_non_pythonic_var_name(self, mock_logger):
@@ -713,7 +741,10 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(dictionary, None)
 
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual('{"message": [{"a": ["{\'b\': {\'c\': 3}} does not validate against schema Schema({\'b\': And(<class \'dict\'>, {\'c\': <class \'str\'>})})"]}]}', response["body"])
+        self.assertEqual(
+            '{"message": [{"a": ["{\'b\': {\'c\': 3}} '
+            'does not validate against schema Schema({\'b\': And(<class \'dict\'>, {\'c\': <class \'str\'>})})"]}]}',
+            response["body"])
 
     def test_extract_valid_dictionary_schema(self):
         path = "/a"
@@ -911,9 +942,13 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             Parameter(path_2, 'event', validators=[Mandatory()]),
             Parameter(path_3, 'event', validators=[Minimum(30)]),
             Parameter(path_4, 'event', validators=[Maximum(10)]),
-            Parameter(path_5, 'event', validators=[RegexValidator(r'[0-9]+'), RegexValidator(r'[1][0-9]+'), SchemaValidator(schema)])
+            Parameter(path_5, 'event', validators=[
+                RegexValidator(r'[0-9]+'),
+                RegexValidator(r'[1][0-9]+'),
+                SchemaValidator(schema)
+            ])
         ], True)
-        def handler(event, context, c=None, d=None):  # noqa
+        def handler(event, context, c=None, d=None):  # noqa: pylint - unused-argument
             return {}
 
         response = handler(dictionary, None)
@@ -962,13 +997,13 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
     def test_mandatory_parameter_with_default_returns_error_on_empty(self):
         event = {
-            "a": "hello"
+            "var": "hello"
         }
 
         @extract([
-            Parameter('/a', 'event', validators=[Mandatory])
+            Parameter('/var', 'event', validators=[Mandatory])
         ])
-        def handler(event, context, a="hello"):
+        def handler(event, context, var="hello"):  # noqa: pylint - unused-argument
             return {}
 
         response = handler(event, None)

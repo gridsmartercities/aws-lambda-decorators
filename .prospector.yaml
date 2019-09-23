@@ -17,3 +17,5 @@ pep257:
 pylint:
   options:
     max-line-length: 120
+  disable:
+    - too-many-lines

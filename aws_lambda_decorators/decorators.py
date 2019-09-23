@@ -93,7 +93,7 @@ def extract(parameters, group_errors=False):
                     else:
                         if return_val is not None:
                             kwargs[param.get_var_name()] = return_val
-            except Exception as ex:
+            except Exception as ex:  # noqa: pylint - broad-except
                 LOGGER.error(EXCEPTION_LOG_MESSAGE, full_name(ex), str(ex), param.func_param_name, param.path)
                 return failure(ERROR_MESSAGE)
 
@@ -228,7 +228,7 @@ def validate(parameters, group_errors=False):
                         if not group_errors:
                             LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
                             return failure(errors)
-            except Exception as ex:
+            except Exception as ex:  # noqa: pylint - broad-except
                 LOGGER.error(EXCEPTION_LOG_MESSAGE_PATHLESS, full_name(ex), str(ex), param.func_param_name)
                 return failure(ERROR_MESSAGE)
 

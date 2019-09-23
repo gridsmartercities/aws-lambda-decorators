@@ -17,7 +17,7 @@ class Mandatory:  # noqa: pylint - too-few-public-methods
         return value is not None
 
     @staticmethod
-    def message(value=None):
+    def message(value=None):  # noqa: pylint - unused-argument
         """
         Gets the formatted error message for a failed mandatory check
 
