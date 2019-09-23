@@ -323,7 +323,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         @validate([
             ValidatedParameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
             ValidatedParameter(func_param_name="var2", validators=[RegexValidator(r'\d+')])
-        ], False)
+        ], True)
         def handler(var1=None, var2=None):  # noqa: pylint - unused-argument
             return {}
 
@@ -340,7 +340,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         @validate([
             ValidatedParameter(func_param_name="var 1", validators=[RegexValidator(r'\d+')]),
             ValidatedParameter(func_param_name="var2", validators=[RegexValidator(r'\d+')])
-        ], False)
+        ], True)
         def handler(var1=None, var2=None):  # noqa: pylint - unused-argument
             return {}
 
@@ -912,7 +912,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             Parameter(path_3, 'event', validators=[Minimum(30)]),
             Parameter(path_4, 'event', validators=[Maximum(10)]),
             Parameter(path_5, 'event', validators=[RegexValidator(r'[0-9]+'), RegexValidator(r'[1][0-9]+'), SchemaValidator(schema)])
-        ], False)
+        ], True)
         def handler(event, context, c=None, d=None):  # noqa
             return {}
 
@@ -944,7 +944,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             ]
         )
 
-    def test_exit_on_error_false_returns_ok(self):
+    def test_group_errors_true_returns_ok(self):
         path = "/a/b"
         dictionary = {
             "a": {
@@ -952,7 +952,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, 'event', validators=[Mandatory()])], False)
+        @extract([Parameter(path, 'event', validators=[Mandatory()])], True)
         def handler(event, context, b=None):  # noqa
             return b
 

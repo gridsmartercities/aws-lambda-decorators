@@ -60,7 +60,7 @@ def extract_from_context(parameters):
     return extract(parameters)
 
 
-def extract(parameters, exit_on_error=True):
+def extract(parameters, group_errors=False):
     """
     Extracts a set of parameters from any function parameter passed to an AWS lambda handler.
 
@@ -73,6 +73,8 @@ def extract(parameters, exit_on_error=True):
 
     Args:
         parameters (list): A collection of Parameter type items.
+        group_errors (bool): flag that indicates if error messages are to be grouped together
+            (if set to False, validation will end on first error)
     """
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -82,10 +84,10 @@ def extract(parameters, exit_on_error=True):
                 for param in parameters:
                     param_val = arg_dictionary[param.func_param_name]
                     return_val = param.extract_value(param_val)
-                    param_errors = param.validate_path(return_val, exit_on_error)
+                    param_errors = param.validate_path(return_val, group_errors)
                     if param_errors:
                         errors.append(param_errors)
-                        if exit_on_error:
+                        if not group_errors:
                             LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
                             return failure(errors)
                     else:
@@ -95,7 +97,7 @@ def extract(parameters, exit_on_error=True):
                 LOGGER.error(EXCEPTION_LOG_MESSAGE, full_name(ex), str(ex), param.func_param_name, param.path)
                 return failure(ERROR_MESSAGE)
 
-            if not exit_on_error and errors:
+            if group_errors and errors:
                 LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
                 return failure(errors)
 
@@ -130,7 +132,13 @@ def handle_exceptions(handlers):
 
 
 def log(parameters=False, response=False):
-    """Log parameters and/or response of the wrapped/decorated function using logging package."""
+    """
+    Log parameters and/or response of the wrapped/decorated function using logging package
+
+    Args:
+        parameters: a flag indicating if the input parameters are to be logged
+        response: a flag indicating if the returned response is to be logged
+    """
     def decorator(func):
         def wrapper(*args, **kwargs):
             if parameters:
@@ -193,7 +201,7 @@ def response_body_as_json(func):
     return wrapper
 
 
-def validate(parameters, exit_on_error=True):
+def validate(parameters, group_errors=False):
     """
     Validates a set of function parameters.
 
@@ -204,6 +212,8 @@ def validate(parameters, exit_on_error=True):
 
     Args:
         parameters (list): A collection of ValidatedParameter type items.
+        group_errors (bool): flag that indicates if error messages are to be grouped together
+            (if set to False, validation will end on first error)
     """
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -212,17 +222,17 @@ def validate(parameters, exit_on_error=True):
                 arg_dictionary = all_func_args(func, args, kwargs)
                 for param in parameters:
                     param_val = arg_dictionary[param.func_param_name]
-                    param_errors = param.validate(param_val, exit_on_error)
+                    param_errors = param.validate(param_val, group_errors)
                     if param_errors:
                         errors.append({param.func_param_name: param_errors})
-                        if exit_on_error:
+                        if not group_errors:
                             LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
                             return failure(errors)
             except Exception as ex:
                 LOGGER.error(EXCEPTION_LOG_MESSAGE_PATHLESS, full_name(ex), str(ex), param.func_param_name)
                 return failure(ERROR_MESSAGE)
 
-            if not exit_on_error and errors:
+            if group_errors and errors:
                 LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
                 return failure(errors)
 
