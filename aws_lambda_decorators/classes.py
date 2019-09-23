@@ -81,6 +81,8 @@ class ValidatedParameter:
                 def fun(event, context). To extract from context func_param_name has to be 'context'
             validators (list): A list of validators the value must conform to (e.g. Mandatory(),
                 RegexValidator(my_regex), ...)
+            default (any): Optional, a default value if the value is missing and not mandatory.
+                The default value is None
         """
         self._func_param_name = func_param_name
         self._validators = validators
@@ -96,14 +98,25 @@ class ValidatedParameter:
         """Setter for the func_param_name parameter."""
         self._func_param_name = value
 
-    def validate(self, value, exit_on_error):
+    def validate(self, value, group_errors):
+        """
+        Validates a value against the passed in validators
+
+        Args:
+            value (any): value to be validated
+            group_errors (bool): flag that indicates if error messages are to be grouped together
+                (if set to False, validation will end on first error)
+
+        Returns:
+            a list of errors
+        """
         errors = []
 
         if self._validators:
             for validator in self._validators:
                 if not validator.validate(value):
                     errors.append(validator.message(value))
-                    if exit_on_error:
+                    if not group_errors:
                         return errors
 
         return errors
@@ -154,6 +167,9 @@ class Parameter(ValidatedParameter, BaseParameter):
 
         Args:
             dict_value (dict): dictionary to be parsed.
+
+        Returns:
+            the extracted value
         """
         for path_key in filter(lambda item: item != '', self._path.split(PATH_DIVIDER)):
             real_key, annotation = Parameter.get_annotations_from_key(path_key)
@@ -168,10 +184,21 @@ class Parameter(ValidatedParameter, BaseParameter):
 
         return dict_value
 
-    def validate_path(self, value, exit_on_error=True):
+    def validate_path(self, value, group_errors=False):
+        """
+        Validates a value against the passed in validators
+
+        Args:
+            value: value to be validated
+            group_errors (bool): flag that indicates if error messages are to be grouped together
+                (if set to False, validation will end on first error)
+
+        Returns:
+            a list of validation key/pair errors
+        """
         key = self._path.split(PATH_DIVIDER)[-1]
 
-        errors = self.validate(value, exit_on_error)
+        errors = self.validate(value, group_errors)
 
         if errors:
             return {key: errors}
