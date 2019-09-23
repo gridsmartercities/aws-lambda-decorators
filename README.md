@@ -175,7 +175,7 @@ def extract_from_list_example(a_dictionary, my_param=None):
 
 ```
 
-### [extract_from_event](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L28-L41)
+### extract_from_event
 
 This decorator is just a facade to the [extract](#extract) method to be used in AWS Api Gateway Lambdas. It automatically extracts from the event lambda parameter.
 
@@ -197,7 +197,7 @@ def extract_from_event_example(event, context, my_param=None, user_id=None):
     return my_param, user_id  # returns ('Hello!', '1234567890')
 ```
 
-### [extract_from_context](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L44-L576)
+### extract_from_context
 
 This decorator is just a facade to the [extract](#extract) method to be used in AWS Api Gateway Lambdas. It automatically extracts from the context lambda parameter.
 
@@ -217,7 +217,7 @@ def extract_from_context_example(event, context, my_param=None):
     return my_param  # returns 'Hello!'
 ```
 
-### [extract_from_ssm](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L136-L161)
+### extract_from_ssm
 
 This decorator extracts a parameter from AWS SSM and passes the parameter down to your function as a kwarg.
 
@@ -235,7 +235,7 @@ def extract_from_ssm_example(your_func_params, one_key=None, another=None):
     return your_func_params, one_key, another
 ```
 
-### [validate](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L186-L209)
+### validate
 
 This decorator validates a list of non dictionary parameters from your lambda function.
 
@@ -262,7 +262,7 @@ Given the same function `validate_example`, a 400 exception is returned if at le
 validate_example('Hello!', 'ABCD')  # returns a 400 status code and an error message
 ```
 
-### [log](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L122-L133)
+### log
 
 This decorator allows for logging the function arguments and/or the response.
 
@@ -275,7 +275,7 @@ def log_example(parameters):
 log_example('Hello!')  # logs 'Hello!' and 'Done!'
 ```
 
-### [handle_exceptions](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L94-L119)
+### handle_exceptions
 
 This decorator handles a list of exceptions, returning a 400 response containing the specified friendly message to the caller.
 
@@ -296,7 +296,7 @@ def handle_exceptions_example():
 handle_exceptions_example()  # returns {'body': '{"message": "Your message when a client error happens."}', 'statusCode': 400}
 ```
 
-### [handle_all_exceptions](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L212-L232)
+### handle_all_exceptions
 
 This decorator handles all exceptions thrown by a lambda, returning a 400 response and the exception's message.
 
@@ -311,7 +311,7 @@ def handle_exceptions_example():
 handle_all_exceptions_example()  # returns {'body': '{"message": "list index out of range"}, 'statusCode': 400}
 ```
 
-### [response_body_as_json](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L164-L183)
+### response_body_as_json
 
 This decorator ensures that, if the response contains a body, the body is dumped as json.
 
@@ -326,7 +326,7 @@ def response_body_as_json_example():
 response_body_as_json_example()  # returns { 'statusCode': 400, 'body': "{ 'param': 'hello!' }" }
 ```
 
-### [cors](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py#L235-L288)
+### cors
 
 This decorator adds your defined CORS headers to the decorated function response.
 
@@ -355,6 +355,3 @@ You can get the docstring help by running:
 * [PyPi](https://pypi.org/project/aws-lambda-decorators/)
 * [Test PyPi](https://test.pypi.org/project/aws-lambda-decorators/)
 * [Github](https://github.com/gridsmartercities/aws-lambda-decorators)
-
-
-[]: 
