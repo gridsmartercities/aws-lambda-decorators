@@ -299,7 +299,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         self.assertEqual({}, response)
 
-    def test_validate_raises_an_error_on_invalid_variables(self):
+    @patch('aws_lambda_decorators.decorators.LOGGER')
+    def test_validate_raises_an_error_on_invalid_variables(self, mock_logger):
         @validate([
             ValidatedParameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
             ValidatedParameter(func_param_name="var2", validators=[RegexValidator(r'\d+')])
@@ -308,8 +309,46 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             return {}
 
         response = handler("2019", "abcd")
+
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual('{"message": "Error validating parameters"}', response["body"])
+        self.assertEqual('{"message": [{"var2": ["abcd does not conform to regular expression \\\\d+"]}]}', response["body"])
+
+        mock_logger.error.assert_called_once_with('Error validating parameters. Errors: %s', [{"var2": ["abcd does not conform to regular expression \\d+"]}])
+
+    @patch('aws_lambda_decorators.decorators.LOGGER')
+    def test_validate_raises_multiple_errors_on_exit_on_error_false(self, mock_logger):
+        @validate([
+            ValidatedParameter(func_param_name="var1", validators=[RegexValidator(r'\d+')]),
+            ValidatedParameter(func_param_name="var2", validators=[RegexValidator(r'\d+')])
+        ], False)
+        def handler(var1=None, var2=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler("20wq19", "abcd")
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual('{"message": [{"var1": ["20wq19 does not conform to regular expression \\\\d+"]}, {"var2": ["abcd does not conform to regular expression \\\\d+"]}]}', response["body"])
+
+        mock_logger.error.assert_called_once_with('Error validating parameters. Errors: %s', [{"var1": ["20wq19 does not conform to regular expression \\d+"]}, {"var2": ["abcd does not conform to regular expression \\d+"]}])
+
+
+    @patch('aws_lambda_decorators.decorators.LOGGER')
+    def test_can_not_validate_non_pythonic_var_name(self, mock_logger):
+        @validate([
+            ValidatedParameter(func_param_name="var 1", validators=[RegexValidator(r'\d+')]),
+            ValidatedParameter(func_param_name="var2", validators=[RegexValidator(r'\d+')])
+        ], False)
+        def handler(var1=None, var2=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler("20wq19", "abcd")
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual(
+            '{"message": "Error extracting parameters"}',
+            response["body"])
+
+        mock_logger.error.assert_called_once_with('%s: %s in argument %s', 'KeyError', "'var 1'", 'var 1')
 
     def test_validate_does_not_raise_an_error_on_valid_variables(self):
         @validate([

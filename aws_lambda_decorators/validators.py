@@ -41,7 +41,7 @@ class RegexValidator:  # noqa: pylint - too-few-public-methods
         Args:
             value (str): Value to be validated.
         """
-        return self._regexp.search(value) is not None
+        return self._regexp.fullmatch(value) is not None
 
     def message(self, value=None):
         return f"{value} does not conform to regular expression {self._regex}"

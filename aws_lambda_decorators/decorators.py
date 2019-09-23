@@ -19,8 +19,9 @@ PARAM_LOG_MESSAGE = "Parameters: %s"
 RESPONSE_LOG_MESSAGE = "Response: %s"
 ARGUMENT_LOG_MESSAGE = "Error in argument %s for path %s. Errors: %s"
 EXCEPTION_LOG_MESSAGE = "%s: %s in argument %s for path %s"
+EXCEPTION_LOG_MESSAGE_PATHLESS = "%s: %s in argument %s"
 ERROR_MESSAGE = "Error extracting parameters"
-VALIDATE_ERROR_MESSAGE = "Error validating parameters"
+VALIDATE_ERROR_MESSAGE = "Error validating parameters. Errors: %s"
 NON_SERIALIZABLE_ERROR_MESSAGE = "Response body is not JSON serializable"
 CORS_INVALID_TYPE_ERROR = "Invalid value type in CORS header"
 CORS_NON_DICT_ERROR = "Invalid response type for CORS headers"
@@ -206,12 +207,25 @@ def validate(parameters, exit_on_error=True):
     """
     def decorator(func):
         def wrapper(*args, **kwargs):
-            arg_dictionary = all_func_args(func, args, kwargs)
-            for param in parameters:
-                errors = param.validate(arg_dictionary[param.func_param_name], exit_on_error)
-                if errors:
-                    # TODO: add multiple errors to this!
-                    return failure(VALIDATE_ERROR_MESSAGE)
+            try:
+                errors = []
+                arg_dictionary = all_func_args(func, args, kwargs)
+                for param in parameters:
+                    param_val = arg_dictionary[param.func_param_name]
+                    param_errors = param.validate(param_val, exit_on_error)
+                    if param_errors:
+                        errors.append({param.func_param_name: param_errors})
+                        if exit_on_error:
+                            LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
+                            return failure(errors)
+            except Exception as ex:
+                LOGGER.error(EXCEPTION_LOG_MESSAGE_PATHLESS, full_name(ex), str(ex), param.func_param_name)
+                return failure(ERROR_MESSAGE)
+
+            if not exit_on_error and errors:
+                LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
+                return failure(errors)
+
             return func(*args, **kwargs)
         return wrapper
     return decorator
