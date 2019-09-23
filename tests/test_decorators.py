@@ -872,7 +872,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         )
 
         @extract([
-            Parameter(path_1, 'event', validators=[Mandatory()]),
+            Parameter(path_1, 'event', validators=[Mandatory()], var_name="c"),
             Parameter(path_2, 'event', validators=[Mandatory()]),
             Parameter(path_3, 'event', validators=[Minimum(30)]),
             Parameter(path_4, 'event', validators=[Maximum(10)]),
