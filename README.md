@@ -133,7 +133,7 @@ def extract_mandatory_param_example(a_dictionary, mandatory_param=None):
     
 response = extract_mandatory_param_example({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
 
-print(response)  # prints { 'statusCode': 400, 'body': '{"message": "Error extracting parameters"}' } and logs a more detailed error
+print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"mandatory_param": ["Missing mandatory value"]}]}' } and logs a more detailed error
 
 ```
 
@@ -174,6 +174,25 @@ def extract_from_list_example(a_dictionary, my_param=None):
     return my_param  # returns 'Bye!'
 
 ```
+
+You can group the validation errors together (instead of exiting on first error).
+
+Example:
+```python
+@extract(parameters=[
+    Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory]),  # extracts two mandatory parameters from a_dictionary
+    Parameter(path='/parent/another_mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])
+], group_errors=True)  # groups both errors together
+def extract_multiple_param_example(a_dictionary, mandatory_param=None, another_mandatory_param):
+    return 'Here!'  # this part will never be reached, if the mandatory_param is missing
+    
+response = extract_multiple_param_example({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
+
+print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"mandatory_param": ["Missing mandatory value"]}, {"another_mandatory_param": ["Missing mandatory value]}]}' } and logs a more detailed error
+
+```
+
+
 
 ### extract_from_event
 
