@@ -13,15 +13,11 @@ from aws_lambda_decorators.utils import full_name, all_func_args, find_key_case_
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
 
-BODY_NOT_JSON_ERROR = '{"message": "Response body is not JSON serializable"}'
-PARAM_EXTRACT_ERROR = '{"message": %s}'
-PARAM_EXTRACT_LOG_MESSAGE = "Error in argument %s for path %s. Errors: %s"
-PARAM_EXTRACT_LOG_MESSAGE_OLD = "%s: %s in argument %s for path %s"
-PARAM_INVALID_ERROR = '{"message": "Error validating parameters"}'
+
 PARAM_LOG_MESSAGE = "Parameters: %s"
 RESPONSE_LOG_MESSAGE = "Response: %s"
-CORS_INVALID_TYPE_ERROR = "Invalid value type in CORS header"
-CORS_NON_DICT_ERROR = "Invalid response type for CORS headers"
+# CORS_INVALID_TYPE_ERROR = "Invalid value type in CORS header"
+# CORS_NON_DICT_ERROR = "Invalid response type for CORS headers"
 CORS_INVALID_TYPE_LOG_MESSAGE = "Cannot set %s header to a non %s value"
 CORS_NON_DICT_LOG_MESSAGE = "Cannot add headers to a non dictionary response"
 
@@ -83,14 +79,15 @@ def extract(parameters, exit_on_error=True):
                     param_errors = param.validate_path(return_val, exit_on_error)
                     if param_errors:
                         errors.append(param_errors)
-                        LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE, param.func_param_name, param.path, errors)  # noqa: pylint - logging-fstring-interpolation
+                        LOGGER.error(
+                            f"Error in argument {param.func_param_name} for path {param.path}. Errors: {errors}")
                         if exit_on_error:
                             return failure(errors)
                     else:
                         if return_val is not None:
                             kwargs[param.get_var_name()] = return_val
             except Exception as ex:
-                LOGGER.error(PARAM_EXTRACT_LOG_MESSAGE_OLD, full_name(ex), str(ex), param.func_param_name, param.path)  # noqa: pylint - logging-fstring-interpolation
+                LOGGER.error(f"{full_name(ex)}: {str(ex)} in argument {param.func_param_name} for path {param.path}")
                 return failure("Error extracting parameters")
 
             if not exit_on_error and errors:

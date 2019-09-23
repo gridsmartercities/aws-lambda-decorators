@@ -222,11 +222,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(400, response["statusCode"])
         self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
 
-        mock_logger.error.assert_called_once_with("%s: %s in argument %s for path %s",
-                                                  'SyntaxError',
-                                                  'with space',
-                                                  'event',
-                                                  '/a/b')
+        mock_logger.error.assert_called_once_with("SyntaxError: with space in argument event for path /a/b")
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_can_not_add_pythonic_keyword_as_name_to_parameter(self, mock_logger):
@@ -246,11 +242,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(400, response["statusCode"])
         self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
 
-        mock_logger.error.assert_called_once_with("%s: %s in argument %s for path %s",
-                                                  'SyntaxError',
-                                                  'class',
-                                                  'event',
-                                                  '/a/b')
+        mock_logger.error.assert_called_once_with("SyntaxError: class in argument event for path /a/b")
 
     def test_extract_does_not_raise_an_error_on_missing_optional_key(self):
         path = "/a/b/c"
@@ -736,7 +728,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler(event)
         self.assertEqual(response["statusCode"], 400)
-        self.assertEqual('{"message": [{"value": ["5 is smaller than 10.0"]}]}', response["body"])
+        self.assertEqual('{"message": [{"value": ["5 is smaller than minimum value (10.0)"]}]}', response["body"])
 
     def test_error_extracting_non_numeric_parameter_with_minimum(self):
         event = {
@@ -749,7 +741,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler(event)
         self.assertEqual(response["statusCode"], 400)
-        self.assertEqual('{"message": [{"value": ["20 is smaller than 10.0"]}]}', response["body"])
+        self.assertEqual('{"message": [{"value": ["20 is smaller than minimum value (10.0)"]}]}', response["body"])
 
     def test_extract_optional_null_parameter_with_minimum(self):
         event = {
@@ -798,7 +790,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual(response["statusCode"], 400)
         self.assertEqual(
-            '{"message": [{"value": ["105 is bigger than 100.0"]}]}', response["body"])
+            '{"message": [{"value": ["105 is bigger than maximum value (100.0)"]}]}', response["body"])
 
     def test_error_extracting_non_numeric_parameter_with_maximum(self):
         event = {
@@ -812,7 +804,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual(response["statusCode"], 400)
         self.assertEqual(
-            '{"message": [{"value": ["20 is bigger than 100.0"]}]}', response["body"])
+            '{"message": [{"value": ["20 is bigger than maximum value (100.0)"]}]}', response["body"])
 
     def test_extract_optional_null_parameter_with_maximum(self):
         event = {
@@ -909,3 +901,18 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(dictionary, None)
 
         self.assertEqual("hello", response)
+
+    def test_mandatory_parameter_with_default_returns_error_on_empty(self):
+        event = {
+            "a": "hello"
+        }
+
+        @extract([
+            Parameter('/a', 'event', validators=[Mandatory])
+        ])
+        def handler(event, context, a="hello"):
+            return {}
+
+        response = handler(event, None)
+
+        self.assertEqual({}, response)

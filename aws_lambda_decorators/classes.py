@@ -100,17 +100,11 @@ class ValidatedParameter:
         errors = []
 
         if self._validators:
-            has_mandatory_error = False
             for validator in self._validators:
                 if not validator.validate(value):
-                    has_mandatory_error = True if isinstance(validator, Mandatory) else False
                     errors.append(validator.message(value))
                     if exit_on_error:
                         return errors
-
-            if not has_mandatory_error:
-                if value == self._default and is_type_in_list(Mandatory, self._validators):
-                    errors.append("Missing mandatory value")
 
         return errors
 

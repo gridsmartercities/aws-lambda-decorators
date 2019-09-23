@@ -31,12 +31,8 @@ class DecodersTests(unittest.TestCase):
         self.assertEqual(400, response["statusCode"])
         self.assertEqual('{"message": "Error extracting parameters"}', response["body"])
 
-        mock_logger.error.assert_called_once_with("%s: %s in argument %s for path %s",
-                                                  'json.decoder.JSONDecodeError',
-                                                  'Expecting property name enclosed in double quotes: line 1 column 2 '
-                                                  '(char 1)',
-                                                  'event',
-                                                  '/a/b[json]/c')
+        mock_logger.error.assert_called_once_with(
+            "json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1) in argument event for path /a/b[json]/c")
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
     def test_extract_returns_400_on_jwt_decode_error(self, mock_logger):
@@ -56,11 +52,8 @@ class DecodersTests(unittest.TestCase):
         self.assertEqual(400, response["statusCode"])
         self.assertTrue('{"message": "Error extracting parameters"}' in response["body"])
 
-        mock_logger.error.assert_called_once_with("%s: %s in argument %s for path %s",
-                                                  'jwt.exceptions.DecodeError',
-                                                  'Not enough segments',
-                                                  'event',
-                                                  '/a/b[jwt]/c')
+        mock_logger.error.assert_called_once_with(
+            "jwt.exceptions.DecodeError: Not enough segments in argument event for path /a/b[jwt]/c")
 
     def test_extracts_from_list_by_index_annotation_successfully(self):
         path = "/a/b[1]/c"
@@ -110,8 +103,4 @@ class DecodersTests(unittest.TestCase):
         self.assertEqual(400, response["statusCode"])  # noqa
         self.assertTrue('{"message": "Error extracting parameters"}' in response["body"])  # noqa
 
-        mock_logger.error.assert_called_once_with("%s: %s in argument %s for path %s",
-                                                  'IndexError',
-                                                  'list index out of range',
-                                                  'event',
-                                                  '/a/b[4]/c')
+        mock_logger.error.assert_called_once_with("IndexError: list index out of range in argument event for path /a/b[4]/c")
