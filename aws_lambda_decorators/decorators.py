@@ -49,7 +49,7 @@ def extract_from_event(parameters, group_errors=False):
     return extract(parameters, group_errors)
 
 
-def extract_from_context(parameters,  group_errors=False):
+def extract_from_context(parameters, group_errors=False):
     """
     Extracts a set of parameters from the context dictionary in a lambda handler.
 
