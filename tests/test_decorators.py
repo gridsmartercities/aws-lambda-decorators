@@ -1009,3 +1009,35 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event, None)
 
         self.assertEqual({}, response)
+
+    def test_group_errors_true_on_extract_from_event_returns_ok(self):
+        path = "/a/b"
+        dictionary = {
+            "a": {
+                "b": "hello"
+            }
+        }
+
+        @extract_from_event([Parameter(path, validators=[Mandatory()])], True)
+        def handler(event, context, b=None):  # noqa
+            return b
+
+        response = handler(dictionary, None)
+
+        self.assertEqual("hello", response)
+
+    def test_group_errors_true_on_extract_from_context_returns_ok(self):
+        path = "/a/b"
+        dictionary = {
+            "a": {
+                "b": "hello"
+            }
+        }
+
+        @extract_from_context([Parameter(path, validators=[Mandatory()])], True)
+        def handler(event, context, b=None):  # noqa
+            return b
+
+        response = handler(None, dictionary)
+
+        self.assertEqual("hello", response)
