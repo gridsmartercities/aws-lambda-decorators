@@ -28,7 +28,7 @@ CORS_INVALID_TYPE_LOG_MESSAGE = "Cannot set %s header to a non %s value"
 CORS_NON_DICT_LOG_MESSAGE = "Cannot add headers to a non dictionary response"
 
 
-def extract_from_event(parameters):
+def extract_from_event(parameters, group_errors=False):
     """
     Extracts a set of parameters from the event dictionary in a lambda handler.
 
@@ -38,13 +38,18 @@ def extract_from_event(parameters):
         @extract_from_event([Parameter(path='/body[json]/my_param')])
         def lambda_handler(event, context, my_param=None)
             pass
+
+    Args:
+        parameters (list): A collection of Parameter type items.
+        group_errors (bool): flag that indicates if error messages are to be grouped together
+            (if set to False, validation will end on first error)
     """
     for param in parameters:
         param.func_param_name = 'event'
-    return extract(parameters)
+    return extract(parameters, group_errors)
 
 
-def extract_from_context(parameters):
+def extract_from_context(parameters,  group_errors=False):
     """
     Extracts a set of parameters from the context dictionary in a lambda handler.
 
@@ -54,10 +59,15 @@ def extract_from_context(parameters):
         @extract_from_context([Parameter(path='/parent/my_param')])
         def lambda_handler(event, context, my_param=None)
             pass
+
+    Args:
+        parameters (list): A collection of Parameter type items.
+        group_errors (bool): flag that indicates if error messages are to be grouped together
+            (if set to False, validation will end on first error)
     """
     for param in parameters:
         param.func_param_name = 'context'
-    return extract(parameters)
+    return extract(parameters, group_errors)
 
 
 def extract(parameters, group_errors=False):
