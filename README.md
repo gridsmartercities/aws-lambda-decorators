@@ -47,6 +47,8 @@ Currently, the package offers 5 validators:
 * __SchemaValidator__: Checks if an object adheres to the schema. Uses [schema](https://github.com/keleshev/schema) library.
 * __Minimum__: Checks if an optional numerical value is greater than a minimum value.
 * __Maximum__: Checks if an optional numerical value is less than a maximum value.
+* __MinLength__: Checks if an optional string value is longer than a minimum length.
+* __MaxLength__: Checks if an optional string value is shorter than a maximum length.
 
 ### [Decoders](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py)
 

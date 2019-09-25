@@ -1082,7 +1082,9 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             Parameter(path_5, 'event', validators=[
                 RegexValidator(r'[0-9]+'),
                 RegexValidator(r'[1][0-9]+'),
-                SchemaValidator(schema)
+                SchemaValidator(schema),
+                MinLength(2),
+                MaxLength(0)
             ])
         ], True)
         def handler(event, context, c=None, d=None):  # noqa: pylint - unused-argument
@@ -1098,7 +1100,10 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             '{"f": ["\'15\' is bigger than maximum value \'10\'"]}, '
             '{"g": ["\'a\' does not conform to regular expression \'[0-9]+\'", '
             '"\'a\' does not conform to regular expression \'[1][0-9]+\'", '
-            '"\'a\' does not validate against schema \'Schema({\'g\': <class \'int\'>})\'"]}]}',
+            '"\'a\' does not validate against schema \'Schema({\'g\': <class \'int\'>})\'", '
+            '"\'a\' is shorter than minimum length \'2\'", '
+            '"\'a\' is longer than maximum length \'0\'"'
+            ']}]}',
             response["body"])
 
         mock_logger.error.assert_called_once_with(
@@ -1111,7 +1116,9 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
                 {"g": [
                     "'a' does not conform to regular expression '[0-9]+'",
                     "'a' does not conform to regular expression '[1][0-9]+'",
-                    "'a' does not validate against schema 'Schema({'g': <class 'int'>})'"
+                    "'a' does not validate against schema 'Schema({'g': <class 'int'>})'",
+                    "'a' is shorter than minimum length '2'",
+                    "'a' is longer than maximum length '0'"
                 ]}
             ]
         )
@@ -1178,3 +1185,75 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(None, dictionary)
 
         self.assertEqual("hello", response)
+
+    @patch('aws_lambda_decorators.decorators.LOGGER')
+    def test_can_output_custom_error_message_on_validation_failure(self, mock_logger):
+        path_1 = "/a/b/c"
+        path_2 = "/a/b/d"
+        path_3 = "/a/b/e"
+        path_4 = "/a/b/f"
+        path_5 = "/a/b/g"
+        dictionary = {
+            "a": {
+                "b": {
+                    "e": 23,
+                    "f": 15,
+                    "g": "a"
+                }
+            }
+        }
+
+        schema = Schema(
+            {
+                "g": int
+            }
+        )
+
+        @extract([
+            Parameter(path_1, 'event', validators=[Mandatory("Missing c")], var_name="c"),
+            Parameter(path_2, 'event', validators=[Mandatory("Missing d")]),
+            Parameter(path_3, 'event', validators=[Minimum(30, "Bad e")]),
+            Parameter(path_4, 'event', validators=[Maximum(10, "Bad f")]),
+            Parameter(path_5, 'event', validators=[
+                RegexValidator(r'[0-9]+', 'Bad g regex 1'),
+                RegexValidator(r'[1][0-9]+', 'Bad g regex 2'),
+                SchemaValidator(schema, 'Bad g schema'),
+                MinLength(2, 'Bad g min length'),
+                MaxLength(0, 'Bad g max length')
+            ])
+        ], True)
+        def handler(event, context, c=None, d=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(dictionary, None)
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual(
+            '{"message": [{"c": ["Missing c"]}, '
+            '{"d": ["Missing d"]}, '
+            '{"e": ["Bad e"]}, '
+            '{"f": ["Bad f"]}, '
+            '{"g": ["Bad g regex 1", '
+            '"Bad g regex 2", '
+            '"Bad g schema", '
+            '"Bad g min length", '
+            '"Bad g max length"'
+            ']}]}',
+            response["body"])
+
+        mock_logger.error.assert_called_once_with(
+            'Error validating parameters. Errors: %s',
+            [
+                {"c": ["Missing c"]},
+                {"d": ["Missing d"]},
+                {"e": ["Bad e"]},
+                {"f": ["Bad f"]},
+                {"g": [
+                    "Bad g regex 1",
+                    "Bad g regex 2",
+                    "Bad g schema",
+                    "Bad g min length",
+                    "Bad g max length"
+                ]}
+            ]
+        )
