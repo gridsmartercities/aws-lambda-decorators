@@ -139,19 +139,19 @@ print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"mandatory
 
 ```
 
-You can add custom error messages to all validators:
+You can add custom error messages to all validators, and incorporate to those error messages the validated value and the validation condition:
 
 Example:
 ```python
 @extract(parameters=[
-    Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory('Custom message')])  # extracts a mandatory mandatory_param from a_dictionary
+    Parameter(path='/parent/an_int', func_param_name='a_dictionary', validators=[Minimum(100, 'Bad value {value}: should be at least {condition}')])  # extracts a mandatory mandatory_param from a_dictionary
 ])
-def extract_mandatory_param_with_custom_error_example(a_dictionary, mandatory_param=None):
-    return 'Here!'  # this part will never be reached, if the mandatory_param is missing
+def extract_minimum_param_with_custom_error_example(a_dictionary, mandatory_param=None):
+    return 'Here!'  # this part will never be reached, if the an_int param is less than 100
     
-response = extract_mandatory_param_with_custom_error_example({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
+response = extract_minimum_param_with_custom_error_example({'parent': {'an_int': 10}})
 
-print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"mandatory_param": ["Custom message"]}]}' } and logs a more detailed error
+print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"an_int": ["Bad value 10: should be at least 100"]}]}' } and logs a more detailed error
 
 ```
 

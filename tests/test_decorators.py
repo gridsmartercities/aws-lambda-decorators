@@ -1212,7 +1212,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         @extract([
             Parameter(path_1, 'event', validators=[Mandatory("Missing c")], var_name="c"),
             Parameter(path_2, 'event', validators=[Mandatory("Missing d")]),
-            Parameter(path_3, 'event', validators=[Minimum(30, "Bad e")]),
+            Parameter(path_3, 'event', validators=[Minimum(30, "Bad e value {value}, should be at least {condition}")]),
             Parameter(path_4, 'event', validators=[Maximum(10, "Bad f")]),
             Parameter(path_5, 'event', validators=[
                 RegexValidator(r'[0-9]+', 'Bad g regex 1'),
@@ -1231,7 +1231,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(
             '{"message": [{"c": ["Missing c"]}, '
             '{"d": ["Missing d"]}, '
-            '{"e": ["Bad e"]}, '
+            '{"e": ["Bad e value 23, should be at least 30"]}, '
             '{"f": ["Bad f"]}, '
             '{"g": ["Bad g regex 1", '
             '"Bad g regex 2", '
@@ -1246,7 +1246,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             [
                 {"c": ["Missing c"]},
                 {"d": ["Missing d"]},
-                {"e": ["Bad e"]},
+                {"e": ["Bad e value 23, should be at least 30"]},
                 {"f": ["Bad f"]},
                 {"g": [
                     "Bad g regex 1",
