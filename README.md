@@ -217,9 +217,9 @@ Example:
 ```python
 @extract(parameters=[
     Parameter(path='/params/my_param_1', func_param_name='a_dictionary'),  # extracts a non mandatory my_param_1 from a_dictionary
-    Parameter(path='/params/my_param_2', func_param_name='a_dictionary'),  # extracts a non mandatory my_param_2 from a_dictionary
+    Parameter(path='/params/my_param_2', func_param_name='a_dictionary')  # extracts a non mandatory my_param_2 from a_dictionary
 ])
-def extract_from_list_example(a_dictionary, **kwargs):
+def extract_dictionary_example(a_dictionary, **kwargs):
     """
         a_dictionary = { 
             'params': {
