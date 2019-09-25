@@ -3,7 +3,7 @@ import re
 from schema import SchemaError
 
 
-class Validator:
+class Validator:  # noqa: pylint - too-few-public-methods
     """Validation rule to check if the given mandatory value exists."""
 
     def __init__(self, error_message, condition=None):
