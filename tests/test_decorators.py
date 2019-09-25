@@ -7,7 +7,8 @@ from schema import Schema, And, Optional
 from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter, ValidatedParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors
-from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum
+from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum, MaxLength, \
+    MinLength
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
            "eyJzdWIiOiJhYWRkMWUwZS01ODA3LTQ3NjMtYjFlOC01ODIzYmY2MzFiYjYiLCJhdWQiOiIycjdtMW1mdWFiODg3ZmZvdG9iNWFjcX" \
@@ -289,12 +290,12 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler(dictionary, None)
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual(r'{"message": [{"c": ["hello does not conform to regular expression \\d+"]}]}',
+        self.assertEqual('{"message": [{"c": ["\'hello\' does not conform to regular expression \'\\\\d+\'"]}]}',
                          response["body"])
 
         mock_logger.error.assert_called_once_with(
             "Error validating parameters. Errors: %s",
-            [{"c": ["hello does not conform to regular expression \\d+"]}]
+            [{"c": ["'hello' does not conform to regular expression '\\d+'"]}]
         )
 
     def test_extract_does_not_raise_an_error_on_valid_regex_key(self):
@@ -329,13 +330,13 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         self.assertEqual(400, response["statusCode"])
         self.assertEqual(
-            '{"message": [{"var2": ["abcd does not conform to regular expression \\\\d+"]}]}',
+            '{"message": [{"var2": ["\'abcd\' does not conform to regular expression \'\\\\d+\'"]}]}',
             response["body"]
         )
 
         mock_logger.error.assert_called_once_with(
             'Error validating parameters. Errors: %s',
-            [{"var2": ["abcd does not conform to regular expression \\d+"]}]
+            [{"var2": ["\'abcd\' does not conform to regular expression \'\\d+\'"]}]
         )
 
     @patch('aws_lambda_decorators.decorators.LOGGER')
@@ -351,15 +352,15 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         self.assertEqual(400, response["statusCode"])
         self.assertEqual(
-            '{"message": [{"var1": ["20wq19 does not conform to regular expression \\\\d+"]}, '
-            '{"var2": ["abcd does not conform to regular expression \\\\d+"]}]}',
+            '{"message": [{"var1": ["\'20wq19\' does not conform to regular expression \'\\\\d+\'"]}, '
+            '{"var2": ["\'abcd\' does not conform to regular expression \'\\\\d+\'"]}]}',
             response["body"])
 
         mock_logger.error.assert_called_once_with(
             'Error validating parameters. Errors: %s',
             [
-                {"var1": ["20wq19 does not conform to regular expression \\d+"]},
-                {"var2": ["abcd does not conform to regular expression \\d+"]}
+                {"var1": ["'20wq19' does not conform to regular expression '\\d+'"]},
+                {"var2": ["'abcd' does not conform to regular expression '\\d+'"]}
             ]
         )
 
@@ -742,8 +743,9 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         self.assertEqual(400, response["statusCode"])
         self.assertEqual(
-            '{"message": [{"a": ["{\'b\': {\'c\': 3}} '
-            'does not validate against schema Schema({\'b\': And(<class \'dict\'>, {\'c\': <class \'str\'>})})"]}]}',
+            '{"message": [{"a": ["\'{\'b\': {\'c\': 3}}\' '
+            'does not validate against schema '
+            '\'Schema({\'b\': And(<class \'dict\'>, {\'c\': <class \'str\'>})})\'"]}]}',
             response["body"])
 
     def test_extract_valid_dictionary_schema(self):
@@ -801,7 +803,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler(event)
         self.assertEqual(response["statusCode"], 400)
-        self.assertEqual('{"message": [{"value": ["5 is smaller than minimum value (10.0)"]}]}', response["body"])
+        self.assertEqual('{"message": [{"value": ["\'5\' is less than minimum value \'10.0\'"]}]}', response["body"])
 
     def test_error_extracting_non_numeric_parameter_with_minimum(self):
         event = {
@@ -814,7 +816,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler(event)
         self.assertEqual(response["statusCode"], 400)
-        self.assertEqual('{"message": [{"value": ["20 is smaller than minimum value (10.0)"]}]}', response["body"])
+        self.assertEqual(
+            '{"message": [{"value": ["\'20\' is less than minimum value \'10.0\'"]}]}', response["body"])
 
     def test_extract_optional_null_parameter_with_minimum(self):
         event = {
@@ -863,7 +866,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual(response["statusCode"], 400)
         self.assertEqual(
-            '{"message": [{"value": ["105 is bigger than maximum value (100.0)"]}]}', response["body"])
+            '{"message": [{"value": ["\'105\' is greater than maximum value \'100.0\'"]}]}', response["body"])
 
     def test_error_extracting_non_numeric_parameter_with_maximum(self):
         event = {
@@ -877,7 +880,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual(response["statusCode"], 400)
         self.assertEqual(
-            '{"message": [{"value": ["20 is bigger than maximum value (100.0)"]}]}', response["body"])
+            '{"message": [{"value": ["\'20\' is greater than maximum value \'100.0\'"]}]}', response["body"])
 
     def test_extract_optional_null_parameter_with_maximum(self):
         event = {
@@ -908,6 +911,140 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         }
 
         @extract([Parameter("/value", "event", validators=[Minimum(10.0), Maximum(100.0), Mandatory()])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_extract_parameter_with_maximum_length(self):
+        event = {
+            "value": "correct"
+        }
+
+        @extract([Parameter("/value", "event", validators=[MaxLength(20)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_error_extracting_parameter_with_max_length(self):
+        event = {
+            "value": "too long"
+        }
+
+        @extract([Parameter("/value", "event", validators=[MaxLength(5)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual(response["statusCode"], 400)
+        self.assertEqual(
+            '{"message": [{"value": ["\'too long\' is longer than maximum length \'5\'"]}]}', response["body"])
+
+    def test_values_are_stringified_in_max_length_validator(self):
+        event = {
+            "value": 20
+        }
+
+        @extract([Parameter("/value", "event", validators=[MaxLength(5)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_extract_optional_null_parameter_with_max_length(self):
+        event = {
+        }
+
+        @extract([Parameter("/value", "event", validators=[MaxLength(5)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_extract_mandatory_parameter_with_max_length(self):
+        event = {
+            "value": "aa"
+        }
+
+        @extract([Parameter("/value", "event", validators=[MaxLength(5), Mandatory()])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_extract_parameter_with_mainimum_length(self):
+        event = {
+            "value": "correct"
+        }
+
+        @extract([Parameter("/value", "event", validators=[MinLength(4)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_error_extracting_parameter_with_min_length(self):
+        event = {
+            "value": "too short"
+        }
+
+        @extract([Parameter("/value", "event", validators=[MinLength(15)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual(response["statusCode"], 400)
+        self.assertEqual(
+            '{"message": [{"value": ["\'too short\' is shorter than minimum length \'15\'"]}]}', response["body"])
+
+    def test_values_are_stringified_in_min_length_validator(self):
+        event = {
+            "value": 20
+        }
+
+        @extract([Parameter("/value", "event", validators=[MinLength(1)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_extract_optional_null_parameter_with_min_length(self):
+        event = {
+        }
+
+        @extract([Parameter("/value", "event", validators=[MinLength(5)])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_extract_mandatory_parameter_with_min_length(self):
+        event = {
+            "value": "aa"
+        }
+
+        @extract([Parameter("/value", "event", validators=[MaxLength(2), Mandatory()])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual({}, response)
+
+    def test_extract_mandatory_parameter_with_length_range(self):
+        event = {
+            "value": "right in the middle"
+        }
+
+        @extract([Parameter("/value", "event", validators=[MinLength(10), MaxLength(100), Mandatory()])])
         def handler(event, value=None):  # noqa: pylint - unused-argument
             return {}
 
@@ -945,7 +1082,9 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             Parameter(path_5, 'event', validators=[
                 RegexValidator(r'[0-9]+'),
                 RegexValidator(r'[1][0-9]+'),
-                SchemaValidator(schema)
+                SchemaValidator(schema),
+                MinLength(2),
+                MaxLength(0)
             ])
         ], True)
         def handler(event, context, c=None, d=None):  # noqa: pylint - unused-argument
@@ -957,24 +1096,29 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(
             '{"message": [{"c": ["Missing mandatory value"]}, '
             '{"d": ["Missing mandatory value"]}, '
-            '{"e": ["23 is smaller than minimum value (30)"]}, '
-            '{"f": ["15 is bigger than maximum value (10)"]}, '
-            '{"g": ["a does not conform to regular expression [0-9]+", '
-            '"a does not conform to regular expression [1][0-9]+", '
-            '"a does not validate against schema Schema({\'g\': <class \'int\'>})"]}]}',
+            '{"e": ["\'23\' is less than minimum value \'30\'"]}, '
+            '{"f": ["\'15\' is greater than maximum value \'10\'"]}, '
+            '{"g": ["\'a\' does not conform to regular expression \'[0-9]+\'", '
+            '"\'a\' does not conform to regular expression \'[1][0-9]+\'", '
+            '"\'a\' does not validate against schema \'Schema({\'g\': <class \'int\'>})\'", '
+            '"\'a\' is shorter than minimum length \'2\'", '
+            '"\'a\' is longer than maximum length \'0\'"'
+            ']}]}',
             response["body"])
 
         mock_logger.error.assert_called_once_with(
             'Error validating parameters. Errors: %s',
             [
-                {'c': ['Missing mandatory value']},
-                {'d': ['Missing mandatory value']},
-                {'e': ['23 is smaller than minimum value (30)']},
-                {'f': ['15 is bigger than maximum value (10)']},
-                {'g': [
-                    'a does not conform to regular expression [0-9]+',
-                    'a does not conform to regular expression [1][0-9]+',
-                    "a does not validate against schema Schema({'g': <class 'int'>})"
+                {"c": ["Missing mandatory value"]},
+                {"d": ["Missing mandatory value"]},
+                {"e": ["'23' is less than minimum value '30'"]},
+                {"f": ["'15' is greater than maximum value '10'"]},
+                {"g": [
+                    "'a' does not conform to regular expression '[0-9]+'",
+                    "'a' does not conform to regular expression '[1][0-9]+'",
+                    "'a' does not validate against schema 'Schema({'g': <class 'int'>})'",
+                    "'a' is shorter than minimum length '2'",
+                    "'a' is longer than maximum length '0'"
                 ]}
             ]
         )
@@ -1041,3 +1185,75 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(None, dictionary)
 
         self.assertEqual("hello", response)
+
+    @patch('aws_lambda_decorators.decorators.LOGGER')
+    def test_can_output_custom_error_message_on_validation_failure(self, mock_logger):
+        path_1 = "/a/b/c"
+        path_2 = "/a/b/d"
+        path_3 = "/a/b/e"
+        path_4 = "/a/b/f"
+        path_5 = "/a/b/g"
+        dictionary = {
+            "a": {
+                "b": {
+                    "e": 23,
+                    "f": 15,
+                    "g": "a"
+                }
+            }
+        }
+
+        schema = Schema(
+            {
+                "g": int
+            }
+        )
+
+        @extract([
+            Parameter(path_1, 'event', validators=[Mandatory("Missing c")], var_name="c"),
+            Parameter(path_2, 'event', validators=[Mandatory("Missing d")]),
+            Parameter(path_3, 'event', validators=[Minimum(30, "Bad e value {value}, should be at least {condition}")]),
+            Parameter(path_4, 'event', validators=[Maximum(10, "Bad f")]),
+            Parameter(path_5, 'event', validators=[
+                RegexValidator(r'[0-9]+', 'Bad g regex 1'),
+                RegexValidator(r'[1][0-9]+', 'Bad g regex 2'),
+                SchemaValidator(schema, 'Bad g schema'),
+                MinLength(2, 'Bad g min length'),
+                MaxLength(0, 'Bad g max length')
+            ])
+        ], True)
+        def handler(event, context, c=None, d=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(dictionary, None)
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual(
+            '{"message": [{"c": ["Missing c"]}, '
+            '{"d": ["Missing d"]}, '
+            '{"e": ["Bad e value 23, should be at least 30"]}, '
+            '{"f": ["Bad f"]}, '
+            '{"g": ["Bad g regex 1", '
+            '"Bad g regex 2", '
+            '"Bad g schema", '
+            '"Bad g min length", '
+            '"Bad g max length"'
+            ']}]}',
+            response["body"])
+
+        mock_logger.error.assert_called_once_with(
+            'Error validating parameters. Errors: %s',
+            [
+                {"c": ["Missing c"]},
+                {"d": ["Missing d"]},
+                {"e": ["Bad e value 23, should be at least 30"]},
+                {"f": ["Bad f"]},
+                {"g": [
+                    "Bad g regex 1",
+                    "Bad g regex 2",
+                    "Bad g schema",
+                    "Bad g min length",
+                    "Bad g max length"
+                ]}
+            ]
+        )

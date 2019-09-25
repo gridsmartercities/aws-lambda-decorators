@@ -3,8 +3,44 @@ import re
 from schema import SchemaError
 
 
-class Mandatory:  # noqa: pylint - too-few-public-methods
+class Validator:  # noqa: pylint - too-few-public-methods
     """Validation rule to check if the given mandatory value exists."""
+
+    def __init__(self, error_message, condition=None):
+        """
+        Validates a parameter
+
+        Args:
+            error_message (str): A custom error message to output if validation fails
+            condition (any): A condition to validate
+        """
+        self._error_message = error_message
+        self._condition = condition
+
+    def message(self, value=None):  # noqa: pylint - unused-argument
+        """
+        Gets the formatted error message for a failed mandatory check
+
+        Args:
+            value (any): The validated value
+
+        Returns:
+            The error message
+        """
+        return self._error_message.format(value=value, condition=self._condition)
+
+
+class Mandatory(Validator):  # noqa: pylint - too-few-public-methods
+    """Validation rule to check if the given mandatory value exists."""
+
+    def __init__(self, error_message=None):
+        """
+        Checks if a parameter has a value
+
+        Args:
+            error_message (str): A custom error message to output if validation fails
+        """
+        Validator.__init__(self, error_message or "Missing mandatory value")
 
     @staticmethod
     def validate(value=None):
@@ -16,31 +52,20 @@ class Mandatory:  # noqa: pylint - too-few-public-methods
         """
         return value is not None
 
-    @staticmethod
-    def message(value=None):  # noqa: pylint - unused-argument
-        """
-        Gets the formatted error message for a failed mandatory check
 
-        Args:
-            value (any): The validated value
-
-        Returns:
-            The error message
-        """
-        return "Missing mandatory value"
-
-
-class RegexValidator:  # noqa: pylint - too-few-public-methods
+class RegexValidator(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a value matches a regular expression."""
 
-    def __init__(self, regex=''):
+    def __init__(self, regex='', error_message=None):
         """
         Compile a regular expression to a regular expression pattern.
 
         Args:
             regex (str): Regular expression for parameter validation.
+            error_message (str): A custom error message to output if validation fails
         """
-        self._regex = regex
+        Validator.__init__(
+            self, error_message or "'{value}' does not conform to regular expression '{condition}'", regex)
         self._regexp = re.compile(regex)
 
     def validate(self, value=None):
@@ -52,30 +77,19 @@ class RegexValidator:  # noqa: pylint - too-few-public-methods
         """
         return self._regexp.fullmatch(value) is not None
 
-    def message(self, value=None):
-        """
-        Gets the formatted error message for a failed regex check
 
-        Args:
-            value (any): The validated value
-
-        Returns:
-            The error message
-        """
-        return f"{value} does not conform to regular expression {self._regex}"
-
-
-class SchemaValidator:  # noqa: pylint - too-few-public-methods
+class SchemaValidator(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a value matches a regular expression."""
 
-    def __init__(self, schema):
+    def __init__(self, schema, error_message=None):
         """
         Set the schema field.
 
         Args:
             schema (Schema): The expected schema.
+            error_message (str): A custom error message to output if validation fails
         """
-        self._schema = schema
+        Validator.__init__(self, error_message or "'{value}' does not validate against schema '{condition}'", schema)
 
     def validate(self, value=None):
         """
@@ -85,34 +99,23 @@ class SchemaValidator:  # noqa: pylint - too-few-public-methods
             value (object): Value to be validated.
         """
         try:
-            return self._schema.validate(value) == value
+            return self._condition.validate(value) == value
         except SchemaError:
             return False
 
-    def message(self, value=None):
-        """
-        Gets the formatted error message for a failed schema check
 
-        Args:
-            value (dict): The validated value
-
-        Returns:
-            The error message
-        """
-        return f"{value} does not validate against schema {self._schema}"
-
-
-class Minimum:  # noqa: pylint - too-few-public-methods
+class Minimum(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a value is greater than a minimum value."""
 
-    def __init__(self, minimum: (float, int)):
+    def __init__(self, minimum: (float, int), error_message=None):
         """
         Set the minimum value.
 
         Args:
             minimum (float, int): The minimum value.
+            error_message (str): A custom error message to output if validation fails
         """
-        self._minimum = minimum
+        Validator.__init__(self, error_message or "'{value}' is less than minimum value '{condition}'", minimum)
 
     def validate(self, value=None):
         """
@@ -125,34 +128,23 @@ class Minimum:  # noqa: pylint - too-few-public-methods
             return True
 
         if isinstance(value, (float, int)):
-            return self._minimum <= value
+            return self._condition <= value
 
         return False
 
-    def message(self, value=None):
-        """
-        Gets the formatted error message for a failed minimum value check
 
-        Args:
-            value (int): The validated value
-
-        Returns:
-            The error message
-        """
-        return f"{value} is smaller than minimum value ({self._minimum})"
-
-
-class Maximum:  # noqa: pylint - too-few-public-methods
+class Maximum(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a value is less than a maximum value."""
 
-    def __init__(self, maximum: (float, int)):
+    def __init__(self, maximum: (float, int), error_message=None):
         """
         Set the maximum value.
 
         Args:
             maximum (float, int): The maximum value.
+            error_message (str): A custom error message to output if validation fails
         """
-        self._maximum = maximum
+        Validator.__init__(self, error_message or "'{value}' is greater than maximum value '{condition}'", maximum)
 
     def validate(self, value=None):
         """
@@ -165,18 +157,59 @@ class Maximum:  # noqa: pylint - too-few-public-methods
             return True
 
         if isinstance(value, (float, int)):
-            return self._maximum >= value
+            return self._condition >= value
 
         return False
 
-    def message(self, value=None):
+
+class MinLength(Validator):  # noqa: pylint - too-few-public-methods
+    """Validation rule to check if a string is shorter than a minimum length."""
+
+    def __init__(self, min_length: int, error_message=None):
         """
-        Gets the formatted error message for a failed maximum value check
+        Set the minimum length.
 
         Args:
-            value (int): The validated value
-
-        Returns:
-            The error message
+            min_length (int): The minimum length.
+            error_message (str): A custom error message to output if validation fails
         """
-        return f"{value} is bigger than maximum value ({self._maximum})"
+        Validator.__init__(
+            self, error_message or "'{value}' is shorter than minimum length '{condition}'", min_length)
+
+    def validate(self, value=None):
+        """
+        Check if a string is shorter than the minimum length.
+
+        Args:
+            value (str): String to be validated.
+        """
+        if value is None:
+            return True
+
+        return len(str(value)) >= self._condition
+
+
+class MaxLength(Validator):  # noqa: pylint - too-few-public-methods
+    """Validation rule to check if a string is longer than a maximum length."""
+
+    def __init__(self, max_length: int, error_message=None):
+        """
+        Set the maximum length.
+
+        Args:
+            max_length (int): The maximum length.
+            error_message (str): A custom error message to output if validation fails
+        """
+        Validator.__init__(self, error_message or "'{value}' is longer than maximum length '{condition}'", max_length)
+
+    def validate(self, value=None):
+        """
+        Check if a string is longer than the maximum length.
+
+        Args:
+            value (str): String to be validated.
+        """
+        if value is None:
+            return True
+
+        return len(str(value)) <= self._condition

@@ -47,6 +47,8 @@ Currently, the package offers 5 validators:
 * __SchemaValidator__: Checks if an object adheres to the schema. Uses [schema](https://github.com/keleshev/schema) library.
 * __Minimum__: Checks if an optional numerical value is greater than a minimum value.
 * __Maximum__: Checks if an optional numerical value is less than a maximum value.
+* __MinLength__: Checks if an optional string value is longer than a minimum length.
+* __MaxLength__: Checks if an optional string value is shorter than a maximum length.
 
 ### [Decoders](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py)
 
@@ -137,6 +139,22 @@ print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"mandatory
 
 ```
 
+You can add custom error messages to all validators, and incorporate to those error messages the validated value and the validation condition:
+
+Example:
+```python
+@extract(parameters=[
+    Parameter(path='/parent/an_int', func_param_name='a_dictionary', validators=[Minimum(100, 'Bad value {value}: should be at least {condition}')])  # extracts a mandatory mandatory_param from a_dictionary
+])
+def extract_minimum_param_with_custom_error_example(a_dictionary, mandatory_param=None):
+    return 'Here!'  # this part will never be reached, if the an_int param is less than 100
+    
+response = extract_minimum_param_with_custom_error_example({'parent': {'an_int': 10}})
+
+print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"an_int": ["Bad value 10: should be at least 100"]}]}' } and logs a more detailed error
+
+```
+
 You can group the validation errors together (instead of exiting on first error).
 
 Example:
@@ -151,7 +169,7 @@ def extract_multiple_param_example(a_dictionary, mandatory_param=None, another_m
     
 response = extract_multiple_param_example({'parent': {'my_param': 'Hello!', 'an_int': 20}, 'other': 'other value'})
 
-print(response)  # prints {'statusCode': 400, 'body': '{"message": [{"mandatory_param": ["Missing mandatory value"]}, {"another_mandatory_param": ["Missing mandatory value"]}, {"an_int": ["20 is bigger than maximum value (10)"]}]}'}
+print(response)  # prints {'statusCode': 400, 'body': '{"message": [{"mandatory_param": ["Missing mandatory value"]}, {"another_mandatory_param": ["Missing mandatory value"]}, {"an_int": ["\'20\' is greater than maximum value \'10\'"]}]}'}
 
 ```
 
@@ -190,6 +208,27 @@ def extract_from_list_example(a_dictionary, my_param=None):
         }
     """
     return my_param  # returns 'Bye!'
+
+```
+
+You can extract all parameters into a dictionary
+
+Example:
+```python
+@extract(parameters=[
+    Parameter(path='/params/my_param_1', func_param_name='a_dictionary'),  # extracts a non mandatory my_param_1 from a_dictionary
+    Parameter(path='/params/my_param_2', func_param_name='a_dictionary')  # extracts a non mandatory my_param_2 from a_dictionary
+])
+def extract_dictionary_example(a_dictionary, **kwargs):
+    """
+        a_dictionary = { 
+            'params': {
+                'my_param_1': 'Hello!',
+                'my_param_2': 'Bye!'
+            }
+        }
+    """
+    return kwargs  # returns {'my_param_1': 'Hello!', 'my_param_2': 'Bye!'}
 
 ```
 
@@ -341,7 +380,7 @@ Example:
 def response_body_as_json_example():
     return {'statusCode': 400, 'body': {'param': 'hello!'}}
     
-response_body_as_json_example()  # returns { 'statusCode': 400, 'body': "{ 'param': 'hello!' }" }
+response_body_as_json_example()  # returns { 'statusCode': 400, 'body': "{'param': 'hello!'}" }
 ```
 
 ### cors
