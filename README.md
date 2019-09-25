@@ -139,6 +139,22 @@ print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"mandatory
 
 ```
 
+You can add custom error messages to all validators:
+
+Example:
+```python
+@extract(parameters=[
+    Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory('Custom message')])  # extracts a mandatory mandatory_param from a_dictionary
+])
+def extract_mandatory_param_with_custom_error_example(a_dictionary, mandatory_param=None):
+    return 'Here!'  # this part will never be reached, if the mandatory_param is missing
+    
+response = extract_mandatory_param_with_custom_error_example({'parent': {'my_param': 'Hello!'}, 'other': 'other value'} )
+
+print(response)  # prints { 'statusCode': 400, 'body': '{"message": [{"mandatory_param": ["Custom message"]}]}' } and logs a more detailed error
+
+```
+
 You can group the validation errors together (instead of exiting on first error).
 
 Example:
