@@ -62,7 +62,7 @@ class RegexValidator:  # noqa: pylint - too-few-public-methods
         Returns:
             The error message
         """
-        return f"{value} does not conform to regular expression {self._regex}"
+        return f"'{value}' does not conform to regular expression '{self._regex}'"
 
 
 class SchemaValidator:  # noqa: pylint - too-few-public-methods
@@ -99,7 +99,7 @@ class SchemaValidator:  # noqa: pylint - too-few-public-methods
         Returns:
             The error message
         """
-        return f"{value} does not validate against schema {self._schema}"
+        return f"'{value}' does not validate against schema '{self._schema}'"
 
 
 class Minimum:  # noqa: pylint - too-few-public-methods
@@ -139,7 +139,7 @@ class Minimum:  # noqa: pylint - too-few-public-methods
         Returns:
             The error message
         """
-        return f"{value} is smaller than minimum value ({self._minimum})"
+        return f"'{value}' is smaller than minimum value '{self._minimum}'"
 
 
 class Maximum:  # noqa: pylint - too-few-public-methods
@@ -179,4 +179,78 @@ class Maximum:  # noqa: pylint - too-few-public-methods
         Returns:
             The error message
         """
-        return f"{value} is bigger than maximum value ({self._maximum})"
+        return f"'{value}' is bigger than maximum value '{self._maximum}'"
+
+
+class MinLength:  # noqa: pylint - too-few-public-methods
+    """Validation rule to check if a string is shorter than a minimum length."""
+
+    def __init__(self, min_length: int):
+        """
+        Set the minimum length.
+
+        Args:
+            min_length (int): The minimum length.
+        """
+        self._min_length = min_length
+
+    def validate(self, value=None):
+        """
+        Check if a string is shorter than the minimum length.
+
+        Args:
+            value (str): String to be validated.
+        """
+        if value is None:
+            return True
+
+        return len(str(value)) >= self._min_length
+
+    def message(self, value=None):
+        """
+        Gets the formatted error message for a failed minimum length string check
+
+        Args:
+            value (str): The validated string
+
+        Returns:
+            The error message
+        """
+        return f"'{value}' is shorter than minimum length '{self._min_length}'"
+
+
+class MaxLength:  # noqa: pylint - too-few-public-methods
+    """Validation rule to check if a string is longer than a maximum length."""
+
+    def __init__(self, max_length: int):
+        """
+        Set the maximum length.
+
+        Args:
+            max_length (int): The maximum length.
+        """
+        self._max_length = max_length
+
+    def validate(self, value=None):
+        """
+        Check if a string is longer than the maximum length.
+
+        Args:
+            value (str): String to be validated.
+        """
+        if value is None:
+            return True
+
+        return len(str(value)) <= self._max_length
+
+    def message(self, value=None):
+        """
+        Gets the formatted error message for a failed maximum length string check
+
+        Args:
+            value (str): The validated string
+
+        Returns:
+            The error message
+        """
+        return f"'{value}' is longer than maximum length '{self._max_length}'"

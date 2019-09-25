@@ -151,7 +151,7 @@ def extract_multiple_param_example(a_dictionary, mandatory_param=None, another_m
     
 response = extract_multiple_param_example({'parent': {'my_param': 'Hello!', 'an_int': 20}, 'other': 'other value'})
 
-print(response)  # prints {'statusCode': 400, 'body': '{"message": [{"mandatory_param": ["Missing mandatory value"]}, {"another_mandatory_param": ["Missing mandatory value"]}, {"an_int": ["20 is bigger than maximum value (10)"]}]}'}
+print(response)  # prints {'statusCode': 400, 'body': '{"message": [{"mandatory_param": ["Missing mandatory value"]}, {"another_mandatory_param": ["Missing mandatory value"]}, {"an_int": ["\'20\' is bigger than maximum value \'10\'"]}]}'}
 
 ```
 
@@ -341,7 +341,7 @@ Example:
 def response_body_as_json_example():
     return {'statusCode': 400, 'body': {'param': 'hello!'}}
     
-response_body_as_json_example()  # returns { 'statusCode': 400, 'body': "{ 'param': 'hello!' }" }
+response_body_as_json_example()  # returns { 'statusCode': 400, 'body': "{'param': 'hello!'}" }
 ```
 
 ### cors
