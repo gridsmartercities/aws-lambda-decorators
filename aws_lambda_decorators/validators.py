@@ -115,7 +115,7 @@ class Minimum(Validator):  # noqa: pylint - too-few-public-methods
             minimum (float, int): The minimum value.
             error_message (str): A custom error message to output if validation fails
         """
-        Validator.__init__(self, error_message or "'{value}' is smaller than minimum value '{condition}'", minimum)
+        Validator.__init__(self, error_message or "'{value}' is less than minimum value '{condition}'", minimum)
 
     def validate(self, value=None):
         """
@@ -144,7 +144,7 @@ class Maximum(Validator):  # noqa: pylint - too-few-public-methods
             maximum (float, int): The maximum value.
             error_message (str): A custom error message to output if validation fails
         """
-        Validator.__init__(self, error_message or "'{value}' is bigger than maximum value '{condition}'", maximum)
+        Validator.__init__(self, error_message or "'{value}' is greater than maximum value '{condition}'", maximum)
 
     def validate(self, value=None):
         """

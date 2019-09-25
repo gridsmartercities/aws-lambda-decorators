@@ -803,7 +803,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler(event)
         self.assertEqual(response["statusCode"], 400)
-        self.assertEqual('{"message": [{"value": ["\'5\' is smaller than minimum value \'10.0\'"]}]}', response["body"])
+        self.assertEqual('{"message": [{"value": ["\'5\' is less than minimum value \'10.0\'"]}]}', response["body"])
 
     def test_error_extracting_non_numeric_parameter_with_minimum(self):
         event = {
@@ -817,7 +817,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual(response["statusCode"], 400)
         self.assertEqual(
-            '{"message": [{"value": ["\'20\' is smaller than minimum value \'10.0\'"]}]}', response["body"])
+            '{"message": [{"value": ["\'20\' is less than minimum value \'10.0\'"]}]}', response["body"])
 
     def test_extract_optional_null_parameter_with_minimum(self):
         event = {
@@ -866,7 +866,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual(response["statusCode"], 400)
         self.assertEqual(
-            '{"message": [{"value": ["\'105\' is bigger than maximum value \'100.0\'"]}]}', response["body"])
+            '{"message": [{"value": ["\'105\' is greater than maximum value \'100.0\'"]}]}', response["body"])
 
     def test_error_extracting_non_numeric_parameter_with_maximum(self):
         event = {
@@ -880,7 +880,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual(response["statusCode"], 400)
         self.assertEqual(
-            '{"message": [{"value": ["\'20\' is bigger than maximum value \'100.0\'"]}]}', response["body"])
+            '{"message": [{"value": ["\'20\' is greater than maximum value \'100.0\'"]}]}', response["body"])
 
     def test_extract_optional_null_parameter_with_maximum(self):
         event = {
@@ -1096,8 +1096,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(
             '{"message": [{"c": ["Missing mandatory value"]}, '
             '{"d": ["Missing mandatory value"]}, '
-            '{"e": ["\'23\' is smaller than minimum value \'30\'"]}, '
-            '{"f": ["\'15\' is bigger than maximum value \'10\'"]}, '
+            '{"e": ["\'23\' is less than minimum value \'30\'"]}, '
+            '{"f": ["\'15\' is greater than maximum value \'10\'"]}, '
             '{"g": ["\'a\' does not conform to regular expression \'[0-9]+\'", '
             '"\'a\' does not conform to regular expression \'[1][0-9]+\'", '
             '"\'a\' does not validate against schema \'Schema({\'g\': <class \'int\'>})\'", '
@@ -1111,8 +1111,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             [
                 {"c": ["Missing mandatory value"]},
                 {"d": ["Missing mandatory value"]},
-                {"e": ["'23' is smaller than minimum value '30'"]},
-                {"f": ["'15' is bigger than maximum value '10'"]},
+                {"e": ["'23' is less than minimum value '30'"]},
+                {"f": ["'15' is greater than maximum value '10'"]},
                 {"g": [
                     "'a' does not conform to regular expression '[0-9]+'",
                     "'a' does not conform to regular expression '[1][0-9]+'",
