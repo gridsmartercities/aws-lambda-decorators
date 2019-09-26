@@ -78,7 +78,7 @@ class ValidatedParameter:
         Args:
             func_param_name (str): the name for the dictionary in the function signature
                 def fun(event, context). To extract from context func_param_name has to be 'context'
-            validators (list): A list of validators the value must conform to (e.g. Mandatory(),
+            validators (list): A list of validators the value must conform to (e.g. Mandatory,
                 RegexValidator(my_regex), ...)
         """
         self._func_param_name = func_param_name
@@ -111,7 +111,10 @@ class ValidatedParameter:
         if self._validators:
             for validator in self._validators:
                 if not validator.validate(value):
-                    errors.append(validator.message(value))
+                    if hasattr(validator, "_error_message"):
+                        errors.append(validator.message(value))
+                    else:  # calling the validator statically
+                        errors.append(validator.ERROR_MESSAGE)
                     if not group_errors:
                         return errors
 
@@ -139,7 +142,7 @@ class Parameter(ValidatedParameter, BaseParameter):
                 the path to c is "a/b[json]/c"
             func_param_name (str): the name for the dictionary in the function signature
                 def fun(event, context). To extract from context func_param_name has to be 'context'
-            validators (list): A list of validators the value must conform to (e.g. Mandatory(),
+            validators (list): A list of validators the value must conform to (e.g. Mandatory,
                 RegexValidator(my_regex), ...)
             var_name (str): Optional, the name of the variable we want to assign the extracted value to. The default
                 value is the last element of the path (e.g. 'c' in the case above)

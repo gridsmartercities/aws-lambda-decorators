@@ -180,7 +180,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, 'event', validators=[Mandatory()])])
+        @extract([Parameter(path, 'event', validators=[Mandatory])])
         def handler(event, context, c=None):  # noqa
             return {}
 
@@ -197,7 +197,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, 'event', validators=[Mandatory()], var_name='custom')])
+        @extract([Parameter(path, 'event', validators=[Mandatory], var_name='custom')])
         def handler(event, context, custom=None):  # noqa
             return custom
 
@@ -214,7 +214,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract_from_event([Parameter(path, validators=[Mandatory()], var_name='with space')])
+        @extract_from_event([Parameter(path, validators=[Mandatory], var_name='with space')])
         def handler(event, context):  # noqa
             return {}
 
@@ -239,7 +239,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract_from_event([Parameter(path, validators=[Mandatory()], var_name='class')])
+        @extract_from_event([Parameter(path, validators=[Mandatory], var_name='class')])
         def handler(event, context):  # noqa
             return {}
 
@@ -835,7 +835,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "value": 20
         }
 
-        @extract([Parameter("/value", "event", validators=[Minimum(10.0), Mandatory()])])
+        @extract([Parameter("/value", "event", validators=[Minimum(10.0), Mandatory])])
         def handler(event, value=None):  # noqa: pylint - unused-argument
             return {}
 
@@ -898,7 +898,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "value": 20
         }
 
-        @extract([Parameter("/value", "event", validators=[Maximum(100.0), Mandatory()])])
+        @extract([Parameter("/value", "event", validators=[Maximum(100.0), Mandatory])])
         def handler(event, value=None):  # noqa: pylint - unused-argument
             return {}
 
@@ -910,7 +910,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "value": 20
         }
 
-        @extract([Parameter("/value", "event", validators=[Minimum(10.0), Maximum(100.0), Mandatory()])])
+        @extract([Parameter("/value", "event", validators=[Minimum(10.0), Maximum(100.0), Mandatory])])
         def handler(event, value=None):  # noqa: pylint - unused-argument
             return {}
 
@@ -971,7 +971,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "value": "aa"
         }
 
-        @extract([Parameter("/value", "event", validators=[MaxLength(5), Mandatory()])])
+        @extract([Parameter("/value", "event", validators=[MaxLength(5), Mandatory])])
         def handler(event, value=None):  # noqa: pylint - unused-argument
             return {}
 
@@ -1032,7 +1032,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "value": "aa"
         }
 
-        @extract([Parameter("/value", "event", validators=[MaxLength(2), Mandatory()])])
+        @extract([Parameter("/value", "event", validators=[MaxLength(2), Mandatory])])
         def handler(event, value=None):  # noqa: pylint - unused-argument
             return {}
 
@@ -1044,7 +1044,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "value": "right in the middle"
         }
 
-        @extract([Parameter("/value", "event", validators=[MinLength(10), MaxLength(100), Mandatory()])])
+        @extract([Parameter("/value", "event", validators=[MinLength(10), MaxLength(100), Mandatory])])
         def handler(event, value=None):  # noqa: pylint - unused-argument
             return {}
 
@@ -1075,8 +1075,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         )
 
         @extract([
-            Parameter(path_1, 'event', validators=[Mandatory()], var_name="c"),
-            Parameter(path_2, 'event', validators=[Mandatory()]),
+            Parameter(path_1, 'event', validators=[Mandatory], var_name="c"),
+            Parameter(path_2, 'event', validators=[Mandatory]),
             Parameter(path_3, 'event', validators=[Minimum(30)]),
             Parameter(path_4, 'event', validators=[Maximum(10)]),
             Parameter(path_5, 'event', validators=[
@@ -1091,7 +1091,6 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             return {}
 
         response = handler(dictionary, None)
-
         self.assertEqual(400, response["statusCode"])
         self.assertEqual(
             '{"message": [{"c": ["Missing mandatory value"]}, '
@@ -1131,7 +1130,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, 'event', validators=[Mandatory()])], True)
+        @extract([Parameter(path, 'event', validators=[Mandatory])], True)
         def handler(event, context, b=None):  # noqa
             return b
 
@@ -1162,7 +1161,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract_from_event([Parameter(path, validators=[Mandatory()])], True)
+        @extract_from_event([Parameter(path, validators=[Mandatory])], True)
         def handler(event, context, b=None):  # noqa
             return b
 
@@ -1178,7 +1177,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract_from_context([Parameter(path, validators=[Mandatory()])], True)
+        @extract_from_context([Parameter(path, validators=[Mandatory])], True)
         def handler(event, context, b=None):  # noqa
             return b
 
