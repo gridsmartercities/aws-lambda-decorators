@@ -78,7 +78,7 @@ Example:
     Parameter(path='/parent/my_param', func_param_name='a_dictionary'),  # extracts a non mandatory my_param from a_dictionary
     Parameter(path='/parent/missing_non_mandatory', func_param_name='a_dictionary', default='I am missing'),  # extracts a non mandatory missing_non_mandatory from a_dictionary
     Parameter(path='/parent/missing_mandatory', func_param_name='a_dictionary'),  # does not fail as the parameter is not validated as mandatory
-    Parameter(path='/parent/child/id', validators=[Mandatory()], var_name='user_id', func_param_name='another_dictionary')  # extracts a mandatory id as "user_id" from another_dictionary
+    Parameter(path='/parent/child/id', validators=[Mandatory], var_name='user_id', func_param_name='another_dictionary')  # extracts a mandatory id as "user_id" from another_dictionary
 ])
 def extract_example(a_dictionary, another_dictionary, my_param='aDefaultValue', missing_non_mandatory='I am missing', missing_mandatory=None, user_id=None):
     """
@@ -128,7 +128,7 @@ A missing mandatory parameter, or a parameter that fails validation, will raise 
 Example:
 ```python
 @extract(parameters=[
-    Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory()])  # extracts a mandatory mandatory_param from a_dictionary
+    Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory])  # extracts a mandatory mandatory_param from a_dictionary
 ])
 def extract_mandatory_param_example(a_dictionary, mandatory_param=None):
     return 'Here!'  # this part will never be reached, if the mandatory_param is missing
@@ -160,8 +160,8 @@ You can group the validation errors together (instead of exiting on first error)
 Example:
 ```python
 @extract(parameters=[
-    Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory()]),  # extracts two mandatory parameters from a_dictionary
-    Parameter(path='/parent/another_mandatory_param', func_param_name='a_dictionary', validators=[Mandatory()]),
+    Parameter(path='/parent/mandatory_param', func_param_name='a_dictionary', validators=[Mandatory]),  # extracts two mandatory parameters from a_dictionary
+    Parameter(path='/parent/another_mandatory_param', func_param_name='a_dictionary', validators=[Mandatory]),
     Parameter(path='/parent/an_int', func_param_name='a_dictionary', validators=[Maximum(10), Minimum(5)])
 ], group_errors=True)  # groups both errors together
 def extract_multiple_param_example(a_dictionary, mandatory_param=None, another_mandatory_param=None, an_int=0):
@@ -239,8 +239,8 @@ This decorator is just a facade to the [extract](#extract) method to be used in 
 Example:
 ```python
 @extract_from_event(parameters=[
-    Parameter(path='/body[json]/my_param', validators=[Mandatory()]),  # extracts a mandatory my_param from the json body of the event
-    Parameter(path='/headers/Authorization[jwt]/sub', validators=[Mandatory()], var_name='user_id')  # extract the mandatory sub value as user_id from the authorization JWT
+    Parameter(path='/body[json]/my_param', validators=[Mandatory]),  # extracts a mandatory my_param from the json body of the event
+    Parameter(path='/headers/Authorization[jwt]/sub', validators=[Mandatory], var_name='user_id')  # extract the mandatory sub value as user_id from the authorization JWT
 ])
 def extract_from_event_example(event, context, my_param=None, user_id=None):
     """
@@ -261,7 +261,7 @@ This decorator is just a facade to the [extract](#extract) method to be used in 
 Example:
 ```python
 @extract_from_context(parameters=[
-    Parameter(path='/parent/my_param', validators=[Mandatory()])  # extracts a mandatory my_param from the parent element in context
+    Parameter(path='/parent/my_param', validators=[Mandatory])  # extracts a mandatory my_param from the parent element in context
 ])
 def extract_from_context_example(event, context, my_param=None):
     """
@@ -303,8 +303,8 @@ This decorator validates a list of non dictionary parameters from your lambda fu
 Example:
 ```python
 @validate(parameters=[
-    ValidatedParameter(func_param_name='a_param', validators=[Mandatory()]),  # validates a_param as mandatory
-    ValidatedParameter(func_param_name='another_param', validators=[Mandatory(), RegexValidator(r'\d+')])  # validates another_param as mandatory and containing only digits
+    ValidatedParameter(func_param_name='a_param', validators=[Mandatory]),  # validates a_param as mandatory
+    ValidatedParameter(func_param_name='another_param', validators=[Mandatory, RegexValidator(r'\d+')])  # validates another_param as mandatory and containing only digits
     ValidatedParameter(func_param_name='param_with_schema', validators=[SchemaValidator(Schema({'a': Or(str, dict)}))])  # validates param_with_schema as an object with specified schema
 ])
 def validate_example(a_param, another_param, param_with_schema):
