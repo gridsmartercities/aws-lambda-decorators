@@ -830,7 +830,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual({}, response)
 
-    def test_extract_Mandatory_parameter_with_minimum(self):
+    def test_extract_mandatory_parameter_with_minimum(self):
         event = {
             "value": 20
         }
@@ -893,7 +893,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual({}, response)
 
-    def test_extract_Mandatory_parameter_with_maximum(self):
+    def test_extract_mandatory_parameter_with_maximum(self):
         event = {
             "value": 20
         }
@@ -905,7 +905,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual({}, response)
 
-    def test_extract_Mandatory_parameter_with_range(self):
+    def test_extract_mandatory_parameter_with_range(self):
         event = {
             "value": 20
         }
@@ -966,7 +966,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual({}, response)
 
-    def test_extract_Mandatory_parameter_with_max_length(self):
+    def test_extract_mandatory_parameter_with_max_length(self):
         event = {
             "value": "aa"
         }
@@ -1027,7 +1027,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual({}, response)
 
-    def test_extract_Mandatory_parameter_with_min_length(self):
+    def test_extract_mandatory_parameter_with_min_length(self):
         event = {
             "value": "aa"
         }
@@ -1039,7 +1039,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual({}, response)
 
-    def test_extract_Mandatory_parameter_with_length_range(self):
+    def test_extract_mandatory_parameter_with_length_range(self):
         event = {
             "value": "right in the middle"
         }
@@ -1138,7 +1138,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         self.assertEqual("hello", response)
 
-    def test_Mandatory_parameter_with_default_returns_error_on_empty(self):
+    def test_mandatory_parameter_with_default_returns_error_on_empty(self):
         event = {
             "var": "hello"
         }
