@@ -1,9 +1,22 @@
 # pylint:disable=no-self-use
+import json
 import unittest
 from unittest.mock import patch
-from aws_lambda_decorators.decoders import decode
+from aws_lambda_decorators.decoders import decode, decode_json, decode_jwt
 from aws_lambda_decorators.decorators import extract
 from aws_lambda_decorators.classes import Parameter
+
+
+TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
+           "eyJzdWIiOiJhYWRkMWUwZS01ODA3LTQ3NjMtYjFlOC01ODIzYmY2MzFiYjYiLCJhdWQiOiIycjdtMW1mdWFiODg3ZmZvdG9iNWFjcX" \
+           "Q2aCIsImNvZ25pdG86Z3JvdXBzIjpbIkRBU0gtQ3VzdG9tZXIiXSwiZW1haWxfdmVyaWZpZWQiOnRydWUsImV2ZW50X2lkIjoiZDU4" \
+           "NzU0ZjUtMTdlMC0xMWU5LTg2NzAtMjVkOTNhNWNiMjAwIiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE1NDc0NTkwMDMsIm" \
+           "lzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC5ldS13ZXN0LTIuYW1hem9uYXdzLmNvbVwvZXUtd2VzdC0yX1B4bEdzMU11SiIsImNv" \
+           "Z25pdG86dXNlcm5hbWUiOiJhYWRkMWUwZS01ODA3LTQ3NjMtYjFlOC01ODIzYmY2MzFiYjYiLCJleHAiOjE1NDc0NjI2MDMsImlhdC" \
+           "I6MTU0NzQ1OTAwMywiZW1haWwiOiJjdXN0b21lckBleGFtcGxlLmNvbSJ9.CNSDu4a9azT40maHAF9tnQTWbfEeiTZ9PfkR9_RU_VG" \
+           "4QTA1y4R0F2zWVpsa3CkVMq4Uv2NWOwG6zXf-7XaWTEjoGOQR07sq54IEWU3WIxgkgtRAI-aR7nIvllMXXR0RE3e5jzn5SmefG1j-O" \
+           "NYiD1yYExrKOEMPJVgkdYG6x2cBiucHihVliJQUf9u-ebpu2Cpm_ACvUTUilB6sBL06D3sRobvNLbNNnSjsA66ULNpPTPOVYJxhFbu" \
+           "ceQ1EICp0oICw2ncJch78RAFY5TeqiVa-uBybxwd36zJmZkXeJPWAKd32IOIJXNUyDOJtmXtSQW51pZGYTsihjZHz3kNlfg"
 
 
 class DecodersTests(unittest.TestCase):
@@ -117,3 +130,46 @@ class DecodersTests(unittest.TestCase):
             'list index out of range',
             'event',
             '/a/b[4]/c')
+
+    def test_extract_multiple_parameters_from_json_hits_cache(self):
+        dictionary = {
+            "a": json.dumps({
+                "b": 123,
+                "c": 456
+            })
+        }
+
+        initial_cache_info = decode_json.cache_info()
+
+        @extract([
+            Parameter("a[json]/b", "event", var_name="b"),
+            Parameter("a[json]/c", "event", var_name="c")
+        ])  # noqa: pylint - invalid-name
+        def handler(event, b=None, c=None):  # noqa: pylint - unused-argument
+            return {}
+
+        handler(dictionary)
+
+        self.assertEqual(decode_json.cache_info().hits, initial_cache_info.hits + 1)
+        self.assertEqual(decode_json.cache_info().misses, initial_cache_info.misses + 1)
+        self.assertEqual(decode_json.cache_info().currsize, initial_cache_info.currsize + 1)
+
+    def test_extract_multiple_parameters_from_jwt_hits_cache(self):
+        dictionary = {
+            "a": TEST_JWT
+        }
+
+        initial_cache_info = decode_jwt.cache_info()
+
+        @extract([
+            Parameter("a[jwt]/sub", "event", var_name="sub"),
+            Parameter("a[jwt]/aud", "event", var_name="aud")
+        ])
+        def handler(event, sub=None, aud=None):  # noqa: pylint - unused-argument
+            return {}
+
+        handler(dictionary)
+
+        self.assertEqual(decode_jwt.cache_info().hits, initial_cache_info.hits + 1)
+        self.assertEqual(decode_jwt.cache_info().misses, initial_cache_info.misses + 1)
+        self.assertEqual(decode_jwt.cache_info().currsize, initial_cache_info.currsize + 1)
