@@ -1,4 +1,5 @@
 """Decoder abstractions and functions for decoding/converting a string with a given annotation to a dictionary."""
+import functools
 import json
 import logging
 import sys
@@ -45,11 +46,13 @@ def decode(annotation, value):
     return value
 
 
+@functools.lru_cache()
 def decode_json(value):
     """Convert a json to a dictionary."""
     return json.loads(value)
 
 
+@functools.lru_cache()
 def decode_jwt(value):
     """Convert a jwt to a dictionary."""
     return jwt.decode(value, verify=False)
