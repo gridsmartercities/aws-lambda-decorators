@@ -52,7 +52,7 @@ class Mandatory(Validator):  # noqa: pylint - too-few-public-methods
         Args:
             value (any): Value to be validated.
         """
-        return value is not None
+        return value is not None and str(value)
 
 
 class RegexValidator(Validator):  # noqa: pylint - too-few-public-methods
