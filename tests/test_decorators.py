@@ -1140,18 +1140,19 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
     def test_mandatory_parameter_with_default_returns_error_on_empty(self):
         event = {
-            "var": "hello"
+            "var": ""
         }
 
         @extract([
-            Parameter('/var', 'event', validators=[Mandatory])
+            Parameter('/var', 'event', validators=[Mandatory], default="hello")
         ])
-        def handler(event, context, var="hello"):  # noqa: pylint - unused-argument
+        def handler(event, context, var=None):  # noqa: pylint - unused-argument
             return {}
 
         response = handler(event, None)
 
-        self.assertEqual({}, response)
+        self.assertEqual(response["statusCode"], 400)
+        self.assertEqual('{"message": [{"var": ["Missing mandatory value"]}]}', response["body"])
 
     def test_group_errors_true_on_extract_from_event_returns_ok(self):
         path = "/a/b"
