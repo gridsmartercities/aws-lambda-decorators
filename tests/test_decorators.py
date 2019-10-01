@@ -1257,3 +1257,21 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
                 ]}
             ]
         )
+
+    def test_extract_returns_400_on_missing_mandatory_key_with_regex(self):
+        path = "/a/b/c"
+        dictionary = {
+            "a": {
+                "b": {
+                }
+            }
+        }
+
+        @extract([Parameter(path, 'event', validators=[Mandatory, RegexValidator("[0-9]+")])], group_errors=True)
+        def handler(event, context, c=None):  # noqa
+            return {}
+
+        response = handler(dictionary, None)
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual('{"message": [{"c": ["Missing mandatory value"]}]}', response["body"])
