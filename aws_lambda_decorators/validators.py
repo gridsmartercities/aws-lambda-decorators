@@ -77,6 +77,9 @@ class RegexValidator(Validator):  # noqa: pylint - too-few-public-methods
         Args:
             value (str): Value to be validated.
         """
+        if not value:
+            return True
+
         return self._regexp.fullmatch(value) is not None
 
 
