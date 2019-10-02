@@ -59,7 +59,7 @@ class RegexValidator(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a value matches a regular expression."""
     ERROR_MESSAGE = "'{value}' does not conform to regular expression '{condition}'"
 
-    def __init__(self, regex='', error_message=None):
+    def __init__(self, regex="", error_message=None):
         """
         Compile a regular expression to a regular expression pattern.
 

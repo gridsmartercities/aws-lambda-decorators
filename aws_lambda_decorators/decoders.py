@@ -8,8 +8,8 @@ import jwt
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
 
-DECODE_FUNC_NAME = 'decode_%s'
-DECODE_FUNC_MISSING_ERROR = 'Missing decode function for annotation: %s'
+DECODE_FUNC_NAME = "decode_%s"
+DECODE_FUNC_MISSING_ERROR = "Missing decode function for annotation: %s"
 
 
 def decode(annotation, value):
