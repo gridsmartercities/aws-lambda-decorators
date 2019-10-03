@@ -2,9 +2,9 @@
 from aws_lambda_decorators.decoders import decode
 from aws_lambda_decorators.utils import is_valid_variable_name
 
-PATH_DIVIDER = '/'
-ANNOTATIONS_START = '['
-ANNOTATIONS_END = ']'
+PATH_DIVIDER = "/"
+ANNOTATIONS_START = "["
+ANNOTATIONS_END = "]"
 
 
 class ExceptionHandler:
@@ -77,7 +77,7 @@ class ValidatedParameter:
         Sets the private variables of the ValidatedParameter object.
         Args:
             func_param_name (str): the name for the dictionary in the function signature
-                def fun(event, context). To extract from context func_param_name has to be 'context'
+                def fun(event, context). To extract from context func_param_name has to be "context"
             validators (list): A list of validators the value must conform to (e.g. Mandatory,
                 RegexValidator(my_regex), ...)
         """
@@ -124,7 +124,7 @@ class ValidatedParameter:
 class Parameter(ValidatedParameter, BaseParameter):
     """Class used to encapsulate the extract methods parameter data."""
 
-    def __init__(self, path='', func_param_name=None, validators=None, var_name=None, default=None):  # noqa: pylint - too-many-arguments
+    def __init__(self, path="", func_param_name=None, validators=None, var_name=None, default=None):  # noqa: pylint - too-many-arguments
         """
         Sets the private variables of the Parameter object.
 
@@ -135,17 +135,17 @@ class Parameter(ValidatedParameter, BaseParameter):
 
                 {
                     "a": {
-                        "b": "{ 'c': 'hello' }",
+                        "b": "{'c': 'hello'}",
                     }
                 }
 
                 the path to c is "a/b[json]/c"
             func_param_name (str): the name for the dictionary in the function signature
-                def fun(event, context). To extract from context func_param_name has to be 'context'
+                def fun(event, context). To extract from context func_param_name has to be "context"
             validators (list): A list of validators the value must conform to (e.g. Mandatory,
                 RegexValidator(my_regex), ...)
             var_name (str): Optional, the name of the variable we want to assign the extracted value to. The default
-                value is the last element of the path (e.g. 'c' in the case above)
+                value is the last element of the path (e.g. "c" in the case above)
             default (any): Optional, a default value if the value is missing and not mandatory.
                 The default value is None
         """
@@ -171,7 +171,7 @@ class Parameter(ValidatedParameter, BaseParameter):
         Returns:
             The extracted value
         """
-        for path_key in filter(lambda item: item != '', self._path.split(PATH_DIVIDER)):
+        for path_key in filter(lambda item: item != "", self._path.split(PATH_DIVIDER)):
             real_key, annotation = Parameter.get_annotations_from_key(path_key)
             if real_key in dict_value:
                 dict_value = decode(annotation, dict_value[real_key])
@@ -208,10 +208,10 @@ class Parameter(ValidatedParameter, BaseParameter):
         Extract the key and the encoding type (annotation) from the string.
 
         Args:
-            key (str): a combined string to extract key and annotation from. e.g. ('key[jwt]' -> 'key', 'jwt',
-                                                                                   'key'      -> 'key', None)
+            key (str): a combined string to extract key and annotation from. e.g. ("key[jwt]" -> "key", "jwt",
+                                                                                   "key"      -> "key", None)
         """
         if ANNOTATIONS_START in key and ANNOTATIONS_END in key:
             annotation = key[key.find(ANNOTATIONS_START) + 1:key.find(ANNOTATIONS_END)]
-            return key.replace(ANNOTATIONS_START + annotation + ANNOTATIONS_END, ''), annotation
+            return key.replace(ANNOTATIONS_START + annotation + ANNOTATIONS_END, ""), annotation
         return key, None

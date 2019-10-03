@@ -35,7 +35,7 @@ def extract_from_event(parameters, group_errors=False):
     The extracted parameters are added as kwargs to the handler function.
 
     Usage:
-        @extract_from_event([Parameter(path='/body[json]/my_param')])
+        @extract_from_event([Parameter(path="/body[json]/my_param")])
         def lambda_handler(event, context, my_param=None)
             pass
 
@@ -45,7 +45,7 @@ def extract_from_event(parameters, group_errors=False):
             (if set to False, validation will end on first error)
     """
     for param in parameters:
-        param.func_param_name = 'event'
+        param.func_param_name = "event"
     return extract(parameters, group_errors)
 
 
@@ -56,7 +56,7 @@ def extract_from_context(parameters, group_errors=False):
     The extracted parameters are added as kwargs to the handler function.
 
     Usage:
-        @extract_from_context([Parameter(path='/parent/my_param')])
+        @extract_from_context([Parameter(path="/parent/my_param")])
         def lambda_handler(event, context, my_param=None)
             pass
 
@@ -66,7 +66,7 @@ def extract_from_context(parameters, group_errors=False):
             (if set to False, validation will end on first error)
     """
     for param in parameters:
-        param.func_param_name = 'context'
+        param.func_param_name = "context"
     return extract(parameters, group_errors)
 
 
@@ -77,7 +77,7 @@ def extract(parameters, group_errors=False):
     The extracted parameters are added as kwargs to the handler function.
 
     Usage:
-        @extract([Parameter(path='headers/Authorization[jwt]/sub', var_name='user_id', func_param_name='event')])
+        @extract([Parameter(path="headers/Authorization[jwt]/sub", var_name="user_id", func_param_name="event")])
         def lambda_handler(event, context, user_id=None)
             pass
 
@@ -100,9 +100,8 @@ def extract(parameters, group_errors=False):
                         if not group_errors:
                             LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
                             return failure(errors)
-                    else:
-                        if return_val is not None:
-                            kwargs[param.get_var_name()] = return_val
+                    elif return_val is not None:
+                        kwargs[param.get_var_name()] = return_val
             except Exception as ex:  # noqa: pylint - broad-except
                 LOGGER.error(EXCEPTION_LOG_MESSAGE, full_name(ex), str(ex), param.func_param_name, param.path)
                 return failure(ERROR_MESSAGE)
@@ -121,7 +120,7 @@ def handle_exceptions(handlers):
     Handles exceptions thrown by the wrapped/decorated function.
 
     Usage:
-        @handle_exceptions([ExceptionHandler(exception=KeyError, friendly_message='Your message on KeyError except')]).
+        @handle_exceptions([ExceptionHandler(exception=KeyError, friendly_message="Your message on KeyError except")]).
         def lambda_handler(params)
             pass
 
@@ -134,8 +133,12 @@ def handle_exceptions(handlers):
                 return func(*args, **kwargs)
             except tuple([handler.exception for handler in handlers]) as ex:  # noqa: pylint - catching-non-exception
                 message = [handler.friendly_message for handler in handlers if handler.exception is type(ex)][0]
-                log_message = message if not str(ex) else message + ': ' + str(ex) if message else str(ex)
-                LOGGER.error(log_message)
+
+                if message and str(ex):
+                    LOGGER.error("%s: %s", message, str(ex))
+                else:
+                    LOGGER.error(message if message else str(ex))
+
                 return failure(message if message else str(ex))
         return wrapper
     return decorator
@@ -166,7 +169,7 @@ def extract_from_ssm(ssm_parameters):
     Load given ssm parameters from AWS parameter store to the handler variables.
 
     Usage:
-        @extract_from_ssm([SSMParameter(ssm_name='key', var_name='var')])
+        @extract_from_ssm([SSMParameter(ssm_name="key", var_name="var")])
         def lambda_handler(var=None)
             pass
 
@@ -175,14 +178,14 @@ def extract_from_ssm(ssm_parameters):
     """
     def decorator(func):
         def wrapper(*args, **kwargs):
-            ssm = boto3.client('ssm')
+            ssm = boto3.client("ssm")
             server_key_containers = ssm.get_parameters(
                 Names=[ssm_parameter.get_ssm_name() for ssm_parameter in ssm_parameters],
                 WithDecryption=True)
-            for key_container in server_key_containers['Parameters']:
+            for key_container in server_key_containers["Parameters"]:
                 for ssm_parameter in ssm_parameters:  # pragma: no cover
-                    if ssm_parameter.get_ssm_name() == key_container['Name']:
-                        kwargs[ssm_parameter.get_var_name()] = key_container['Value']
+                    if ssm_parameter.get_ssm_name() == key_container["Name"]:
+                        kwargs[ssm_parameter.get_var_name()] = key_container["Value"]
                         break
             return func(*args, **kwargs)
         return wrapper
@@ -196,15 +199,15 @@ def response_body_as_json(func):
     Usage:
         @response_body_as_json
         def lambda_handler():
-            return {'statusCode': 200, 'body': {'key': 'value'}}
+            return {"statusCode": 200, "body": {"key": "value"}}
 
-        will return {'statusCode': 200, 'body': "{'key':'value'}"}
+        will return {"statusCode": 200, "body": "{"key":"value"}"}
     """
     def wrapper(*args, **kwargs):
         response = func(*args, **kwargs)
-        if 'body' in response:
+        if "body" in response:
             try:
-                response['body'] = json.dumps(response['body'])
+                response["body"] = json.dumps(response["body"])
             except TypeError:
                 return failure(NON_SERIALIZABLE_ERROR_MESSAGE, 500)
         return response
@@ -216,7 +219,7 @@ def validate(parameters, group_errors=False):
     Validates a set of function parameters.
 
     Usage:
-        @validate([ValidatedParameter(func_param_name='my_param', validators=[...])])
+        @validate([ValidatedParameter(func_param_name="my_param", validators=[...])])
         def func(my_param)
             pass
 
@@ -276,7 +279,7 @@ def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None
     Adds CORS headers to the response of the decorated function
 
     Usage:
-        @cors(allow_origin='http://example.com', allow_methods='POST,GET', allow_headers='Content-Type', max_age=86400)
+        @cors(allow_origin="http://example.com", allow_methods="POST,GET", allow_headers="Content-Type", max_age=86400)
         def func(my_param)
             pass
 
@@ -296,7 +299,7 @@ def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None
                 if value:
                     if isinstance(value, value_type):
                         header_key = find_key_case_insensitive(header_name, headers)
-                        headers[header_key] = headers[header_key] + ',' + value if header_key in headers else value
+                        headers[header_key] = f"{headers[header_key]},{value}" if header_key in headers else value
                     else:
                         LOGGER.error(CORS_INVALID_TYPE_LOG_MESSAGE, header_name, value_type)
                         raise TypeError
@@ -306,15 +309,15 @@ def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None
             response = func(*args, **kwargs)
 
             if isinstance(response, dict):
-                headers_key = find_key_case_insensitive('headers', response)
+                headers_key = find_key_case_insensitive("headers", response)
 
                 resp_headers = response[headers_key] if headers_key in response else {}
 
                 try:
-                    resp_headers = update_header(resp_headers, 'access-control-allow-origin', allow_origin, str)
-                    resp_headers = update_header(resp_headers, 'access-control-allow-methods', allow_methods, str)
-                    resp_headers = update_header(resp_headers, 'access-control-allow-headers', allow_headers, str)
-                    resp_headers = update_header(resp_headers, 'access-control-max-age', max_age, int)
+                    resp_headers = update_header(resp_headers, "access-control-allow-origin", allow_origin, str)
+                    resp_headers = update_header(resp_headers, "access-control-allow-methods", allow_methods, str)
+                    resp_headers = update_header(resp_headers, "access-control-allow-headers", allow_headers, str)
+                    resp_headers = update_header(resp_headers, "access-control-max-age", max_age, int)
 
                     response[headers_key] = resp_headers
                     return response
