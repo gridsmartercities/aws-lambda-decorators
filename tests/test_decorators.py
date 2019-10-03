@@ -424,7 +424,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(400, response["statusCode"])
         self.assertTrue("msg" in response["body"])
 
-        mock_logger.error.assert_called_once_with("msg: 'blank'")
+        mock_logger.error.assert_called_once_with("%s: %s", "msg", "'blank'")
 
     @patch("aws_lambda_decorators.decorators.LOGGER")
     def test_exception_handler_raises_exception_without_friendly_message(self, mock_logger):

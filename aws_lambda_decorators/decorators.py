@@ -100,9 +100,8 @@ def extract(parameters, group_errors=False):
                         if not group_errors:
                             LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
                             return failure(errors)
-                    else:
-                        if return_val is not None:
-                            kwargs[param.get_var_name()] = return_val
+                    elif return_val is not None:
+                        kwargs[param.get_var_name()] = return_val
             except Exception as ex:  # noqa: pylint - broad-except
                 LOGGER.error(EXCEPTION_LOG_MESSAGE, full_name(ex), str(ex), param.func_param_name, param.path)
                 return failure(ERROR_MESSAGE)
@@ -134,8 +133,12 @@ def handle_exceptions(handlers):
                 return func(*args, **kwargs)
             except tuple([handler.exception for handler in handlers]) as ex:  # noqa: pylint - catching-non-exception
                 message = [handler.friendly_message for handler in handlers if handler.exception is type(ex)][0]
-                log_message = message if not str(ex) else f"{message}: {str(ex)}" if message else str(ex)
-                LOGGER.error(log_message)
+
+                if message and str(ex):
+                    LOGGER.error("%s: %s", message, str(ex))
+                else:
+                    LOGGER.error(message if message else str(ex))
+
                 return failure(message if message else str(ex))
         return wrapper
     return decorator
