@@ -20,6 +20,14 @@ The easiest way to use these AWS Lambda Decorators is to install them through Pi
 
 `pip install aws-lambda-decorators`
 
+## Logging
+
+The Logging level of the decorators can be controlled by setting a LOG_LEVEL environment variable. In python:
+
+`os.environ["LOG_LEVEL"] = "INFO"`
+
+The default value is "INFO"
+
 ## Package Contents
 
 ### [Decorators](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decorators.py)
