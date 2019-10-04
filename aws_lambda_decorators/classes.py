@@ -10,7 +10,7 @@ ANNOTATIONS_END = "]"
 class ExceptionHandler:
     """Class mapping a friendly error message to a given Exception."""
 
-    def __init__(self, exception, friendly_message=None):
+    def __init__(self, exception, friendly_message=None, status_code=400):
         """
         Sets the private variables of the ExceptionHandler object.
 
@@ -20,6 +20,7 @@ class ExceptionHandler:
         """
         self._exception = exception
         self._friendly_message = friendly_message
+        self._status_code = status_code
 
     @property
     def friendly_message(self):
@@ -30,6 +31,11 @@ class ExceptionHandler:
     def exception(self):
         """Getter for the exception parameter."""
         return self._exception
+
+    @property
+    def status_code(self):
+        """Getter for the status code parameter."""
+        return self._status_code
 
 
 class BaseParameter:  # noqa: pylint - too-few-public-methods
