@@ -6,13 +6,11 @@ A set of Python decorators to ease the development of AWS lambda functions.
 """
 import json
 from http import HTTPStatus
-import logging
 import boto3
-from aws_lambda_decorators.utils import full_name, all_func_args, find_key_case_insensitive, failure
+from aws_lambda_decorators.utils import full_name, all_func_args, find_key_case_insensitive, failure, get_logger
 
 
-LOGGER = logging.getLogger()
-LOGGER.setLevel(logging.INFO)
+LOGGER = get_logger(__name__)
 
 
 PARAM_LOG_MESSAGE = "Parameters: %s"
