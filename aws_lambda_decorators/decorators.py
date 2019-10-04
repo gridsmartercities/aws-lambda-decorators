@@ -130,14 +130,15 @@ def handle_exceptions(handlers):
             try:
                 return func(*args, **kwargs)
             except tuple([handler.exception for handler in handlers]) as ex:  # noqa: pylint - catching-non-exception
-                message = [handler.friendly_message for handler in handlers if handler.exception is type(ex)][0]
+                failed_handler = [handler for handler in handlers if handler.exception is type(ex)][0]
+                message = failed_handler.friendly_message
 
                 if message and str(ex):
                     LOGGER.error("%s: %s", message, str(ex))
                 else:
                     LOGGER.error(message if message else str(ex))
 
-                return failure(message if message else str(ex))
+                return failure(message if message else str(ex), failed_handler.status_code)
         return wrapper
     return decorator
 

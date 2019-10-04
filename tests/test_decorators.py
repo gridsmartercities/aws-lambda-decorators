@@ -441,6 +441,20 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         mock_logger.error.assert_called_once_with("'blank'")
 
     @patch("aws_lambda_decorators.decorators.LOGGER")
+    def test_exception_handler_raises_exception_with_status_code(self, mock_logger):
+
+        @handle_exceptions(handlers=[ExceptionHandler(KeyError, "error", 500)])
+        def handler():
+            raise KeyError("blank")
+
+        response = handler()  # noqa
+
+        self.assertEqual(500, response["statusCode"])
+        self.assertEqual("""{"message": "error"}""", response["body"])
+
+        mock_logger.error.assert_called_once_with("%s: %s", "error", "'blank'")
+
+    @patch("aws_lambda_decorators.decorators.LOGGER")
     def test_log_decorator_can_log_params(self, mock_logger):  # noqa: pylint - no-self-use
 
         @log(True, False)
