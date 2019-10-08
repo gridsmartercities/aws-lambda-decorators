@@ -24,6 +24,7 @@ CORS_INVALID_TYPE_ERROR = "Invalid value type in CORS header"
 CORS_NON_DICT_ERROR = "Invalid response type for CORS headers"
 CORS_INVALID_TYPE_LOG_MESSAGE = "Cannot set %s header to a non %s value"
 CORS_NON_DICT_LOG_MESSAGE = "Cannot add headers to a non dictionary response"
+UNKNOWN = "Unknown"
 
 
 def extract_from_event(parameters, group_errors=False):
@@ -87,6 +88,7 @@ def extract(parameters, group_errors=False):
     def decorator(func):
         def wrapper(*args, **kwargs):
             try:
+                param = None
                 errors = []
                 arg_dictionary = all_func_args(func, args, kwargs)
                 for param in parameters:
@@ -98,17 +100,19 @@ def extract(parameters, group_errors=False):
                         if not group_errors:
                             LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
                             return failure(errors)
-                    elif return_val is not None:
+                    else:
                         kwargs[param.get_var_name()] = return_val
             except Exception as ex:  # noqa: pylint - broad-except
-                LOGGER.error(EXCEPTION_LOG_MESSAGE, full_name(ex), str(ex), param.func_param_name, param.path)
+                LOGGER.error(EXCEPTION_LOG_MESSAGE, full_name(ex), str(ex),
+                             param.func_param_name if param else UNKNOWN,
+                             param.path if param else UNKNOWN)
                 return failure(ERROR_MESSAGE)
+            else:
+                if group_errors and errors:
+                    LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
+                    return failure(errors)
 
-            if group_errors and errors:
-                LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
-                return failure(errors)
-
-            return func(*args, **kwargs)
+                return func(*args, **kwargs)
         return wrapper
     return decorator
 

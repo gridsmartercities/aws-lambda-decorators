@@ -1295,3 +1295,18 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         self.assertEqual(400, response["statusCode"])
         self.assertEqual("{\"message\": [{\"c\": [\"Missing mandatory value\"]}]}", response["body"])
+
+    def test_extract_nulls_are_returned(self):
+        path = "/a/b"
+        dictionary = {
+            "a": {
+            }
+        }
+
+        @extract([Parameter(path, "event", default=None)])
+        def handler(event, context, **kwargs):  # noqa
+            return kwargs["b"]
+
+        response = handler(dictionary, None)
+
+        self.assertEqual(None, response)
