@@ -7,6 +7,7 @@ A set of Python decorators to ease the development of AWS lambda functions.
 import json
 from http import HTTPStatus
 import boto3
+import inspect
 from aws_lambda_decorators.utils import full_name, all_func_args, find_key_case_insensitive, failure, get_logger
 
 
@@ -27,7 +28,7 @@ CORS_NON_DICT_LOG_MESSAGE = "Cannot add headers to a non dictionary response"
 UNKNOWN = "Unknown"
 
 
-def extract_from_event(parameters, group_errors=False):
+def extract_from_event(parameters, group_errors=False, allow_none_defaults=False):
     """
     Extracts a set of parameters from the event dictionary in a lambda handler.
 
@@ -48,7 +49,7 @@ def extract_from_event(parameters, group_errors=False):
     return extract(parameters, group_errors)
 
 
-def extract_from_context(parameters, group_errors=False):
+def extract_from_context(parameters, group_errors=False, allow_none_defaults=False):
     """
     Extracts a set of parameters from the context dictionary in a lambda handler.
 
@@ -69,7 +70,7 @@ def extract_from_context(parameters, group_errors=False):
     return extract(parameters, group_errors)
 
 
-def extract(parameters, group_errors=False):
+def extract(parameters, group_errors=False, allow_none_defaults=False):
     """
     Extracts a set of parameters from any function parameter passed to an AWS lambda handler.
 
@@ -84,6 +85,9 @@ def extract(parameters, group_errors=False):
         parameters (list): A collection of Parameter type items.
         group_errors (bool): flag that indicates if error messages are to be grouped together
             (if set to False, validation will end on first error)
+        allow_none_defaults: A flag to allow None defaults. If True, None defaults will be passed into the kwargs.
+            If the flat is set to False, the None defaults will not be added to kwargs, and the default will be
+            picked up (if exists) from the method signature.
     """
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -100,7 +104,7 @@ def extract(parameters, group_errors=False):
                         if not group_errors:
                             LOGGER.error(VALIDATE_ERROR_MESSAGE, errors)
                             return failure(errors)
-                    else:
+                    elif allow_none_defaults or return_val is not None:
                         kwargs[param.get_var_name()] = return_val
             except Exception as ex:  # noqa: pylint - broad-except
                 LOGGER.error(EXCEPTION_LOG_MESSAGE, full_name(ex), str(ex),

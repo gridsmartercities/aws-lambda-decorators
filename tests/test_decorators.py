@@ -1303,10 +1303,40 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, "event", default=None)])
+        @extract([Parameter(path, "event", default=None)], allow_none_defaults=True)
         def handler(event, context, **kwargs):  # noqa
             return kwargs["b"]
 
         response = handler(dictionary, None)
 
         self.assertEqual(None, response)
+
+    def test_extract_nulls_preserve_signature_defaults(self):
+        path = "/a/b"
+        dictionary = {
+            "a": {
+            }
+        }
+
+        @extract([Parameter(path, "event")])
+        def handler(event, context, b="Hello"):  # noqa
+            return b
+
+        response = handler(dictionary, None)
+
+        self.assertEqual("Hello", response)
+
+    def test_extract_nulls_default_on_decorator_takes_precedence(self):
+        path = "/a/b"
+        dictionary = {
+            "a": {
+            }
+        }
+
+        @extract([Parameter(path, "event", default="bye")])
+        def handler(event, context, b="Hello"):  # noqa
+            return b
+
+        response = handler(dictionary, None)
+
+        self.assertEqual("bye", response)
