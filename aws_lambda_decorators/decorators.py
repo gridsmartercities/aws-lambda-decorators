@@ -85,7 +85,7 @@ def extract(parameters, group_errors=False, allow_none_defaults=False):
         group_errors (bool): flag that indicates if error messages are to be grouped together
             (if set to False, validation will end on first error)
         allow_none_defaults: A flag to allow None defaults. If True, None defaults will be passed into the kwargs.
-            If the flat is set to False, the None defaults will not be added to kwargs, and the default will be
+            If the flag is set to False, the None defaults will not be added to kwargs, and the default will be
             picked up (if exists) from the method signature.
     """
     def decorator(func):
