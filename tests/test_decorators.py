@@ -1311,6 +1311,20 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         self.assertEqual(None, response)
 
+    def test_extract_nulls_raises_exception_when_extracted_from_kwargs_if_allow_none_defaults_is_false(self):
+        path = "/a/b"
+        dictionary = {
+            "a": {
+            }
+        }
+
+        @extract([Parameter(path, "event", default=None)], allow_none_defaults=False)
+        def handler(event, context, **kwargs):  # noqa
+            return kwargs["b"]
+
+        with self.assertRaises(KeyError):
+            handler(dictionary, None)
+
     def test_extract_nulls_preserve_signature_defaults(self):
         path = "/a/b"
         dictionary = {
