@@ -7,7 +7,6 @@ A set of Python decorators to ease the development of AWS lambda functions.
 import json
 from http import HTTPStatus
 import boto3
-import inspect
 from aws_lambda_decorators.utils import full_name, all_func_args, find_key_case_insensitive, failure, get_logger
 
 
@@ -46,7 +45,7 @@ def extract_from_event(parameters, group_errors=False, allow_none_defaults=False
     """
     for param in parameters:
         param.func_param_name = "event"
-    return extract(parameters, group_errors)
+    return extract(parameters, group_errors, allow_none_defaults)
 
 
 def extract_from_context(parameters, group_errors=False, allow_none_defaults=False):
@@ -67,7 +66,7 @@ def extract_from_context(parameters, group_errors=False, allow_none_defaults=Fal
     """
     for param in parameters:
         param.func_param_name = "context"
-    return extract(parameters, group_errors)
+    return extract(parameters, group_errors, allow_none_defaults)
 
 
 def extract(parameters, group_errors=False, allow_none_defaults=False):
