@@ -417,7 +417,7 @@ class FixLength(Validator):
     ERROR_MESSAGE = "'{value}' length should be '{condition}'"
 
     def __init__(self, fix_length: int, error_message=None):
-        super().__init__(error_message, fix_length)
+        super().__init__(error_message=error_message, condition=fix_length)
 
     def validate(self, value=None):
         if value is None:
