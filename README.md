@@ -406,6 +406,26 @@ def cors_example():
 cors_example()  # returns {'statusCode': 200, 'headers': {'access-control-allow-origin': '*', 'access-control-allow-methods': 'POST', 'access-control-allow-headers': 'Content-Type', 'access-control-max-age': 86400}}
 ```
 
+## Writing your own validators
+
+You can create your own validators by inheriting from the Validator class.
+
+For example, to create a fix length validator:
+
+```python
+class FixLength(Validator):
+    ERROR_MESSAGE = "'{value}' length should be '{condition}'"
+
+    def __init__(self, fix_length: int, error_message=None):
+        super().__init__(error_message, fix_length)
+
+    def validate(self, value=None):
+        if value is None:
+            return True
+
+        return len(str(value)) == self._condition
+```
+
 ## Documentation
 
 You can get the docstring help by running:  
