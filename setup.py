@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 LONG_DESCRIPTION = open("README.md").read()
 
 setup(name="aws-lambda-decorators",
-      version="0.40",
+      version="0.39",
       description="A set of python decorators to simplify aws python lambda development",
       long_description=LONG_DESCRIPTION,
       long_description_content_type="text/markdown",
