@@ -410,7 +410,7 @@ cors_example()  # returns {'statusCode': 200, 'headers': {'access-control-allow-
 
 You can create your own validators by inheriting from the Validator class.
 
-For example, to create a fix length validator:
+Fix length validator example:
 
 ```python
 class FixLength(Validator):
