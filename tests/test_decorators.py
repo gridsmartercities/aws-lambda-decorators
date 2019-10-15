@@ -8,7 +8,7 @@ from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParame
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors
 from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum, MaxLength, \
-    MinLength
+    MinLength, Type, EnumValidator
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
            "eyJzdWIiOiJhYWRkMWUwZS01ODA3LTQ3NjMtYjFlOC01ODIzYmY2MzFiYjYiLCJhdWQiOiIycjdtMW1mdWFiODg3ZmZvdG9iNWFjcX" \
@@ -1354,3 +1354,145 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(dictionary, None)
 
         self.assertEqual("bye", response)
+
+    @patch("aws_lambda_decorators.decorators.LOGGER")
+    def test_extract_returns_400_on_invalid_bool_type(self, mock_logger):
+        path = "/a/b/c"
+        dictionary = {
+            "a": {
+                "b": {
+                    "c": 1
+                }
+            }
+        }
+
+        @extract([Parameter(path, "event", [Type(bool)])])
+        def handler(event, context, c=None):  # noqa
+            return {}
+
+        response = handler(dictionary, None)
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual("{\"message\": [{\"c\": [\"\'1\' is not of type \'bool'\"]}]}", response["body"])
+
+        mock_logger.error.assert_called_once_with(
+            "Error validating parameters. Errors: %s",
+            [{"c": ["'1' is not of type 'bool'"]}]
+        )
+
+    @patch("aws_lambda_decorators.decorators.LOGGER")
+    def test_extract_returns_400_on_invalid_float_type(self, mock_logger):
+        path = "/a/b/c"
+        dictionary = {
+            "a": {
+                "b": {
+                    "c": 1
+                }
+            }
+        }
+
+        @extract([Parameter(path, "event", [Type(float)])])
+        def handler(event, context, c=None):  # noqa
+            return {}
+
+        response = handler(dictionary, None)
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual("{\"message\": [{\"c\": [\"\'1\' is not of type \'float'\"]}]}", response["body"])
+
+        mock_logger.error.assert_called_once_with(
+            "Error validating parameters. Errors: %s",
+            [{"c": ["'1' is not of type 'float'"]}]
+        )
+
+    def test_type_validator_returns_true_when_none_is_passed_in(self):
+        path = "/a/b/c"
+        dictionary = {
+            "a": {
+                "b": {
+                    "c": None
+                }
+            }
+        }
+
+        @extract([Parameter(path, "event", [Type(float)])])
+        def handler(event, context, c=None):  # noqa
+            return c
+
+        response = handler(dictionary, None)
+        self.assertEqual(None, response)
+
+    def test_extract_succeeds_with_valid_type_validation(self):
+        path = "/a/b/c"
+        dictionary = {
+            "a": {
+                "b": {
+                    "c": 1
+                }
+            }
+        }
+
+        @extract([Parameter(path, "event", [Type(int)])])
+        def handler(event, context, c=None):  # noqa
+            return c
+
+        response = handler(dictionary, None)
+        self.assertEqual(1, response)
+
+    @patch("aws_lambda_decorators.decorators.LOGGER")
+    def test_extract_returns_400_on_value_not_in_list(self, mock_logger):
+        path = "/a/b/c"
+        dictionary = {
+            "a": {
+                "b": {
+                    "c": "Hello"
+                }
+            }
+        }
+
+        @extract([Parameter(path, "event", [EnumValidator("bye", "test", "another")])])
+        def handler(event, context, c=None):  # noqa
+            return {}
+
+        response = handler(dictionary, None)
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual(
+            "{\"message\": [{\"c\": [\"\'Hello\' is not in list \'(\'bye\', \'test\', \'another\')'\"]}]}",
+            response["body"])
+
+        mock_logger.error.assert_called_once_with(
+            "Error validating parameters. Errors: %s",
+            [{"c": ["'Hello' is not in list '('bye', 'test', 'another')'"]}]
+        )
+
+    def test_extract_suceeds_with_valid_enum_validation(self):
+        path = "/a/b/c"
+        dictionary = {
+            "a": {
+                "b": {
+                    "c": 123
+                }
+            }
+        }
+
+        @extract([Parameter(path, "event", [EnumValidator("Hello", 123)])])
+        def handler(event, context, c=None):  # noqa
+            return c
+
+        response = handler(dictionary, None)
+        self.assertEqual(123, response)
+
+    def test_enum_validator_returns_true_when_none_is_passed_in(self):
+        path = "/a/b/c"
+        dictionary = {
+            "a": {
+                "b": {
+                    "c": None
+                }
+            }
+        }
+
+        @extract([Parameter(path, "event", [EnumValidator("Test", "another")])])
+        def handler(event, context, c=None):  # noqa
+            return c
+
+        response = handler(dictionary, None)
+        self.assertEqual(None, response)

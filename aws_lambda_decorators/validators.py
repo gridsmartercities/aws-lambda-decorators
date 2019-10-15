@@ -222,3 +222,55 @@ class MaxLength(Validator):  # noqa: pylint - too-few-public-methods
             return True
 
         return len(str(value)) <= self._condition
+
+
+class Type(Validator):
+    ERROR_MESSAGE = "'{value}' is not of type '{condition.__name__}'"
+
+    def __init__(self, valid_type: type, error_message=None):
+        """
+        Set the valid type.
+
+        Args:
+            valid_type (type): The value type to check.
+            error_message (str): A custom error message to output if validation fails
+        """
+        super().__init__(error_message, valid_type)
+
+    def validate(self, value=None):
+        """
+        Check if a value is of the right type
+
+        Args:
+            value (object): object to be validated.
+        """
+        if value is None:
+            return True
+
+        return isinstance(value, self._condition)
+
+
+class EnumValidator(Validator):
+    ERROR_MESSAGE = "'{value}' is not in list '{condition}'"
+
+    def __init__(self, *args: list, error_message=None):
+        """
+        Set the list of valid values.
+
+        Args:
+            error_message (str): A custom error message to output if validation fails
+            args (list): The list of valid values
+        """
+        super().__init__(error_message, args)
+
+    def validate(self, value=None):
+        """
+        Check if a value is in a list of valid values
+
+        Args:
+            value (object): object to be validated.
+        """
+        if value is None:
+            return True
+
+        return value in self._condition
