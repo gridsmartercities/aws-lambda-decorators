@@ -229,7 +229,7 @@ class Type(Validator):
 
     def __init__(self, valid_type: type, error_message=None):
         """
-        Set the minimum length.
+        Set the valid type.
 
         Args:
             valid_type (type): The value type to check.
@@ -255,17 +255,17 @@ class EnumValidator(Validator):
 
     def __init__(self, *args: list, error_message=None):
         """
-        Set the minimum length.
+        Set the list of valid values.
 
         Args:
             error_message (str): A custom error message to output if validation fails
-            args (list): The list of possible values
+            args (list): The list of valid values
         """
         super().__init__(error_message, args)
 
     def validate(self, value=None):
         """
-        Check if a value is in a list of possible values
+        Check if a value is in a list of valid values
 
         Args:
             value (object): object to be validated.
