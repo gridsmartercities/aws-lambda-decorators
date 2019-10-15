@@ -57,6 +57,8 @@ Currently, the package offers 5 validators:
 * __Maximum__: Checks if an optional numerical value is less than a maximum value.
 * __MinLength__: Checks if an optional string value is longer than a minimum length.
 * __MaxLength__: Checks if an optional string value is shorter than a maximum length.
+* __Type__: Checks if an optional object value is of a given python type.
+* __EnumValidator__: Checks if an optional object value is in a list of valid values.
 
 ### [Decoders](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py)
 
