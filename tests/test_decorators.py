@@ -1,9 +1,14 @@
 # pylint:disable=too-many-lines
+from http import HTTPStatus
+import json
+from json import JSONDecodeError
 import unittest
 from unittest.mock import patch, MagicMock
-from json import JSONDecodeError
+from uuid import uuid4
+
 from botocore.exceptions import ClientError
 from schema import Schema, And, Optional
+
 from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter, ValidatedParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors
@@ -1496,3 +1501,76 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler(dictionary, None)
         self.assertEqual(None, response)
+
+    def test_extract_from_event_missing_parameter_path(self):
+        event = {
+            "body": "{}"
+        }
+
+        @extract_from_event(parameters=[Parameter(path="body[json]/optional/value", default="Hello")])
+        def handler(event, context, **kwargs):  # noqa
+            return {
+                "statusCode": HTTPStatus.OK,
+                "body": json.dumps(kwargs)
+            }
+
+        expected_body = json.dumps({
+            "value": "Hello"
+        })
+
+        response = handler(event, None)
+
+        self.assertEqual(HTTPStatus.OK, response["statusCode"])
+        self.assertEqual(expected_body, response["body"])
+
+
+class IsolatedDecoderTests(unittest.TestCase):
+    # Tests have been named so they run in a specific order
+
+    ID_PATTERN = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+
+    PARAMETERS = [
+        Parameter(path="pathParameters/test_id", validators=[Mandatory, RegexValidator(ID_PATTERN)]),
+        Parameter(path="body[json]/name", validators=[MaxLength(255)])
+    ]
+
+    def test_01_extract_from_event_400(self):
+        event = {
+            "pathParameters": {}
+        }
+
+        @extract_from_event(parameters=self.PARAMETERS, group_errors=True, allow_none_defaults=False)
+        def handler(event, context, **kwargs):  # noqa
+            return kwargs
+
+        response = handler(event, None)
+        self.assertEqual(HTTPStatus.BAD_REQUEST, response["statusCode"])
+
+    def test_02_extract_from_event_200(self):
+        test_id = str(uuid4())
+
+        event = {
+            "pathParameters": {
+                "test_id": test_id
+            },
+            "body": json.dumps({
+                "name": "Gird"
+            })
+        }
+
+        @extract_from_event(parameters=self.PARAMETERS, group_errors=True, allow_none_defaults=False)
+        def handler(event, context, **kwargs):  # noqa
+            return {
+                "statusCode": HTTPStatus.OK,
+                "body": json.dumps(kwargs)
+            }
+
+        expected_body = json.dumps({
+            "test_id": test_id,
+            "name": "Gird"
+        })
+
+        response = handler(event, None)
+
+        self.assertEqual(HTTPStatus.OK, response["statusCode"])
+        self.assertEqual(expected_body, response["body"])

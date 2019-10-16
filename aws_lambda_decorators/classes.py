@@ -179,11 +179,10 @@ class Parameter(ValidatedParameter, BaseParameter):
         """
         for path_key in filter(lambda item: item != "", self._path.split(PATH_DIVIDER)):
             real_key, annotation = Parameter.get_annotations_from_key(path_key)
-            if real_key in dict_value:
+            if dict_value and real_key in dict_value:
                 dict_value = decode(annotation, dict_value[real_key])
             else:
                 dict_value = self._default
-                break
 
         if not self._name:
             self._name = real_key
