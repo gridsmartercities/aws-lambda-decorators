@@ -13,7 +13,7 @@ from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParame
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors
 from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum, MaxLength, \
-    MinLength, Type, EnumValidator
+    MinLength, Type, EnumValidator, NonEmpty
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
            "eyJzdWIiOiJhYWRkMWUwZS01ODA3LTQ3NjMtYjFlOC01ODIzYmY2MzFiYjYiLCJhdWQiOiIycjdtMW1mdWFiODg3ZmZvdG9iNWFjcX" \
@@ -801,6 +801,29 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         }
         self.assertEqual(expected, response)
 
+    def test_extract_schema_when_property_is_none(self):
+        path = "/a/b"
+        dictionary = {
+            "a": {}
+        }
+
+        schema = Schema(
+            {
+                "b": And(dict, {
+                    "c": str
+                }),
+                Optional("j"): str
+            }
+        )
+
+        @extract([Parameter(path, "event", validators=[SchemaValidator(schema)])])
+        def handler(event, context, b=None):  # noqa
+            return b
+
+        response = handler(dictionary, None)
+
+        self.assertEqual(None, response)
+
     def test_extract_parameter_with_minimum(self):
         event = {
             "value": 20
@@ -1574,3 +1597,71 @@ class IsolatedDecoderTests(unittest.TestCase):
 
         self.assertEqual(HTTPStatus.OK, response["statusCode"])
         self.assertEqual(expected_body, response["body"])
+
+    def test_extract_non_empty_parameter(self):
+        event = {
+            "value": 20
+        }
+
+        @extract([Parameter("/value", "event", validators=[NonEmpty])])
+        def handler(event, value=None):  # noqa: pylint - unused-argument
+            return value
+
+        response = handler(event)
+        self.assertEqual(20, response)
+
+    def test_extract_missing_non_empty_parameter(self):
+        event = {
+            "a": 20
+        }
+
+        @extract([Parameter("/b", "event", validators=[NonEmpty])])
+        def handler(event, b=None):  # noqa: pylint - unused-argument
+            return b
+
+        response = handler(event)
+        self.assertEqual(None, response)
+
+    @patch("aws_lambda_decorators.decorators.LOGGER")
+    def test_extract_non_empty_parameter_that_is_empty(self, mock_logger):
+        event = {
+            "a": {}
+        }
+
+        @extract([Parameter("/a", "event", validators=[NonEmpty])])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event, None)
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual(
+            "{\"message\": [{\"a\": [\"Value is empty\"]}]}",
+            response["body"])
+
+        mock_logger.error.assert_called_once_with(
+            "Error validating parameters. Errors: %s",
+            [{"a": ["Value is empty"]}]
+        )
+
+    @patch("aws_lambda_decorators.decorators.LOGGER")
+    def test_extract_non_empty_parameter_that_is_empty_with_custom_message(self, mock_logger):
+        event = {
+            "a": {}
+        }
+
+        @extract([Parameter("/a", "event", validators=[NonEmpty("The value was empty")])])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event, None)
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual(
+            "{\"message\": [{\"a\": [\"The value was empty\"]}]}",
+            response["body"])
+
+        mock_logger.error.assert_called_once_with(
+            "Error validating parameters. Errors: %s",
+            [{"a": ["The value was empty"]}]
+        )
