@@ -77,7 +77,7 @@ class RegexValidator(Validator):  # noqa: pylint - too-few-public-methods
         Args:
             value (str): Value to be validated.
         """
-        if not value:
+        if value is None:
             return True
 
         return self._regexp.fullmatch(value) is not None
@@ -105,6 +105,9 @@ class SchemaValidator(Validator):  # noqa: pylint - too-few-public-methods
             value (object): Value to be validated.
         """
         try:
+            if value is None:
+                return True
+
             return self._condition.validate(value) == value
         except SchemaError:
             return False
@@ -274,3 +277,30 @@ class EnumValidator(Validator):
             return True
 
         return value in self._condition
+
+
+class NonEmpty(Validator):  # noqa: pylint - too-few-public-methods
+    """Validation rule to check if the given value is empty."""
+    ERROR_MESSAGE = "Value is empty"
+
+    def __init__(self, error_message=None):
+        """
+        Checks if a parameter has a non empty value
+
+        Args:
+            error_message (str): A custom error message to output if validation fails
+        """
+        super().__init__(error_message)
+
+    @staticmethod
+    def validate(value=None):
+        """
+        Check if the given value is non empty.
+
+        Args:
+            value (any): Value to be validated.
+        """
+        if value is None or value in (0, 0.0, 0j):
+            return True
+
+        return bool(value)
