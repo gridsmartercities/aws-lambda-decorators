@@ -1650,7 +1650,7 @@ class IsolatedDecoderTests(unittest.TestCase):
             "a": {}
         }
 
-        @extract([Parameter("/a", "event", validators=[NonEmpty("HEY!!, it is empty")])])
+        @extract([Parameter("/a", "event", validators=[NonEmpty("The value was empty")])])
         def handler(event, a=None):  # noqa: pylint - unused-argument
             return {}
 
@@ -1658,10 +1658,10 @@ class IsolatedDecoderTests(unittest.TestCase):
 
         self.assertEqual(400, response["statusCode"])
         self.assertEqual(
-            "{\"message\": [{\"a\": [\"HEY!!, it is empty\"]}]}",
+            "{\"message\": [{\"a\": [\"The value was empty\"]}]}",
             response["body"])
 
         mock_logger.error.assert_called_once_with(
             "Error validating parameters. Errors: %s",
-            [{"a": ["HEY!!, it is empty"]}]
+            [{"a": ["The value was empty"]}]
         )
