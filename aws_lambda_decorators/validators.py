@@ -309,7 +309,7 @@ class NonEmpty(Validator):  # noqa: pylint - too-few-public-methods
 
 class DateValidator(Validator):
     """Validation rule to check if a string is a valid date according to some format."""
-    ERROR_MESSAGE = "Invalid date format"
+    ERROR_MESSAGE = "'{value}' is not a '{condition}' date"
 
     def __init__(self, date_format: str, error_message=None):
         """

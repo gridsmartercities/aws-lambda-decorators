@@ -1639,11 +1639,11 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event, None)
 
         self.assertEqual(400, response["statusCode"])
-        self.assertEqual("{\"message\": [{\"a\": [\"Invalid date format\"]}]}", response["body"])
+        self.assertEqual("{\"message\": [{\"a\": [\"'2001-01-01 35:00:00' is not a '%Y-%m-%d %H:%M:%S' date\"]}]}", response["body"])
 
         mock_logger.error.assert_called_once_with(
             "Error validating parameters. Errors: %s",
-            [{"a": ["Invalid date format"]}]
+            [{"a": ["'2001-01-01 35:00:00' is not a '%Y-%m-%d %H:%M:%S' date"]}]
         )
 
     @patch("aws_lambda_decorators.decorators.LOGGER")
