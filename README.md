@@ -60,6 +60,7 @@ Currently, the package offers 5 validators:
 * __Type__: Checks if an optional object value is of a given python type.
 * __EnumValidator__: Checks if an optional object value is in a list of valid values.
 * __NonEmpty__: Checks if an optional object value is not an empty value.
+* __DateValidator__: Checks if a given string is a valid date according to a passed in date format.
 
 ### [Decoders](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py)
 
