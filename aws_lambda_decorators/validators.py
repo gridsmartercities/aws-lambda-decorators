@@ -307,7 +307,7 @@ class NonEmpty(Validator):  # noqa: pylint - too-few-public-methods
         return bool(value)
 
 
-class Date(Validator):
+class DateValidator(Validator):
     """Validation rule to check if a string is a valid date according to some format."""
     ERROR_MESSAGE = "Invalid date format"
 

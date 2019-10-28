@@ -13,7 +13,7 @@ from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParame
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors
 from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum, MaxLength, \
-    MinLength, Type, EnumValidator, NonEmpty, Date
+    MinLength, Type, EnumValidator, NonEmpty, DateValidator
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
            "eyJzdWIiOiJhYWRkMWUwZS01ODA3LTQ3NjMtYjFlOC01ODIzYmY2MzFiYjYiLCJhdWQiOiIycjdtMW1mdWFiODg3ZmZvdG9iNWFjcX" \
@@ -1619,7 +1619,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "a": "2001-01-01 00:00:00"
         }
 
-        @extract([Parameter("/a", "event", validators=[Date("%Y-%m-%d %H:%M:%S")])])
+        @extract([Parameter("/a", "event", validators=[DateValidator("%Y-%m-%d %H:%M:%S")])])
         def handler(event, a=None):  # noqa: pylint - unused-argument
             return a
 
@@ -1632,11 +1632,13 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "a": "2001-01-01 35:00:00"
         }
 
-        @extract([Parameter("/a", "event", validators=[Date("%Y-%m-%d %H:%M:%S")])])
+        @extract([Parameter("/a", "event", validators=[DateValidator("%Y-%m-%d %H:%M:%S")])])
         def handler(event, a=None):  # noqa: pylint - unused-argument
-            return a
+            return {}
 
-        response = handler(event)
+        response = handler(event, None)
+
+        self.assertEqual(400, response["statusCode"])
         self.assertEqual("{\"message\": [{\"a\": [\"Invalid date format\"]}]}", response["body"])
 
         mock_logger.error.assert_called_once_with(
@@ -1650,11 +1652,13 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "a": "2001-01-01 35:00:00"
         }
 
-        @extract([Parameter("/a", "event", validators=[Date("%Y-%m-%d %H:%M:%S", "Not a valid date!")])])
+        @extract([Parameter("/a", "event", validators=[DateValidator("%Y-%m-%d %H:%M:%S", "Not a valid date!")])])
         def handler(event, a=None):  # noqa: pylint - unused-argument
-            return a
+            return {}
 
-        response = handler(event)
+        response = handler(event, None)
+
+        self.assertEqual(400, response["statusCode"])
         self.assertEqual("{\"message\": [{\"a\": [\"Not a valid date!\"]}]}", response["body"])
 
         mock_logger.error.assert_called_once_with(
@@ -1667,7 +1671,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "a": None
         }
 
-        @extract([Parameter("/a", "event", validators=[Date("%Y-%m-%d %H:%M:%S")])])
+        @extract([Parameter("/a", "event", validators=[DateValidator("%Y-%m-%d %H:%M:%S")])])
         def handler(event, a=None):  # noqa: pylint - unused-argument
             return a
 
