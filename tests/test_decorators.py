@@ -13,7 +13,7 @@ from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParame
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors
 from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum, MaxLength, \
-    MinLength, Type, EnumValidator, NonEmpty
+    MinLength, Type, EnumValidator, NonEmpty, DateValidator
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
            "eyJzdWIiOiJhYWRkMWUwZS01ODA3LTQ3NjMtYjFlOC01ODIzYmY2MzFiYjYiLCJhdWQiOiIycjdtMW1mdWFiODg3ZmZvdG9iNWFjcX" \
@@ -1546,58 +1546,6 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(HTTPStatus.OK, response["statusCode"])
         self.assertEqual(expected_body, response["body"])
 
-
-class IsolatedDecoderTests(unittest.TestCase):
-    # Tests have been named so they run in a specific order
-
-    ID_PATTERN = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
-
-    PARAMETERS = [
-        Parameter(path="pathParameters/test_id", validators=[Mandatory, RegexValidator(ID_PATTERN)]),
-        Parameter(path="body[json]/name", validators=[MaxLength(255)])
-    ]
-
-    def test_01_extract_from_event_400(self):
-        event = {
-            "pathParameters": {}
-        }
-
-        @extract_from_event(parameters=self.PARAMETERS, group_errors=True, allow_none_defaults=False)
-        def handler(event, context, **kwargs):  # noqa
-            return kwargs
-
-        response = handler(event, None)
-        self.assertEqual(HTTPStatus.BAD_REQUEST, response["statusCode"])
-
-    def test_02_extract_from_event_200(self):
-        test_id = str(uuid4())
-
-        event = {
-            "pathParameters": {
-                "test_id": test_id
-            },
-            "body": json.dumps({
-                "name": "Gird"
-            })
-        }
-
-        @extract_from_event(parameters=self.PARAMETERS, group_errors=True, allow_none_defaults=False)
-        def handler(event, context, **kwargs):  # noqa
-            return {
-                "statusCode": HTTPStatus.OK,
-                "body": json.dumps(kwargs)
-            }
-
-        expected_body = json.dumps({
-            "test_id": test_id,
-            "name": "Gird"
-        })
-
-        response = handler(event, None)
-
-        self.assertEqual(HTTPStatus.OK, response["statusCode"])
-        self.assertEqual(expected_body, response["body"])
-
     def test_extract_non_empty_parameter(self):
         event = {
             "value": 20
@@ -1665,3 +1613,120 @@ class IsolatedDecoderTests(unittest.TestCase):
             "Error validating parameters. Errors: %s",
             [{"a": ["The value was empty"]}]
         )
+
+    def test_extract_date_parameter(self):
+        event = {
+            "a": "2001-01-01 00:00:00"
+        }
+
+        @extract([Parameter("/a", "event", validators=[DateValidator("%Y-%m-%d %H:%M:%S")])])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return a
+
+        response = handler(event)
+        self.assertEqual("2001-01-01 00:00:00", response)
+
+    @patch("aws_lambda_decorators.decorators.LOGGER")
+    def test_extract_date_parameter_fails_on_invalid_date(self, mock_logger):
+        event = {
+            "a": "2001-01-01 35:00:00"
+        }
+
+        @extract([Parameter("/a", "event", validators=[DateValidator("%Y-%m-%d %H:%M:%S")])])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event, None)
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual("{\"message\": [{\"a\": [\"'2001-01-01 35:00:00' is not a '%Y-%m-%d %H:%M:%S' date\"]}]}",
+                         response["body"])
+
+        mock_logger.error.assert_called_once_with(
+            "Error validating parameters. Errors: %s",
+            [{"a": ["'2001-01-01 35:00:00' is not a '%Y-%m-%d %H:%M:%S' date"]}]
+        )
+
+    @patch("aws_lambda_decorators.decorators.LOGGER")
+    def test_extract_date_parameter_fails_with_custom_error(self, mock_logger):
+        event = {
+            "a": "2001-01-01 35:00:00"
+        }
+
+        @extract([Parameter("/a", "event", validators=[DateValidator("%Y-%m-%d %H:%M:%S", "Not a valid date!")])])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event, None)
+
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual("{\"message\": [{\"a\": [\"Not a valid date!\"]}]}", response["body"])
+
+        mock_logger.error.assert_called_once_with(
+            "Error validating parameters. Errors: %s",
+            [{"a": ["Not a valid date!"]}]
+        )
+
+    def test_extract_date_parameter_valid_on_empty(self):
+        event = {
+            "a": None
+        }
+
+        @extract([Parameter("/a", "event", validators=[DateValidator("%Y-%m-%d %H:%M:%S")])])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return a
+
+        response = handler(event)
+        self.assertEqual(None, response)
+
+
+class IsolatedDecoderTests(unittest.TestCase):
+    # Tests have been named so they run in a specific order
+
+    ID_PATTERN = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+
+    PARAMETERS = [
+        Parameter(path="pathParameters/test_id", validators=[Mandatory, RegexValidator(ID_PATTERN)]),
+        Parameter(path="body[json]/name", validators=[MaxLength(255)])
+    ]
+
+    def test_01_extract_from_event_400(self):
+        event = {
+            "pathParameters": {}
+        }
+
+        @extract_from_event(parameters=self.PARAMETERS, group_errors=True, allow_none_defaults=False)
+        def handler(event, context, **kwargs):  # noqa
+            return kwargs
+
+        response = handler(event, None)
+        self.assertEqual(HTTPStatus.BAD_REQUEST, response["statusCode"])
+
+    def test_02_extract_from_event_200(self):
+        test_id = str(uuid4())
+
+        event = {
+            "pathParameters": {
+                "test_id": test_id
+            },
+            "body": json.dumps({
+                "name": "Gird"
+            })
+        }
+
+        @extract_from_event(parameters=self.PARAMETERS, group_errors=True, allow_none_defaults=False)
+        def handler(event, context, **kwargs):  # noqa
+            return {
+                "statusCode": HTTPStatus.OK,
+                "body": json.dumps(kwargs)
+            }
+
+        expected_body = json.dumps({
+            "test_id": test_id,
+            "name": "Gird"
+        })
+
+        response = handler(event, None)
+
+        self.assertEqual(HTTPStatus.OK, response["statusCode"])
+        self.assertEqual(expected_body, response["body"])

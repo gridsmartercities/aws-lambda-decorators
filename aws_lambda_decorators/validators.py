@@ -1,4 +1,5 @@
 """Validation rules."""
+import datetime
 import re
 from schema import SchemaError
 
@@ -304,3 +305,35 @@ class NonEmpty(Validator):  # noqa: pylint - too-few-public-methods
             return True
 
         return bool(value)
+
+
+class DateValidator(Validator):
+    """Validation rule to check if a string is a valid date according to some format."""
+    ERROR_MESSAGE = "'{value}' is not a '{condition}' date"
+
+    def __init__(self, date_format: str, error_message=None):
+        """
+        Checks if a string is a date with a given format
+
+        Args:
+            date_format (str): The date format to check against
+            error_message (str): A custom error message to output if validation fails
+        """
+        super().__init__(error_message, date_format)
+
+    def validate(self, value=None):
+        """
+        Check if a string is a date with a given format
+
+        Args:
+            value (str): string date to validate against a format
+        """
+        if value is None:
+            return True
+
+        try:
+            datetime.datetime.strptime(value, self._condition)
+        except ValueError:
+            return False
+        else:
+            return True
