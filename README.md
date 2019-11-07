@@ -244,7 +244,7 @@ def extract_dictionary_example(a_dictionary, **kwargs):
 
 ```
 
-You can apply a transformation to an extracted value, which will be applied before validating it.
+You can apply a transformation to an extracted value. The transformation will happen before validation.
 
 Example:
 ```python
