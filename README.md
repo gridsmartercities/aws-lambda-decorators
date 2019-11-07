@@ -244,6 +244,49 @@ def extract_dictionary_example(a_dictionary, **kwargs):
 
 ```
 
+You can apply a transformation to an extracted value, which will be applied before validating it.
+
+Example:
+```python
+@extract(parameters=[
+    Parameter(path='/params/my_param', func_param_name='a_dictionary', transform=int)  # extracts a non mandatory my_param from a_dictionary
+])
+def extract_with_transform_example(a_dictionary, my_param=None):
+    """
+        a_dictionary = { 
+            'params': {
+                'my_param_1': '2'
+            }
+        }
+    """
+    return my_param  # returns the int value 2
+
+```
+
+The transform function can be any function, with its own error handling.
+
+Example:
+```python
+
+def to_int(arg):
+    try:
+        return int(arg)
+    except Exception:
+        raise Exception("My custom error message")
+
+@extract(parameters=[
+    Parameter(path='/params/my_param', func_param_name='a_dictionary', transform=to_int)  # extracts a non mandatory my_param from a_dictionary
+])
+def extract_with_custom_transform_example(a_dictionary, my_param=None):
+    return {}
+    
+response = extract_with_custom_transform_example({'params': {'my_param': 'abc'}})
+
+print(response)  # prints {'statusCode': 400, 'body': '{"message": "Error extracting parameters"}'}, and the logs will contain the "My custom error message" message.
+
+
+```
+
 ### extract_from_event
 
 This decorator is just a facade to the [extract](#extract) method to be used in AWS Api Gateway Lambdas. It automatically extracts from the event lambda parameter.
