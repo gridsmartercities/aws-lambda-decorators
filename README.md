@@ -255,7 +255,7 @@ def extract_with_transform_example(a_dictionary, my_param=None):
     """
         a_dictionary = { 
             'params': {
-                'my_param_1': '2'
+                'my_param_1': '2'  # the original value is the string '2'
             }
         }
     """
