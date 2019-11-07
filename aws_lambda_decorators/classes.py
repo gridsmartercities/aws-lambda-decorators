@@ -130,7 +130,7 @@ class ValidatedParameter:
 class Parameter(ValidatedParameter, BaseParameter):
     """Class used to encapsulate the extract methods parameter data."""
 
-    def __init__(self, path="", func_param_name=None, validators=None, var_name=None, default=None):  # noqa: pylint - too-many-arguments
+    def __init__(self, path="", func_param_name=None, validators=None, var_name=None, default=None, transform=None):  # noqa: pylint - too-many-arguments
         """
         Sets the private variables of the Parameter object.
 
@@ -154,9 +154,11 @@ class Parameter(ValidatedParameter, BaseParameter):
                 value is the last element of the path (e.g. "c" in the case above)
             default (any): Optional, a default value if the value is missing and not mandatory.
                 The default value is None
+            transform (function): Optional, a function to apply to the extracted value before checking validation rules.
         """
         self._path = path
         self._default = default
+        self._transform = transform
         ValidatedParameter.__init__(self, func_param_name, validators)
         BaseParameter.__init__(self, var_name)
 
@@ -186,6 +188,9 @@ class Parameter(ValidatedParameter, BaseParameter):
 
         if not self._name:
             self._name = real_key
+
+        if dict_value and self._transform:
+            dict_value = self._transform(dict_value)
 
         return dict_value
 

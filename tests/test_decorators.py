@@ -1679,6 +1679,91 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual(None, response)
 
+    def test_can_apply_transformation(self):
+        event = {
+            "a": "2"
+        }
+
+        @extract([Parameter("/a", "event", transform=float)])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return a
+
+        response = handler(event)
+        self.assertEqual(2, response)
+
+    def test_apply_transformation_on_none_value(self):
+        event = {
+            "a": None
+        }
+
+        @extract([Parameter("/a", "event", transform=float)])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return a
+
+        response = handler(event)
+        self.assertEqual(None, response)
+
+    def test_apply_custom_transformation(self):
+        event = {
+            "a": "2"
+        }
+
+        def to_float(arg):
+            return float(arg)
+
+        @extract([Parameter("/a", "event", transform=to_float)])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return a
+
+        response = handler(event)
+        self.assertEqual(2, response)
+
+    @patch("aws_lambda_decorators.decorators.LOGGER")
+    def test_apply_custom_transformation_with_error_handling(self, mock_logger):
+        event = {
+            "a": "abc"
+        }
+
+        def to_float(arg):
+            try:
+                return float(arg)
+            except Exception:
+                raise Exception(f"Custom error message: value '{arg}' cannot be converted to float")
+
+        @extract([Parameter("/a", "event", transform=to_float)])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual("{\"message\": \"Error extracting parameters\"}", response["body"])
+
+        mock_logger.error.assert_called_once_with("%s: %s in argument %s for path %s",
+                                                  "Exception",
+                                                  "Custom error message: value 'abc' cannot be converted to float",
+                                                  "event",
+                                                  "/a")
+
+    @patch("aws_lambda_decorators.decorators.LOGGER")
+    def test_apply_invalid_transformation_raises_error(self, mock_logger):
+        event = {
+            "a": "abc"
+        }
+
+        @extract([Parameter("/a", "event", transform=float)])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return {}
+
+        response = handler(event)
+        self.assertEqual(400, response["statusCode"])
+        self.assertEqual("{\"message\": \"Error extracting parameters\"}", response["body"])
+
+        mock_logger.error.assert_called_once_with("%s: %s in argument %s for path %s",
+                                                  "ValueError",
+                                                  "could not convert string to float: 'abc'",
+                                                  "event",
+                                                  "/a")
+
 
 class IsolatedDecoderTests(unittest.TestCase):
     # Tests have been named so they run in a specific order
