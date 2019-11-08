@@ -3,10 +3,11 @@ import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 from schema import Schema, Or
-from aws_lambda_decorators import extract, extract_from_event, extract_from_context, extract_from_ssm, \
-    validate, log, handle_exceptions, response_body_as_json, Parameter, SSMParameter, ValidatedParameter, \
-    ExceptionHandler, Mandatory, RegexValidator, handle_all_exceptions, cors, SchemaValidator, Maximum, Minimum, \
-    Type, EnumValidator, NonEmpty, DateValidator
+from aws_lambda_decorators import (extract, extract_from_event, extract_from_context, extract_from_ssm, validate, log,
+                                   handle_exceptions, response_body_as_json, Parameter, SSMParameter,
+                                   ValidatedParameter, ExceptionHandler, Mandatory, RegexValidator,
+                                   handle_all_exceptions, cors, SchemaValidator, Maximum, Minimum, Type, EnumValidator,
+                                   NonEmpty, DateValidator)
 
 
 @extract(parameters=[
