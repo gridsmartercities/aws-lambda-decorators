@@ -71,6 +71,8 @@ The package offers functions to decode from JSON and JWT.
 
 ## Examples
 
+You can see some basic examples in the [examples](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/examples/examples.py) folder. 
+
 ### extract
 
 This decorator extracts and validates values from dictionary parameters passed to a Lambda Function.
