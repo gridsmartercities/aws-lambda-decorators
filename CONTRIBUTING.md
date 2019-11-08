@@ -24,4 +24,8 @@ Before submitting a PR, please ensure that:
 
 `coverage report -m --fail-under=100 --omit=*/__init__.py,tests/*,setup.py,examples/test_examples.py`
 
+- you can run the test examples like this:
+
+`python -m unittest examples.test_examples`
+
 Thanks for contributing!
