@@ -369,4 +369,4 @@ class CurrencyValidator(Validator):
         currency_code = f"Currency.{lower_cased_value}"
         currency_codes.remove("Currency.all")
 
-        return bool(currency_code in currency_codes)
+        return currency_code in currency_codes

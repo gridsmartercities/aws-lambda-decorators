@@ -1626,18 +1626,6 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual("2001-01-01 00:00:00", response)
 
-    def test_extract_currency_parameter(self):
-        event = {
-            "a": "GBP"
-        }
-
-        @extract([Parameter("/a", "event", validators=[CurrencyValidator()])])
-        def handler(event, a=None):  # noqa: pylint - unused-argument
-            return a
-
-        response = handler(event)
-        self.assertEqual(True, response)
-
     @patch("aws_lambda_decorators.decorators.LOGGER")
     def test_extract_date_parameter_fails_on_invalid_date(self, mock_logger):
         event = {
@@ -1690,6 +1678,18 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         response = handler(event)
         self.assertEqual(None, response)
+
+    def test_extract_currency_parameter(self):
+        event = {
+            "a": "GBP"
+        }
+
+        @extract([Parameter("/a", "event", validators=[CurrencyValidator()])])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return a
+
+        response = handler(event)
+        self.assertEqual("GBP", response)
 
     def test_can_apply_transformation(self):
         event = {
