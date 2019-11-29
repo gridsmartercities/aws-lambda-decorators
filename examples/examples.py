@@ -7,7 +7,7 @@ from aws_lambda_decorators import (extract, extract_from_event, extract_from_con
                                    handle_exceptions, response_body_as_json, Parameter, SSMParameter,
                                    ValidatedParameter, ExceptionHandler, Mandatory, RegexValidator,
                                    handle_all_exceptions, cors, SchemaValidator, Maximum, Minimum, Type, EnumValidator,
-                                   NonEmpty, DateValidator)
+                                   NonEmpty, DateValidator, CurrencyValidator)
 
 
 @extract(parameters=[
@@ -205,3 +205,11 @@ def to_int(arg):
 ])
 def extract_with_custom_transform_example(a_dictionary, my_param=None):
     return {}
+
+
+@extract(parameters=[
+    Parameter(path="/params/currency_example", func_param_name="a_dictionary",
+              validators=[CurrencyValidator()])
+])
+def extract_currency_param(a_dictionary, currency_example=None):
+    return currency_example

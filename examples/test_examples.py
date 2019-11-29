@@ -8,7 +8,8 @@ from examples.examples import (extract_example, extract_to_kwargs_example, extra
                                cors_example, extract_multiple_param_example,
                                extract_minimum_param_with_custom_error_example, extract_dictionary_example,
                                extract_type_param, extract_enum_param, extract_non_empty_param, extract_date_param,
-                               extract_with_transform_example, extract_with_custom_transform_example)
+                               extract_with_transform_example, extract_with_custom_transform_example,
+                               extract_currency_param)
 
 
 # pylint:disable=too-many-public-methods
@@ -333,6 +334,20 @@ class ExamplesTests(unittest.TestCase):
 
         # will return the extracted values in a dictionary.
         self.assertEqual("2001-01-01 00:00:00", response)
+
+    def test_extract_currency_param(self):
+        # Given this dictionary:
+        a_dictionary = {
+            "params": {
+                "currency_example": "GBP"
+            }
+        }
+
+        # calling the decorated extract_dictionary_example:
+        response = extract_currency_param(a_dictionary)
+
+        # will return the extracted values in a dictionary.
+        self.assertEqual("GBP", response)
 
     def test_extract_with_transform(self):
         # Given this dictionary:

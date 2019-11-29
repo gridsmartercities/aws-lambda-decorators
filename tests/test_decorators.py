@@ -13,7 +13,7 @@ from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParame
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors
 from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum, MaxLength, \
-    MinLength, Type, EnumValidator, NonEmpty, DateValidator
+    MinLength, Type, EnumValidator, NonEmpty, DateValidator, CurrencyValidator
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
            "eyJzdWIiOiJhYWRkMWUwZS01ODA3LTQ3NjMtYjFlOC01ODIzYmY2MzFiYjYiLCJhdWQiOiIycjdtMW1mdWFiODg3ZmZvdG9iNWFjcX" \
@@ -1626,6 +1626,18 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual("2001-01-01 00:00:00", response)
 
+    def test_extract_currency_parameter(self):
+        event = {
+            "a": "GBP"
+        }
+
+        @extract([Parameter("/a", "event", validators=[CurrencyValidator()])])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return a
+
+        response = handler(event)
+        self.assertEqual(True, response)
+
     @patch("aws_lambda_decorators.decorators.LOGGER")
     def test_extract_date_parameter_fails_on_invalid_date(self, mock_logger):
         event = {
@@ -1815,3 +1827,4 @@ class IsolatedDecoderTests(unittest.TestCase):
 
         self.assertEqual(HTTPStatus.OK, response["statusCode"])
         self.assertEqual(expected_body, response["body"])
+
