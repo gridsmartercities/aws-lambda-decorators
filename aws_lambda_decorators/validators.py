@@ -340,7 +340,7 @@ class DateValidator(Validator):
             return True
 
 
-class CurrencyCodeValidator(Validator):
+class CurrencyValidator(Validator):
     """Validation rule to check if a string is a valid currency according to ISO 4217 Currency Code."""
     ERROR_MESSAGE = "'{value}' is not a valid currency code."
 
@@ -352,8 +352,9 @@ class CurrencyCodeValidator(Validator):
             error_message (str): A custom error message to output if validation fails
         """
         super().__init__(error_message)
-
-    def validate(self, value=None):
+        
+    @staticmethod
+    def validate(value=None):
         """
         Check if a string is a valid currency code based on ISO 4217
 

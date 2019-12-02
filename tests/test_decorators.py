@@ -13,7 +13,7 @@ from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParame
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors
 from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum, MaxLength, \
-    MinLength, Type, EnumValidator, NonEmpty, DateValidator, CurrencyCodeValidator
+    MinLength, Type, EnumValidator, NonEmpty, DateValidator, CurrencyValidator
 
 TEST_JWT = "eyJraWQiOiJEQlwvK0lGMVptekNWOGNmRE1XVUxBRlBwQnVObW5CU2NcL2RoZ3pnTVhcL2NzPSIsImFsZyI6IlJTMjU2In0." \
            "eyJzdWIiOiJhYWRkMWUwZS01ODA3LTQ3NjMtYjFlOC01ODIzYmY2MzFiYjYiLCJhdWQiOiIycjdtMW1mdWFiODg3ZmZvdG9iNWFjcX" \
@@ -1679,19 +1679,19 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = handler(event)
         self.assertEqual(None, response)
 
-    def test_extract_currency_code_parameter(self):
+    def test_extract_currency_parameter(self):
         event = {
             "a": "GBP"
         }
 
-        @extract([Parameter("/a", "event", validators=[CurrencyCodeValidator()])])
+        @extract([Parameter("/a", "event", validators=[CurrencyValidator()])])
         def handler(event, a=None):  # noqa: pylint - unused-argument
             return a
 
         response = handler(event)
         self.assertEqual("GBP", response)
 
-    def test_currency_code_validator_returns_true_when_none_is_passed_in(self):
+    def test_currency_validator_returns_true_when_none_is_passed_in(self):
         path = "/a/b/c"
         dictionary = {
             "a": {
@@ -1701,19 +1701,19 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, "event", [CurrencyCodeValidator()])])
+        @extract([Parameter(path, "event", [CurrencyValidator()])])
         def handler(event, c=None):  # noqa
             return c
 
         response = handler(dictionary, None)
         self.assertEqual(None, response)
 
-    def test_currency_code_validator_returns_false_when_invalid_code_passed_in(self):
+    def test_currency_validator_returns_false_when_invalid_code_passed_in(self):
         event = {
             "a": "GBT"
         }
 
-        @extract([Parameter("/a", "event", validators=[CurrencyCodeValidator()])])
+        @extract([Parameter("/a", "event", validators=[CurrencyValidator()])])
         def handler(event, a=None):  # noqa: pylint - unused-argument
             return a
 
