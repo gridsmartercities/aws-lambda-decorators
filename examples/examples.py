@@ -209,7 +209,7 @@ def extract_with_custom_transform_example(a_dictionary, my_param=None):
 
 @extract(parameters=[
     Parameter(path="/params/currency_example", func_param_name="a_dictionary",
-              validators=[CurrencyValidator()])
+              validators=[CurrencyValidator])
 ])
 def extract_currency_param(a_dictionary, currency_example=None):
     return currency_example

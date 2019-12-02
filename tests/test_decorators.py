@@ -1684,7 +1684,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "a": "GBP"
         }
 
-        @extract([Parameter("/a", "event", validators=[CurrencyValidator()])])
+        @extract([Parameter("/a", "event", [CurrencyValidator])])
         def handler(event, a=None):  # noqa: pylint - unused-argument
             return a
 
@@ -1701,7 +1701,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             }
         }
 
-        @extract([Parameter(path, "event", [CurrencyValidator()])])
+        @extract([Parameter(path, "event", [CurrencyValidator])])
         def handler(event, c=None):  # noqa
             return c
 
@@ -1713,7 +1713,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "a": "GBT"
         }
 
-        @extract([Parameter("/a", "event", validators=[CurrencyValidator()])])
+        @extract([Parameter("/a", "event", [CurrencyValidator()])])
         def handler(event, a=None):  # noqa: pylint - unused-argument
             return {}
 
