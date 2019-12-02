@@ -1715,7 +1715,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         @extract([Parameter("/a", "event", validators=[CurrencyValidator()])])
         def handler(event, a=None):  # noqa: pylint - unused-argument
-            return a
+            return {}
 
         response = handler(event)
         self.assertEqual(400, response["statusCode"])
@@ -1858,4 +1858,3 @@ class IsolatedDecoderTests(unittest.TestCase):
 
         self.assertEqual(HTTPStatus.OK, response["statusCode"])
         self.assertEqual(expected_body, response["body"])
-
