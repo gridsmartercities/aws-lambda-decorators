@@ -3,24 +3,18 @@ import datetime
 import re
 from schema import SchemaError
 
-CURRENCIES = {"AFN", "EUR", "ALL", "DZD", "USD", "EUR", "AOA", "XCD", "XCD", "ARS", "AMD", "AWG", "AUD", "EUR", "AZN",
-              "BSD", "BHD", "BDT", "BBD", "BYN", "EUR", "BZD", "XOF", "BMD", "INR", "BTN", "BOB", "BOV", "USD", "BAM",
-              "BWP", "NOK", "BRL", "USD", "BND", "BGN", "XOF", "BIF", "CVE", "KHR", "XAF", "CAD", "KYD", "XAF", "XAF",
-              "CLP", "CLF", "CNY", "AUD", "AUD", "COP", "COU", "KMF", "CDF", "XAF", "NZD", "CRC", "XOF", "HRK", "CUP",
-              "CUC", "ANG", "EUR", "CZK", "DKK", "DJF", "XCD", "DOP", "USD", "EGP", "SVC", "USD", "XAF", "ERN", "EUR",
-              "ETB", "EUR", "FKP", "DKK", "FJD", "EUR", "EUR", "EUR", "XPF", "EUR", "XAF", "GMD", "GEL", "EUR", "GHS",
-              "GIP", "EUR", "DKK", "XCD", "EUR", "USD", "GTQ", "GBP", "GNF", "XOF", "GYD", "HTG", "USD", "AUD", "EUR",
-              "HNL", "HKD", "HUF", "ISK", "INR", "IDR", "XDR", "IRR", "IQD", "EUR", "GBP", "ILS", "EUR", "JMD", "JPY",
-              "GBP", "JOD", "KZT", "KES", "AUD", "KPW", "KRW", "KWD", "KGS", "LAK", "EUR", "LBP", "LSL", "ZAR", "LRD",
-              "LYD", "CHF", "EUR", "EUR", "MOP", "MKD", "MGA", "MWK", "MYR", "MVR", "XOF", "EUR", "USD", "EUR", "MRU",
-              "MUR", "EUR", "XUA", "MXN", "MXV", "USD", "MDL", "EUR", "MNT", "EUR", "XCD", "MAD", "MZN", "MMK", "NAD",
-              "ZAR", "AUD", "NPR", "EUR", "XPF", "NZD", "NIO", "XOF", "NGN", "NZD", "AUD", "USD", "NOK", "OMR", "PKR",
-              "USD", "PAB", "USD", "PGK", "PYG", "PEN", "PHP", "NZD", "PLN", "EUR", "USD", "QAR", "EUR", "RON", "RUB",
-              "RWF", "EUR", "SHP", "XCD", "XCD", "EUR", "EUR", "XCD", "WST", "EUR", "STN", "SAR", "XOF", "RSD", "SCR",
-              "SLL", "SGD", "ANG", "XSU", "EUR", "EUR", "SBD", "SOS", "ZAR", "SSP", "EUR", "LKR", "SDG", "SRD", "NOK",
-              "SZL", "SEK", "CHF", "CHE", "CHW", "SYP", "TWD", "TJS", "TZS", "THB", "USD", "XOF", "NZD", "TOP", "TTD",
-              "TND", "TRY", "TMT", "USD", "AUD", "UGX", "UAH", "AED", "GBP", "USD", "USD", "USN", "UYU", "UYI", "UYW",
-              "UZS", "VUV", "VES", "VND", "USD", "USD", "XPF", "MAD", "YER", "ZMW", "ZWL"}
+CURRENCIES = {"LKR", "ETB", "RWF", "NZD", "SBD", "MKD", "NPR", "LAK", "KWD", "INR", "HUF", "AFN", "BTN", "ISK", "MVR",
+              "WST", "MNT", "AZN", "SAR", "JMD", "BIF", "BMD", "CAD", "GEL", "MXN", "BHD", "HKD", "RSD", "PKR", "SLL",
+              "NGN", "TOP", "SCR", "SVC", "CHW", "UYW", "IDR", "IQD", "THB", "GBP", "MYR", "SDG", "CNY", "GNF", "LRD",
+              "KHR", "TJS", "BYN", "SHP", "AED", "BOB", "CUC", "PHP", "SSP", "USN", "MZN", "COP", "SEK", "EUR", "CDF",
+              "CRC", "KMF", "JPY", "ZWL", "ALL", "GHS", "GIP", "QAR", "GYD", "HTG", "VUV", "CZK", "ANG", "AWG", "AMD",
+              "DOP", "TRY", "ZMW", "MGA", "KZT", "XUA", "ARS", "XPF", "BRL", "MXV", "LSL", "CLP", "KES", "PYG", "TND",
+              "MAD", "DZD", "MWK", "BSD", "BBD", "FKP", "KGS", "BWP", "CVE", "HRK", "DKK", "COU", "SYP", "LYD", "PLN",
+              "TZS", "KPW", "UGX", "BOV", "UAH", "NAD", "AOA", "VES", "SOS", "CUP", "SGD", "PAB", "UZS", "STN", "SRD",
+              "CHE", "XOF", "DJF", "PGK", "UYI", "XCD", "BZD", "EGP", "ERN", "RON", "TWD", "USD", "FJD", "VND", "SZL",
+              "BND", "HNL", "KRW", "XAF", "MDL", "BDT", "MUR", "PEN", "OMR", "NIO", "TMT", "YER", "TTD", "GMD", "XDR",
+              "CHF", "NOK", "GTQ", "JOD", "KYD", "UYU", "RUB", "ZAR", "AUD", "BGN", "MOP", "LBP", "MRU", "CLF", "XSU",
+              "BAM", "MMK", "IRR", "ILS"}
 
 
 class Validator:  # noqa: pylint - too-few-public-methods
