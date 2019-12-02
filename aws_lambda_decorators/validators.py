@@ -346,17 +346,17 @@ class CurrencyValidator(Validator):
 
     def __init__(self, error_message=None):
         """
-        Checks if a string is a valid currency code based on ISO 4217
+        Checks if a string is a valid currency based on ISO 4217
 
         Args:
             error_message (str): A custom error message to output if validation fails
         """
         super().__init__(error_message)
-        
+
     @staticmethod
     def validate(value=None):
         """
-        Check if a string is a valid currency code based on ISO 4217
+        Check if a string is a valid currency based on ISO 4217
 
         Args:
             value (str): value to validate against a ISO 4217
