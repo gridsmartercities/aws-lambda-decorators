@@ -340,7 +340,7 @@ class DateValidator(Validator):
             return True
 
 
-class CurrencyValidator(Validator):
+class CurrencyCodeValidator(Validator):
     """Validation rule to check if a string is a valid currency according to ISO 4217 Currency Code."""
     ERROR_MESSAGE = "'{value}' is not a valid currency code."
 
