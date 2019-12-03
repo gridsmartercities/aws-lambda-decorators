@@ -120,7 +120,7 @@ class ValidatedParameter:
                     if hasattr(validator, "_error_message"):
                         errors.append(validator.message(value))
                     else:  # calling the validator statically
-                        errors.append(validator.ERROR_MESSAGE)
+                        errors.append(validator.ERROR_MESSAGE.format(value=value))
                     if not group_errors:
                         return errors
 

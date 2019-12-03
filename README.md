@@ -48,7 +48,7 @@ The current list of AWS Lambda Python Decorators includes:
 
 ### [Validators](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py)
 
-Currently, the package offers 5 validators:
+Currently, the package offers 12 validators:
 
 * __Mandatory__: Checks if a parameter has a value.
 * __RegexValidator__: Checks a parameter against a regular expression.
@@ -61,6 +61,7 @@ Currently, the package offers 5 validators:
 * __EnumValidator__: Checks if an optional object value is in a list of valid values.
 * __NonEmpty__: Checks if an optional object value is not an empty value.
 * __DateValidator__: Checks if a given string is a valid date according to a passed in date format.
+* __CurrencyCodeValidator__: Checks if a given string is a valid currency code (ISO 4217).
 
 ### [Decoders](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/decoders.py)
 

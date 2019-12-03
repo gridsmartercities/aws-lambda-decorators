@@ -3,6 +3,19 @@ import datetime
 import re
 from schema import SchemaError
 
+CURRENCIES = {"LKR", "ETB", "RWF", "NZD", "SBD", "MKD", "NPR", "LAK", "KWD", "INR", "HUF", "AFN", "BTN", "ISK", "MVR",
+              "WST", "MNT", "AZN", "SAR", "JMD", "BIF", "BMD", "CAD", "GEL", "MXN", "BHD", "HKD", "RSD", "PKR", "SLL",
+              "NGN", "TOP", "SCR", "SVC", "CHW", "UYW", "IDR", "IQD", "THB", "GBP", "MYR", "SDG", "CNY", "GNF", "LRD",
+              "KHR", "TJS", "BYN", "SHP", "AED", "BOB", "CUC", "PHP", "SSP", "USN", "MZN", "COP", "SEK", "EUR", "CDF",
+              "CRC", "KMF", "JPY", "ZWL", "ALL", "GHS", "GIP", "QAR", "GYD", "HTG", "VUV", "CZK", "ANG", "AWG", "AMD",
+              "DOP", "TRY", "ZMW", "MGA", "KZT", "XUA", "ARS", "XPF", "BRL", "MXV", "LSL", "CLP", "KES", "PYG", "TND",
+              "MAD", "DZD", "MWK", "BSD", "BBD", "FKP", "KGS", "BWP", "CVE", "HRK", "DKK", "COU", "SYP", "LYD", "PLN",
+              "TZS", "KPW", "UGX", "BOV", "UAH", "NAD", "AOA", "VES", "SOS", "CUP", "SGD", "PAB", "UZS", "STN", "SRD",
+              "CHE", "XOF", "DJF", "PGK", "UYI", "XCD", "BZD", "EGP", "ERN", "RON", "TWD", "USD", "FJD", "VND", "SZL",
+              "BND", "HNL", "KRW", "XAF", "MDL", "BDT", "MUR", "PEN", "OMR", "NIO", "TMT", "YER", "TTD", "GMD", "XDR",
+              "CHF", "NOK", "GTQ", "JOD", "KYD", "UYU", "RUB", "ZAR", "AUD", "BGN", "MOP", "LBP", "MRU", "CLF", "XSU",
+              "BAM", "MMK", "IRR", "ILS"}
+
 
 class Validator:  # noqa: pylint - too-few-public-methods
     """Validation rule to check if the given mandatory value exists."""
@@ -337,3 +350,31 @@ class DateValidator(Validator):
             return False
         else:
             return True
+
+
+class CurrencyValidator(Validator):
+    """Validation rule to check if a string is a valid currency according to ISO 4217 Currency Code."""
+    ERROR_MESSAGE = "'{value}' is not a valid currency code."
+
+    def __init__(self, error_message=None):
+        """
+        Checks if a string is a valid currency based on ISO 4217
+
+        Args:
+            error_message (str): A custom error message to output if validation fails
+        """
+        super().__init__(error_message)
+
+    @staticmethod
+    def validate(value=None):
+        """
+        Check if a string is a valid currency based on ISO 4217
+
+        Args:
+            value (str): value to validate against a ISO 4217
+        """
+
+        if value is None:
+            return True
+
+        return value.upper() in CURRENCIES
