@@ -1722,6 +1722,18 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual("{\"message\": [{\"a\": [\"\'GBT\' is not a valid currency code.\"]}]}",
                          response["body"])
 
+    def test_currency_validator_can_be_called_non_statically(self):
+        event = {
+            "a": "GBP"
+        }
+
+        @extract([Parameter("/a", "event", [CurrencyValidator()])])
+        def handler(event, a=None):  # noqa: pylint - unused-argument
+            return a
+
+        response = handler(event)
+        self.assertEqual("GBP", response)
+
     def test_can_apply_transformation(self):
         event = {
             "a": "2"
