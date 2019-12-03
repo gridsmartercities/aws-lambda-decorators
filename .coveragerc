@@ -1,0 +1,21 @@
+[run]
+
+branch = True
+
+omit =
+    *__init__.py
+    examples/*
+    setup.py
+    tests/*
+
+[report]
+
+show_missing = True
+
+omit =
+    *__init__.py
+    examples/*
+    setup.py
+    tests/*
+
+fail_under = 100
