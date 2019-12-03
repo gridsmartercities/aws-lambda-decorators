@@ -18,12 +18,10 @@ Before submitting a PR, please ensure that:
 
 - you run [__Coverage__](https://pypi.org/project/coverage/) and all unit tests are passing:
 
-`coverage run --branch --source='.' -m unittest`
-
-- you have 100% unit test coverage:
-
-`coverage report -m --fail-under=100 --omit=*/__init__.py,tests/*,setup.py,examples/test_examples.py`
-
+`coverage run --source='.' -m unittest`
+    
+`coverage report`
+    
 - you can run the test examples like this:
 
 `python -m unittest examples.test_examples`
