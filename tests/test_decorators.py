@@ -1713,7 +1713,7 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
             "a": "GBT"
         }
 
-        @extract([Parameter("/a", "event", [CurrencyValidator()])])
+        @extract([Parameter("/a", "event", [CurrencyValidator])])
         def handler(event, a=None):  # noqa: pylint - unused-argument
             return {}
 
