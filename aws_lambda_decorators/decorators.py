@@ -136,8 +136,8 @@ def handle_exceptions(handlers):
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
-            except tuple([handler.exception for handler in handlers]) as ex:  # noqa: pylint - catching-non-exception
-                failed_handler = [handler for handler in handlers if handler.exception is type(ex)][0]
+            except tuple(handler.exception for handler in handlers) as ex:  # noqa: pylint - catching-non-exception
+                failed_handler = [handler for handler in handlers if isinstance(ex, handler.exception)][0]
                 message = failed_handler.friendly_message
 
                 if message and str(ex):
