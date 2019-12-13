@@ -12,7 +12,7 @@ DECODE_FUNC_NAME = "decode_%s"
 DECODE_FUNC_MISSING_ERROR = "Missing decode function for annotation: %s"
 
 
-def decode(annotation, value):
+def decode(annotation: str, value: str) -> dict:
     """
     Converts an annotated string to a python dictionary.
 
@@ -47,12 +47,12 @@ def decode(annotation, value):
 
 
 @functools.lru_cache()
-def decode_json(value):
+def decode_json(value: str) -> dict:
     """Convert a json to a dictionary."""
     return json.loads(value)
 
 
 @functools.lru_cache()
-def decode_jwt(value):
+def decode_jwt(value: str) -> dict:
     """Convert a jwt to a dictionary."""
     return jwt.decode(value, verify=False)
