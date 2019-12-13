@@ -1,6 +1,9 @@
-"""All the classes used as parameters for the decorators."""
+from typing import Callable, List, Tuple
+
 from aws_lambda_decorators.decoders import decode
 from aws_lambda_decorators.utils import is_valid_variable_name
+from aws_lambda_decorators.validators import Validator
+
 
 PATH_DIVIDER = "/"
 ANNOTATIONS_START = "["
@@ -10,37 +13,38 @@ ANNOTATIONS_END = "]"
 class ExceptionHandler:
     """Class mapping a friendly error message to a given Exception."""
 
-    def __init__(self, exception, friendly_message=None, status_code=400):
+    def __init__(self, exception: Exception, friendly_message: str = None, status_code: int = 400):
         """
         Sets the private variables of the ExceptionHandler object.
 
         Args:
             exception (object|Exception): An exception to be handled.
             friendly_message (str): Friendly Message to be returned if the exception is caught.
+            status_code (str): HTTP status code to be returned if the exception is caught.
         """
         self._exception = exception
         self._friendly_message = friendly_message
         self._status_code = status_code
 
     @property
-    def friendly_message(self):
+    def friendly_message(self) -> str:
         """Getter for the friendly message parameter."""
         return self._friendly_message
 
     @property
-    def exception(self):
+    def exception(self) -> Exception:
         """Getter for the exception parameter."""
         return self._exception
 
     @property
-    def status_code(self):
+    def status_code(self) -> int:
         """Getter for the status code parameter."""
         return self._status_code
 
 
 class BaseParameter:  # noqa: pylint - too-few-public-methods
     """Parent class of all parameter classes."""
-    def __init__(self, var_name):
+    def __init__(self, var_name: str):
         """
             Set the private variables of the BaseParameter object.
 
@@ -49,7 +53,7 @@ class BaseParameter:  # noqa: pylint - too-few-public-methods
         """
         self._name = var_name
 
-    def get_var_name(self):
+    def get_var_name(self) -> str:
         """Gets the name of the variable that represents the parameter."""
         if self._name and not is_valid_variable_name(self._name):
             raise SyntaxError(self._name)
@@ -59,7 +63,7 @@ class BaseParameter:  # noqa: pylint - too-few-public-methods
 class SSMParameter(BaseParameter):
     """Class used for defining the key and, optionally, the variable name for ssm parameter extraction."""
 
-    def __init__(self, ssm_name, var_name=None):
+    def __init__(self, ssm_name: str, var_name: str = None):
         """
         Set the private variables of the SSMParameter object.
 
@@ -70,7 +74,7 @@ class SSMParameter(BaseParameter):
         self._ssm_name = ssm_name
         BaseParameter.__init__(self, var_name if var_name else ssm_name)
 
-    def get_ssm_name(self):
+    def get_ssm_name(self) -> str:
         """Getter for the ssm_name parameter."""
         return self._ssm_name
 
@@ -78,7 +82,7 @@ class SSMParameter(BaseParameter):
 class ValidatedParameter:
     """Class used to encapsulate the validation methods parameter data."""
 
-    def __init__(self, func_param_name=None, validators=None):
+    def __init__(self, func_param_name: str = None, validators: List[Validator] = None):
         """
         Sets the private variables of the ValidatedParameter object.
         Args:
@@ -91,16 +95,16 @@ class ValidatedParameter:
         self._validators = validators
 
     @property
-    def func_param_name(self):
+    def func_param_name(self) -> str:
         """Getter for the func_param_name parameter."""
         return self._func_param_name
 
     @func_param_name.setter
-    def func_param_name(self, value):
+    def func_param_name(self, value: str):
         """Setter for the func_param_name parameter."""
         self._func_param_name = value
 
-    def validate(self, value, group_errors):
+    def validate(self, value: object, group_errors: bool) -> List[str]:
         """
         Validates a value against the passed in validators
 
@@ -130,7 +134,8 @@ class ValidatedParameter:
 class Parameter(ValidatedParameter, BaseParameter):
     """Class used to encapsulate the extract methods parameter data."""
 
-    def __init__(self, path="", func_param_name=None, validators=None, var_name=None, default=None, transform=None):  # noqa: pylint - too-many-arguments
+    def __init__(self, path="", func_param_name: str = None, validators: List[Validator] = None, var_name: str = None,
+                 default: object = None, transform: Callable = None):  # noqa: pylint - too-many-arguments
         """
         Sets the private variables of the Parameter object.
 
@@ -163,11 +168,11 @@ class Parameter(ValidatedParameter, BaseParameter):
         BaseParameter.__init__(self, var_name)
 
     @property
-    def path(self):
+    def path(self) -> str:
         """Getter for the path parameter."""
         return self._path
 
-    def extract_value(self, dict_value):
+    def extract_value(self, dict_value: dict) -> object:
         """
         Calculate and decode the value of the variable in the given path.
 
@@ -194,7 +199,7 @@ class Parameter(ValidatedParameter, BaseParameter):
 
         return dict_value
 
-    def validate_path(self, value, group_errors=False):
+    def validate_path(self, value: object, group_errors: bool = False) -> List[str]:
         """
         Validates a value against the passed in validators
 
@@ -213,7 +218,7 @@ class Parameter(ValidatedParameter, BaseParameter):
         return {key: errors} if errors else {}
 
     @staticmethod
-    def get_annotations_from_key(key):
+    def get_annotations_from_key(key: str) -> Tuple[str, str]:
         """
         Extract the key and the encoding type (annotation) from the string.
 
