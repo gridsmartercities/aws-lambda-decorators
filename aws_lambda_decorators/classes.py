@@ -1,4 +1,4 @@
-from typing import Callable, List, Tuple
+from typing import Any, Callable, List, Tuple
 
 from aws_lambda_decorators.decoders import decode
 from aws_lambda_decorators.utils import is_valid_variable_name
@@ -104,7 +104,7 @@ class ValidatedParameter:
         """Setter for the func_param_name parameter."""
         self._func_param_name = value
 
-    def validate(self, value: object, group_errors: bool) -> List[str]:
+    def validate(self, value: Any, group_errors: bool) -> List[str]:
         """
         Validates a value against the passed in validators
 
@@ -134,8 +134,8 @@ class ValidatedParameter:
 class Parameter(ValidatedParameter, BaseParameter):
     """Class used to encapsulate the extract methods parameter data."""
 
-    def __init__(self, path="", func_param_name: str = None, validators: List[Validator] = None, var_name: str = None,
-                 default: object = None, transform: Callable = None):  # noqa: pylint - too-many-arguments
+    def __init__(self, path="", func_param_name: str = None, validators: List[Validator] = None,  # noqa: pylint - too-many-arguments
+                 var_name: str = None, default: Any = None, transform: Callable = None):
         """
         Sets the private variables of the Parameter object.
 
@@ -172,7 +172,7 @@ class Parameter(ValidatedParameter, BaseParameter):
         """Getter for the path parameter."""
         return self._path
 
-    def extract_value(self, dict_value: dict) -> object:
+    def extract_value(self, dict_value: dict) -> Any:
         """
         Calculate and decode the value of the variable in the given path.
 
@@ -199,7 +199,7 @@ class Parameter(ValidatedParameter, BaseParameter):
 
         return dict_value
 
-    def validate_path(self, value: object, group_errors: bool = False) -> List[str]:
+    def validate_path(self, value: Any, group_errors: bool = False) -> List[str]:
         """
         Validates a value against the passed in validators
 

@@ -1,7 +1,10 @@
 """Validation rules."""
 import datetime
 import re
-from schema import SchemaError
+from typing import Any
+
+from schema import Schema, SchemaError
+
 
 CURRENCIES = {"LKR", "ETB", "RWF", "NZD", "SBD", "MKD", "NPR", "LAK", "KWD", "INR", "HUF", "AFN", "BTN", "ISK", "MVR",
               "WST", "MNT", "AZN", "SAR", "JMD", "BIF", "BMD", "CAD", "GEL", "MXN", "BHD", "HKD", "RSD", "PKR", "SLL",
@@ -21,7 +24,7 @@ class Validator:  # noqa: pylint - too-few-public-methods
     """Validation rule to check if the given mandatory value exists."""
     ERROR_MESSAGE = "Unknown error"
 
-    def __init__(self, error_message, condition=None):
+    def __init__(self, error_message: str, condition: Any = None):
         """
         Validates a parameter
 
@@ -32,7 +35,7 @@ class Validator:  # noqa: pylint - too-few-public-methods
         self._error_message = error_message or self.ERROR_MESSAGE
         self._condition = condition
 
-    def message(self, value=None):  # noqa: pylint - unused-argument
+    def message(self, value: Any = None) -> str:
         """
         Gets the formatted error message for a failed mandatory check
 
@@ -49,7 +52,7 @@ class Mandatory(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if the given mandatory value exists."""
     ERROR_MESSAGE = "Missing mandatory value"
 
-    def __init__(self, error_message=None):
+    def __init__(self, error_message: str = None):
         """
         Checks if a parameter has a value
 
@@ -59,7 +62,7 @@ class Mandatory(Validator):  # noqa: pylint - too-few-public-methods
         super().__init__(error_message)
 
     @staticmethod
-    def validate(value=None):
+    def validate(value: Any = None) -> bool:
         """
         Check if the given mandatory value exists.
 
@@ -73,7 +76,7 @@ class RegexValidator(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a value matches a regular expression."""
     ERROR_MESSAGE = "'{value}' does not conform to regular expression '{condition}'"
 
-    def __init__(self, regex="", error_message=None):
+    def __init__(self, regex: str = "", error_message: str = None):
         """
         Compile a regular expression to a regular expression pattern.
 
@@ -84,7 +87,7 @@ class RegexValidator(Validator):  # noqa: pylint - too-few-public-methods
         super().__init__(error_message, regex)
         self._regexp = re.compile(regex)
 
-    def validate(self, value=None):
+    def validate(self, value: str = None) -> bool:
         """
         Check if a value adheres to the defined regular expression.
 
@@ -101,7 +104,7 @@ class SchemaValidator(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a value matches a regular expression."""
     ERROR_MESSAGE = "'{value}' does not validate against schema '{condition}'"
 
-    def __init__(self, schema, error_message=None):
+    def __init__(self, schema: Schema, error_message: str = None):
         """
         Set the schema field.
 
@@ -111,7 +114,7 @@ class SchemaValidator(Validator):  # noqa: pylint - too-few-public-methods
         """
         super().__init__(error_message, schema)
 
-    def validate(self, value=None):
+    def validate(self, value: Any = None) -> bool:
         """
         Check if the object adheres to the defined schema.
 
@@ -131,7 +134,7 @@ class Minimum(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a value is greater than a minimum value."""
     ERROR_MESSAGE = "'{value}' is less than minimum value '{condition}'"
 
-    def __init__(self, minimum: (float, int), error_message=None):
+    def __init__(self, minimum: (float, int), error_message: str = None):
         """
         Set the minimum value.
 
@@ -141,7 +144,7 @@ class Minimum(Validator):  # noqa: pylint - too-few-public-methods
         """
         super().__init__(error_message, minimum)
 
-    def validate(self, value=None):
+    def validate(self, value: (float, int) = None) -> bool:  # pylint:disable=bad-whitespace
         """
         Check if the value is greater than the minimum.
 
@@ -161,7 +164,7 @@ class Maximum(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a value is less than a maximum value."""
     ERROR_MESSAGE = "'{value}' is greater than maximum value '{condition}'"
 
-    def __init__(self, maximum: (float, int), error_message=None):
+    def __init__(self, maximum: (float, int), error_message: str = None):
         """
         Set the maximum value.
 
@@ -171,7 +174,7 @@ class Maximum(Validator):  # noqa: pylint - too-few-public-methods
         """
         super().__init__(error_message, maximum)
 
-    def validate(self, value=None):
+    def validate(self, value: (float, int) = None) -> bool:  # pylint:disable=bad-whitespace
         """
         Check if the value is less than the maximum.
 
@@ -191,7 +194,7 @@ class MinLength(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a string is shorter than a minimum length."""
     ERROR_MESSAGE = "'{value}' is shorter than minimum length '{condition}'"
 
-    def __init__(self, min_length: int, error_message=None):
+    def __init__(self, min_length: int, error_message: str = None):
         """
         Set the minimum length.
 
@@ -201,7 +204,7 @@ class MinLength(Validator):  # noqa: pylint - too-few-public-methods
         """
         super().__init__(error_message, min_length)
 
-    def validate(self, value=None):
+    def validate(self, value: str = None) -> bool:
         """
         Check if a string is shorter than the minimum length.
 
@@ -218,7 +221,7 @@ class MaxLength(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if a string is longer than a maximum length."""
     ERROR_MESSAGE = "'{value}' is longer than maximum length '{condition}'"
 
-    def __init__(self, max_length: int, error_message=None):
+    def __init__(self, max_length: int, error_message: str = None):
         """
         Set the maximum length.
 
@@ -228,7 +231,7 @@ class MaxLength(Validator):  # noqa: pylint - too-few-public-methods
         """
         super().__init__(error_message, max_length)
 
-    def validate(self, value=None):
+    def validate(self, value: str = None) -> bool:
         """
         Check if a string is longer than the maximum length.
 
@@ -244,7 +247,7 @@ class MaxLength(Validator):  # noqa: pylint - too-few-public-methods
 class Type(Validator):
     ERROR_MESSAGE = "'{value}' is not of type '{condition.__name__}'"
 
-    def __init__(self, valid_type: type, error_message=None):
+    def __init__(self, valid_type: type, error_message: str = None):
         """
         Set the valid type.
 
@@ -254,7 +257,7 @@ class Type(Validator):
         """
         super().__init__(error_message, valid_type)
 
-    def validate(self, value=None):
+    def validate(self, value: Any = None) -> bool:
         """
         Check if a value is of the right type
 
@@ -270,7 +273,7 @@ class Type(Validator):
 class EnumValidator(Validator):
     ERROR_MESSAGE = "'{value}' is not in list '{condition}'"
 
-    def __init__(self, *args: list, error_message=None):
+    def __init__(self, *args: list, error_message: str = None):
         """
         Set the list of valid values.
 
@@ -280,7 +283,7 @@ class EnumValidator(Validator):
         """
         super().__init__(error_message, args)
 
-    def validate(self, value=None):
+    def validate(self, value: Any = None) -> bool:
         """
         Check if a value is in a list of valid values
 
@@ -297,7 +300,7 @@ class NonEmpty(Validator):  # noqa: pylint - too-few-public-methods
     """Validation rule to check if the given value is empty."""
     ERROR_MESSAGE = "Value is empty"
 
-    def __init__(self, error_message=None):
+    def __init__(self, error_message: str = None):
         """
         Checks if a parameter has a non empty value
 
@@ -307,7 +310,7 @@ class NonEmpty(Validator):  # noqa: pylint - too-few-public-methods
         super().__init__(error_message)
 
     @staticmethod
-    def validate(value=None):
+    def validate(value: Any = None) -> bool:
         """
         Check if the given value is non empty.
 
@@ -324,7 +327,7 @@ class DateValidator(Validator):
     """Validation rule to check if a string is a valid date according to some format."""
     ERROR_MESSAGE = "'{value}' is not a '{condition}' date"
 
-    def __init__(self, date_format: str, error_message=None):
+    def __init__(self, date_format: str, error_message: str = None):
         """
         Checks if a string is a date with a given format
 
@@ -334,7 +337,7 @@ class DateValidator(Validator):
         """
         super().__init__(error_message, date_format)
 
-    def validate(self, value=None):
+    def validate(self, value: str = None) -> bool:
         """
         Check if a string is a date with a given format
 
@@ -356,7 +359,7 @@ class CurrencyValidator(Validator):
     """Validation rule to check if a string is a valid currency according to ISO 4217 Currency Code."""
     ERROR_MESSAGE = "'{value}' is not a valid currency code."
 
-    def __init__(self, error_message=None):
+    def __init__(self, error_message: str = None):
         """
         Checks if a string is a valid currency based on ISO 4217
 
@@ -366,7 +369,7 @@ class CurrencyValidator(Validator):
         super().__init__(error_message)
 
     @staticmethod
-    def validate(value=None):
+    def validate(value: str = None) -> bool:
         """
         Check if a string is a valid currency based on ISO 4217
 

@@ -8,6 +8,8 @@ pep8:
   full: true
   options:
     max-line-length: 120
+  disable:
+    - E731
 
 pep257:
   disable:

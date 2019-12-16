@@ -3,7 +3,9 @@ import functools
 import json
 import logging
 import sys
+
 import jwt
+
 
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
