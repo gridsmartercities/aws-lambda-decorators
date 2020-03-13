@@ -11,7 +11,8 @@ from schema import Schema, And, Optional
 
 from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter, ValidatedParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
-    log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors, push_ws_errors
+    log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors, push_ws_errors, \
+    push_ws_response
 from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum, MaxLength, \
     MinLength, Type, EnumValidator, NonEmpty, DateValidator, CurrencyValidator
 
@@ -1906,6 +1907,54 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         response = lambda_func(event, None)
 
         self.assertEqual(response["statusCode"], 400)
+
+        mock_boto3_client.return_value.post_to_connection.assert_not_called()
+
+    @patch("boto3.client")
+    def test_push_ws_response(self, mock_boto3_client):
+        event = {
+            "requestContext": {
+                "connectionId": "test_connection_id"
+            }
+        }
+
+        @push_ws_response(websocket_endpoint_url="https://api_id.execute_id.region.amazonaws.com/Prod")
+        def lambda_func(event, context):  # noqa: pylint - unused-argument
+            return {
+                "statusCode": HTTPStatus.OK,
+                "body": "Hello, world!"
+            }
+
+        response = lambda_func(event, None)
+
+        self.assertEqual(response["statusCode"], 200)
+        self.assertEqual(response["body"], "Hello, world!")
+
+        mock_boto3_client.return_value.post_to_connection.assert_called_once_with(
+            ConnectionId="test_connection_id",
+            Data="{\"statusCode\": 200, \"body\": \"Hello, world!\"}"
+        )
+
+    @patch("boto3.client")
+    def test_push_ws_response_no_connection_id(self, mock_boto3_client):
+        event = {
+            "body": "Hello, world!"
+        }
+
+        @push_ws_response(websocket_endpoint_url="https://api_id.execute_id.region.amazonaws.com/Prod")
+        @extract_from_event(parameters=[
+            Parameter(path="body")
+        ])
+        def lambda_func(event, context, body=None):  # noqa: pylint - unused-argument
+            return {
+                "statusCode": HTTPStatus.OK,
+                "body": body
+            }
+
+        response = lambda_func(event, None)
+
+        self.assertEqual(response["statusCode"], 200)
+        self.assertEqual(response["body"], "Hello, world!")
 
         mock_boto3_client.return_value.post_to_connection.assert_not_called()
 

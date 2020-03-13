@@ -365,3 +365,26 @@ def push_ws_errors(websocket_endpoint_url: str):
             return response
         return wrapper
     return decorator
+
+
+def push_ws_response(websocket_endpoint_url: str):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            connection_id = find_websocket_connection_id(args)
+
+            response = func(*args, **kwargs)
+
+            if connection_id:
+                websocket_endpoint = boto3.client(
+                    "apigatewaymanagementapi",
+                    endpoint_url=websocket_endpoint_url
+                )
+
+                websocket_endpoint.post_to_connection(
+                    ConnectionId=connection_id,
+                    Data=json.dumps(response)
+                )
+
+            return response
+        return wrapper
+    return decorator
