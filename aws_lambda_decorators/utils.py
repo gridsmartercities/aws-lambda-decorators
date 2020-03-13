@@ -112,3 +112,21 @@ def failure(errors, status_code=HTTPStatus.BAD_REQUEST):
         "statusCode": status_code,
         "body": json.dumps({"message": errors})
     }
+
+
+def find_websocket_connection_id(args: list) -> str:
+    """
+    Finds an API Gateway connection id from the event dictionary in the
+    arguments of a lambda
+
+    Args:
+        args (list): a list of arguments from a lambda (*args)
+
+    Returns:
+        The connection id of a user as a string if found
+        None if not
+    """
+    for arg in args:
+        if isinstance(arg, dict) and "requestContext" in arg:
+            return arg["requestContext"].get("connectionId")
+    return None

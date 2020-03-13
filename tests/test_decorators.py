@@ -11,7 +11,7 @@ from schema import Schema, And, Optional
 
 from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter, ValidatedParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
-    log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors
+    log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors, push_ws_errors
 from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum, MaxLength, \
     MinLength, Type, EnumValidator, NonEmpty, DateValidator, CurrencyValidator
 
@@ -1832,6 +1832,82 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
                                                   "could not convert string to float: 'abc'",
                                                   "event",
                                                   "/a")
+
+    @patch("boto3.client")
+    def test_push_ws_errors_missing_parameter(self, mock_boto3_client):
+        event = {
+            "requestContext": {
+                "connectionId": "test_connection_id"
+            },
+            "body": json.dumps({
+                "invalid_property": "invalid_value"
+            })
+        }
+
+        @push_ws_errors(websocket_endpoint_url="https://api_id.execute_id.region.amazonaws.com/Prod")
+        @extract_from_event(parameters=[
+            Parameter(path="body[json]/valid_property", validators=[Mandatory])
+        ])
+        def lambda_func(event, context, valid_property=None):  # noqa: pylint - unused-argument
+            return {"statusCode": HTTPStatus.OK}
+
+        response = lambda_func(event, None)
+
+        expected_data = {
+            "type": "error",
+            "statusCode": 400,
+            "message": [{
+                "valid_property": ["Missing mandatory value"]
+            }]
+        }
+
+        self.assertEqual(response["statusCode"], HTTPStatus.BAD_REQUEST)
+
+        mock_boto3_client.assert_called_once_with(
+            "apigatewaymanagementapi",
+            endpoint_url="https://api_id.execute_id.region.amazonaws.com/Prod"
+        )
+
+        mock_boto3_client.return_value.post_to_connection.assert_called_once_with(
+            ConnectionId="test_connection_id",
+            Data=json.dumps(expected_data)
+        )
+
+    @patch("boto3.client")
+    def test_push_ws_errors_no_action_on_success(self, mock_boto3_client):
+        event = {
+            "requestContext": {
+                "connectionId": "test_connection_id"
+            }
+        }
+
+        @push_ws_errors(websocket_endpoint_url="https://api_id.execute_id.region.amazonaws.com/Prod")
+        def lambda_func(event, context):  # noqa: pylint - unused-argument
+            return {"statusCode": HTTPStatus.OK}
+
+        response = lambda_func(event, None)
+
+        self.assertEqual(response["statusCode"], 200)
+
+        mock_boto3_client.return_value.post_to_connection.assert_not_called()
+
+    @patch("boto3.client")
+    def test_push_ws_errors_no_connection_id(self, mock_boto3_client):
+        event = {
+            "body": {
+                "property": "value"
+            }
+        }
+
+        @push_ws_errors(websocket_endpoint_url="https://api_id.execute_id.region.amazonaws.com/Prod")
+        def lambda_func(event, context):  # noqa: pylint - unused-argument
+            return {"statusCode": HTTPStatus.BAD_REQUEST}
+
+        response = lambda_func(event, None)
+
+        self.assertEqual(response["statusCode"], 400)
+
+        mock_boto3_client.return_value.post_to_connection.assert_not_called()
 
 
 class IsolatedDecoderTests(unittest.TestCase):
