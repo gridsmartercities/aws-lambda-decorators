@@ -1,10 +1,13 @@
 """Utility functions."""
+from functools import lru_cache
+from http import HTTPStatus
+import inspect
+import json
+import keyword
 import logging
 import os
-import json
-from http import HTTPStatus
-import keyword
-import inspect
+
+import boto3
 
 
 LOG_LEVEL = getattr(logging, os.getenv("LOG_LEVEL", "INFO"))
@@ -130,3 +133,21 @@ def find_websocket_connection_id(args: list) -> str:
         if isinstance(arg, dict) and "requestContext" in arg:
             return arg["requestContext"].get("connectionId")
     return None
+
+
+@lru_cache()
+def get_websocket_endpoint(endpoint_url: str) -> "ApiGatewayManagementApi":  # I can't find this in botocore.client
+    """
+    Gets an instance of ApiGatewayManagementApi for sending messages
+    through websockets
+
+    Args:
+        endpoint_url (str): an api gateway connection url (ish)
+
+    Returns:
+        The api gateway management client (cached)
+    """
+    return boto3.client(
+        "apigatewaymanagementapi",
+        endpoint_url=endpoint_url
+    )

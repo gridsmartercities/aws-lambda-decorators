@@ -13,6 +13,7 @@ from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParame
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors, push_ws_errors, \
     push_ws_response
+from aws_lambda_decorators.utils import get_websocket_endpoint
 from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum, MaxLength, \
     MinLength, Type, EnumValidator, NonEmpty, DateValidator, CurrencyValidator
 
@@ -1836,6 +1837,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
     @patch("boto3.client")
     def test_push_ws_errors_missing_parameter(self, mock_boto3_client):
+        get_websocket_endpoint.cache_clear()
+
         event = {
             "requestContext": {
                 "connectionId": "test_connection_id"
@@ -1876,6 +1879,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
     @patch("boto3.client")
     def test_push_ws_errors_no_action_on_success(self, mock_boto3_client):
+        get_websocket_endpoint.cache_clear()
+
         event = {
             "requestContext": {
                 "connectionId": "test_connection_id"
@@ -1894,6 +1899,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
     @patch("boto3.client")
     def test_push_ws_errors_no_connection_id(self, mock_boto3_client):
+        get_websocket_endpoint.cache_clear()
+
         event = {
             "body": {
                 "property": "value"
@@ -1912,6 +1919,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
     @patch("boto3.client")
     def test_push_ws_response(self, mock_boto3_client):
+        get_websocket_endpoint.cache_clear()
+
         event = {
             "requestContext": {
                 "connectionId": "test_connection_id"
@@ -1937,6 +1946,8 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
     @patch("boto3.client")
     def test_push_ws_response_no_connection_id(self, mock_boto3_client):
+        get_websocket_endpoint.cache_clear()
+
         event = {
             "body": "Hello, world!"
         }

@@ -8,7 +8,7 @@ import json
 from http import HTTPStatus
 import boto3
 from aws_lambda_decorators.utils import (full_name, all_func_args, find_key_case_insensitive, failure, get_logger,
-                                         find_websocket_connection_id)
+                                         find_websocket_connection_id, get_websocket_endpoint)
 
 
 LOGGER = get_logger(__name__)
@@ -346,10 +346,7 @@ def push_ws_errors(websocket_endpoint_url: str):
             success = response.get("statusCode", HTTPStatus.INTERNAL_SERVER_ERROR).value < 300
 
             if connection_id and not success:
-                websocket_endpoint = boto3.client(
-                    "apigatewaymanagementapi",
-                    endpoint_url=websocket_endpoint_url
-                )
+                websocket_endpoint = get_websocket_endpoint(websocket_endpoint_url)
 
                 ws_response = {
                     "type": "error",
@@ -375,10 +372,7 @@ def push_ws_response(websocket_endpoint_url: str):
             response = func(*args, **kwargs)
 
             if connection_id:
-                websocket_endpoint = boto3.client(
-                    "apigatewaymanagementapi",
-                    endpoint_url=websocket_endpoint_url
-                )
+                websocket_endpoint = get_websocket_endpoint(websocket_endpoint_url)
 
                 websocket_endpoint.post_to_connection(
                     ConnectionId=connection_id,
