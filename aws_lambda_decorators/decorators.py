@@ -338,6 +338,26 @@ def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None
 
 
 def push_ws_errors(websocket_endpoint_url: str):
+    """
+    Handles and pushes any unsuccessful responses as errors to the calling client via websockets
+
+    Usage:
+        @push_ws_errors('https://api_id.execute_id.region.amazonaws.com/Prod')
+        @handle_all_exceptions()
+        def handler(event, context):
+            return {
+                'statusCode': 400,
+                'body': {
+                    'message': 'Bad request'
+                }
+            }
+
+    Args:
+        websocket_endpoint_url (str): The api gateway connection URL
+
+    Returns:
+        the original response from the lambda handler
+    """
     def decorator(func):
         def wrapper(*args, **kwargs):
             connection_id = find_websocket_connection_id(args)
@@ -365,6 +385,23 @@ def push_ws_errors(websocket_endpoint_url: str):
 
 
 def push_ws_response(websocket_endpoint_url: str):
+    """
+    Handles and pushes all responses to the calling client via websockets
+
+    Usage:
+        @push_ws_response('https://api_id.execute_id.region.amazonaws.com/Prod')
+        def handler(event, context):
+            return {
+                'statusCode': 200,
+                'body': 'Hello, world!'
+            }
+
+    Args:
+        websocket_endpoint_url (str): The api gateway connection URL
+
+    Returns:
+        the original response from the lambda handler
+    """
     def decorator(func):
         def wrapper(*args, **kwargs):
             connection_id = find_websocket_connection_id(args)
