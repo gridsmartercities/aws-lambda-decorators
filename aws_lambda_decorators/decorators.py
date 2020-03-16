@@ -7,7 +7,8 @@ A set of Python decorators to ease the development of AWS lambda functions.
 import json
 from http import HTTPStatus
 import boto3
-from aws_lambda_decorators.utils import full_name, all_func_args, find_key_case_insensitive, failure, get_logger
+from aws_lambda_decorators.utils import (full_name, all_func_args, find_key_case_insensitive, failure, get_logger,
+                                         find_websocket_connection_id, get_websocket_endpoint)
 
 
 LOGGER = get_logger(__name__)
@@ -332,5 +333,52 @@ def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None
             else:
                 LOGGER.error(CORS_NON_DICT_LOG_MESSAGE)
                 return failure(CORS_NON_DICT_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR)
+        return wrapper
+    return decorator
+
+
+def push_ws_errors(websocket_endpoint_url: str):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            connection_id = find_websocket_connection_id(args)
+
+            response = func(*args, **kwargs)
+            success = response.get("statusCode", HTTPStatus.INTERNAL_SERVER_ERROR).value < 300
+
+            if connection_id and not success:
+                websocket_endpoint = get_websocket_endpoint(websocket_endpoint_url)
+
+                ws_response = {
+                    "type": "error",
+                    "statusCode": response.get("statusCode", HTTPStatus.INTERNAL_SERVER_ERROR),
+                    "message": json.loads(response.get("body", "{}")).get("message")
+                }
+
+                websocket_endpoint.post_to_connection(
+                    ConnectionId=connection_id,
+                    Data=json.dumps(ws_response)
+                )
+
+            return response
+        return wrapper
+    return decorator
+
+
+def push_ws_response(websocket_endpoint_url: str):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            connection_id = find_websocket_connection_id(args)
+
+            response = func(*args, **kwargs)
+
+            if connection_id:
+                websocket_endpoint = get_websocket_endpoint(websocket_endpoint_url)
+
+                websocket_endpoint.post_to_connection(
+                    ConnectionId=connection_id,
+                    Data=json.dumps(response)
+                )
+
+            return response
         return wrapper
     return decorator
