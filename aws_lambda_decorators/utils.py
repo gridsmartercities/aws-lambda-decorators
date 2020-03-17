@@ -136,7 +136,7 @@ def find_websocket_connection_id(args: list) -> str:
 
 
 @lru_cache()
-def get_websocket_endpoint(endpoint_url: str) -> "ApiGatewayManagementApi":  # I can't find this in botocore.client
+def get_websocket_endpoint(endpoint_url: str) -> "botocore.client.ApiGatewayManagementApi":  # noqa: pyflakes - F821
     """
     Gets an instance of ApiGatewayManagementApi for sending messages
     through websockets
