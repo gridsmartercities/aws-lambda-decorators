@@ -19,7 +19,7 @@ setup(name="aws-lambda-decorators",
                    "Natural Language :: English"
                    ],
       keywords="aws lambda decorator",
-      packages=find_packages("aws_lambda_decorators", exclude=["tests", "examples"]),
+      packages=find_packages("aws_lambda_decorators", exclude=("tests", "examples",)),
       install_requires=[
           "boto3",
           "PyJWT",
