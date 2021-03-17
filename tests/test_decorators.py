@@ -12,7 +12,7 @@ from schema import Schema, And, Optional
 from aws_lambda_decorators.classes import ExceptionHandler, Parameter, SSMParameter, ValidatedParameter
 from aws_lambda_decorators.decorators import extract, extract_from_event, extract_from_context, handle_exceptions, \
     log, response_body_as_json, extract_from_ssm, validate, handle_all_exceptions, cors, push_ws_errors, \
-    push_ws_response
+    push_ws_response, hsts
 from aws_lambda_decorators.utils import get_websocket_endpoint
 from aws_lambda_decorators.validators import Mandatory, RegexValidator, SchemaValidator, Minimum, Maximum, MaxLength, \
     MinLength, Type, EnumValidator, NonEmpty, DateValidator, CurrencyValidator
@@ -2020,3 +2020,13 @@ class IsolatedDecoderTests(unittest.TestCase):
 
         self.assertEqual(HTTPStatus.OK, response["statusCode"])
         self.assertEqual(expected_body, response["body"])
+
+    def test_hsts_returns_headers_in_response(self):
+
+        @hsts()
+        def handler():
+            return {}
+
+        response = handler()
+
+        self.assertEqual(response["headers"]["Strict-Transport-Security"], "max-age=63072000")
