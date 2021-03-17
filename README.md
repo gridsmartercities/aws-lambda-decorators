@@ -458,6 +458,19 @@ def cors_example():
 cors_example()  # returns {'statusCode': 200, 'headers': {'access-control-allow-origin': '*', 'access-control-allow-methods': 'POST', 'access-control-allow-headers': 'Content-Type', 'access-control-max-age': 86400}}
 ```
 
+### hsts
+
+This decorator adds HSTS header to the decorated function response. Uses 2 years max-age (recommended default from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security) unless custom value provided as parameter.
+
+Example:
+```python
+@hsts()
+def hsts_example():
+    return {'statusCode': 200}
+    
+hsts_example()  # returns {'statusCode': 200, 'headers': {'Strict-Transport-Security': 'max-age=63072000'}}
+```
+
 ### push_ws_errors
 
 This decorator pushes unsuccessful responses back to the calling client over websockets built on api gateway

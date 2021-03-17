@@ -24,7 +24,9 @@ NON_SERIALIZABLE_ERROR_MESSAGE = "Response body is not JSON serializable"
 CORS_INVALID_TYPE_ERROR = "Invalid value type in CORS header"
 CORS_NON_DICT_ERROR = "Invalid response type for CORS headers"
 CORS_INVALID_TYPE_LOG_MESSAGE = "Cannot set %s header to a non %s value"
-CORS_NON_DICT_LOG_MESSAGE = "Cannot add headers to a non dictionary response"
+NON_DICT_LOG_MESSAGE = "Cannot add headers to a non dictionary response"
+HSTS_NON_DICT_ERROR = "Invalid response type for HSTS header"
+
 UNKNOWN = "Unknown"
 
 
@@ -331,7 +333,7 @@ def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None
                 except TypeError:
                     return failure(CORS_INVALID_TYPE_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR)
             else:
-                LOGGER.error(CORS_NON_DICT_LOG_MESSAGE)
+                LOGGER.error(NON_DICT_LOG_MESSAGE)
                 return failure(CORS_NON_DICT_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR)
         return wrapper
     return decorator
@@ -417,5 +419,43 @@ def push_ws_response(websocket_endpoint_url: str):
                 )
 
             return response
+        return wrapper
+    return decorator
+
+
+# pylint:disable=no-else-return
+def hsts(max_age: int = None):
+    """
+        Adds HSTS header to the response of the decorated function
+
+        Usage:
+            @hsts(max_age=86400)
+            def func(my_param)
+                pass
+
+        Args:
+            max_age: An integer to indicate the time browser should remember your domain as HTTPS only communication.
+            If not specified default value of 2 years is used.
+
+        Returns:
+            The original decorated function response with the additional hsts header
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            response = func(*args, **kwargs)
+
+            if isinstance(response, dict):
+                headers_key = find_key_case_insensitive("headers", response)
+
+                resp_headers = response[headers_key] if headers_key in response else {}
+
+                header_key = find_key_case_insensitive("Strict-Transport-Security", resp_headers)
+                header_value = f"max-age={max_age}" if max_age else "max-age=63072000"
+                resp_headers[header_key] = header_value
+                response[headers_key] = resp_headers
+                return response
+            else:
+                LOGGER.error(NON_DICT_LOG_MESSAGE)
+                return failure(HSTS_NON_DICT_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR)
         return wrapper
     return decorator
