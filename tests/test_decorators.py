@@ -1969,6 +1969,37 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
 
         mock_boto3_client.return_value.post_to_connection.assert_not_called()
 
+    def test_hsts_returns_headers_in_response(self):
+
+        @hsts()
+        def handler():
+            return {}
+
+        response = handler()
+
+        self.assertEqual(response["headers"]["Strict-Transport-Security"], "max-age=63072000")
+
+    def test_hsts_returns_headers_in_response_with_custom_age(self):
+
+        @hsts(max_age=121212)
+        def handler():
+            return {}
+
+        response = handler()
+
+        self.assertEqual(response["headers"]["Strict-Transport-Security"], "max-age=121212")
+
+    def test_hsts_function_returns_non_dictionary(self):
+
+        @hsts()
+        def handler():
+            return "I am a string"
+
+        response = handler()
+
+        self.assertEqual(response["statusCode"], HTTPStatus.INTERNAL_SERVER_ERROR)  # noqa: pylint-invalid-sequence-index
+        self.assertEqual(response["body"], "{\"message\": \"Invalid response type for HSTS header\"}")  # noqa: pylint-invalid-sequence-index
+
 
 class IsolatedDecoderTests(unittest.TestCase):
     # Tests have been named so they run in a specific order
@@ -2020,13 +2051,3 @@ class IsolatedDecoderTests(unittest.TestCase):
 
         self.assertEqual(HTTPStatus.OK, response["statusCode"])
         self.assertEqual(expected_body, response["body"])
-
-    def test_hsts_returns_headers_in_response(self):
-
-        @hsts()
-        def handler():
-            return {}
-
-        response = handler()
-
-        self.assertEqual(response["headers"]["Strict-Transport-Security"], "max-age=63072000")

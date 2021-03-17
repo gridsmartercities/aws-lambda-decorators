@@ -423,7 +423,23 @@ def push_ws_response(websocket_endpoint_url: str):
     return decorator
 
 
+# pylint:disable=no-else-return
 def hsts(max_age: int = None):
+    """
+        Adds HSTS header to the response of the decorated function
+
+        Usage:
+            @hsts(max_age=86400)
+            def func(my_param)
+                pass
+
+        Args:
+            max_age: An integer to indicate the time browser should remember your domain as HTTPS only communication.
+            If not specified default value of 2 years is used.
+
+        Returns:
+            The original decorated function response with the additional hsts header
+    """
     def decorator(func):
         def wrapper(*args, **kwargs):
             response = func(*args, **kwargs)

@@ -9,7 +9,7 @@ from examples.examples import (extract_example, extract_to_kwargs_example, extra
                                extract_minimum_param_with_custom_error_example, extract_dictionary_example,
                                extract_type_param, extract_enum_param, extract_non_empty_param, extract_date_param,
                                extract_with_transform_example, extract_with_custom_transform_example,
-                               extract_currency_param)
+                               extract_currency_param, hsts_example)
 
 
 # pylint:disable=too-many-public-methods
@@ -253,6 +253,14 @@ class ExamplesTests(unittest.TestCase):
         self.assertEqual(response["headers"]["access-control-allow-methods"], "POST")
         self.assertEqual(response["headers"]["access-control-allow-headers"], "Content-Type")
         self.assertEqual(response["headers"]["access-control-max-age"], 86400)
+
+    def test_hsts(self):
+        # You can automatically add HSTS header to any function, using the "hsts" decorator.
+        response = hsts_example()
+
+        # The response has been decorated with HSTS header
+        self.assertEqual(response["statusCode"], 200)
+        self.assertEqual(response["headers"]["Strict-Transport-Security"], "max-age=63072000")
 
     def test_extract_minimum_param_with_custom_error_example(self):
         # You can add custom error messages to all validators, and incorporate to those error messages
