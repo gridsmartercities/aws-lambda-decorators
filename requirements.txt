@@ -2,7 +2,7 @@ bandit
 boto3
 coverage
 prospector
-PyJWT
+PyJWT==1.7.1
 pylint_quotes
 schema
-faker
+coverage==4.5.4
