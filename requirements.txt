@@ -1,6 +1,5 @@
 bandit
 boto3
-coverage
 prospector
 PyJWT==1.7.1
 pylint_quotes
