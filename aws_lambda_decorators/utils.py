@@ -1,4 +1,6 @@
 """Utility functions."""
+
+from functools import lru_cache
 from http import HTTPStatus
 import inspect
 import json
@@ -8,6 +10,8 @@ from logging import Logger
 import os
 from typing import Any, Callable, Dict, List
 from unicodedata import normalize as normalise
+
+import boto3
 
 
 LOG_LEVEL = getattr(logging, os.getenv("LOG_LEVEL", "INFO"))
@@ -120,3 +124,39 @@ def failure(errors: List[str], status_code: int = HTTPStatus.BAD_REQUEST) -> dic
         "statusCode": status_code,
         "body": json.dumps({"message": errors})
     }
+
+
+def find_websocket_connection_id(args: list) -> str:
+    """
+    Finds an API Gateway connection id from the event dictionary in the
+    arguments of a lambda
+
+    Args:
+        args (list): a list of arguments from a lambda (*args)
+
+    Returns:
+        The connection id of a user as a string if found
+        None if not
+    """
+    for arg in args:
+        if isinstance(arg, dict) and "requestContext" in arg:
+            return arg["requestContext"].get("connectionId")
+    return None
+
+
+@lru_cache()
+def get_websocket_endpoint(endpoint_url: str) -> "botocore.client.ApiGatewayManagementApi":  # noqa: pyflakes - F821
+    """
+    Gets an instance of ApiGatewayManagementApi for sending messages
+    through websockets
+
+    Args:
+        endpoint_url (str): an api gateway connection url (ish)
+
+    Returns:
+        The api gateway management client (cached)
+    """
+    return boto3.client(
+        "apigatewaymanagementapi",
+        endpoint_url=endpoint_url
+    )

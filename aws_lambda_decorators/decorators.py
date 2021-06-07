@@ -11,7 +11,8 @@ from typing import Callable, List
 import boto3
 
 from aws_lambda_decorators.classes import BaseParameter, ExceptionHandler, SSMParameter, ValidatedParameter
-from aws_lambda_decorators.utils import full_name, all_func_args, find_key_case_insensitive, failure, get_logger
+from aws_lambda_decorators.utils import (full_name, all_func_args, find_key_case_insensitive, failure, get_logger,
+                                         find_websocket_connection_id, get_websocket_endpoint)
 
 
 LOGGER = get_logger(__name__)
@@ -27,7 +28,9 @@ NON_SERIALIZABLE_ERROR_MESSAGE = "Response body is not JSON serializable"
 CORS_INVALID_TYPE_ERROR = "Invalid value type in CORS header"
 CORS_NON_DICT_ERROR = "Invalid response type for CORS headers"
 CORS_INVALID_TYPE_LOG_MESSAGE = "Cannot set %s header to a non %s value"
-CORS_NON_DICT_LOG_MESSAGE = "Cannot add headers to a non dictionary response"
+NON_DICT_LOG_MESSAGE = "Cannot add headers to a non dictionary response"
+HSTS_NON_DICT_ERROR = "Invalid response type for HSTS header"
+
 UNKNOWN = "Unknown"
 
 
@@ -337,7 +340,129 @@ def cors(allow_origin: str = None, allow_methods: str = None, allow_headers: str
                 except TypeError:
                     return failure(CORS_INVALID_TYPE_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR)
             else:
-                LOGGER.error(CORS_NON_DICT_LOG_MESSAGE)
+                LOGGER.error(NON_DICT_LOG_MESSAGE)
                 return failure(CORS_NON_DICT_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR)
+        return wrapper
+    return decorator
+
+
+def push_ws_errors(websocket_endpoint_url: str):
+    """
+    Handles and pushes any unsuccessful responses as errors to the calling client via websockets
+
+    Usage:
+        @push_ws_errors('https://api_id.execute_id.region.amazonaws.com/Prod')
+        @handle_all_exceptions()
+        def handler(event, context):
+            return {
+                'statusCode': 400,
+                'body': {
+                    'message': 'Bad request'
+                }
+            }
+
+    Args:
+        websocket_endpoint_url (str): The api gateway connection URL
+
+    Returns:
+        the original response from the lambda handler
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            connection_id = find_websocket_connection_id(args)
+
+            response = func(*args, **kwargs)
+            success = response.get("statusCode", HTTPStatus.INTERNAL_SERVER_ERROR).value < 300
+
+            if connection_id and not success:
+                websocket_endpoint = get_websocket_endpoint(websocket_endpoint_url)
+
+                ws_response = {
+                    "type": "error",
+                    "statusCode": response.get("statusCode", HTTPStatus.INTERNAL_SERVER_ERROR),
+                    "message": json.loads(response.get("body", "{}")).get("message")
+                }
+
+                websocket_endpoint.post_to_connection(
+                    ConnectionId=connection_id,
+                    Data=json.dumps(ws_response)
+                )
+
+            return response
+        return wrapper
+    return decorator
+
+
+def push_ws_response(websocket_endpoint_url: str):
+    """
+    Handles and pushes all responses to the calling client via websockets
+
+    Usage:
+        @push_ws_response('https://api_id.execute_id.region.amazonaws.com/Prod')
+        def handler(event, context):
+            return {
+                'statusCode': 200,
+                'body': 'Hello, world!'
+            }
+
+    Args:
+        websocket_endpoint_url (str): The api gateway connection URL
+
+    Returns:
+        the original response from the lambda handler
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            connection_id = find_websocket_connection_id(args)
+
+            response = func(*args, **kwargs)
+
+            if connection_id:
+                websocket_endpoint = get_websocket_endpoint(websocket_endpoint_url)
+
+                websocket_endpoint.post_to_connection(
+                    ConnectionId=connection_id,
+                    Data=json.dumps(response)
+                )
+
+            return response
+        return wrapper
+    return decorator
+
+
+# pylint:disable=no-else-return
+def hsts(max_age: int = None):
+    """
+        Adds HSTS header to the response of the decorated function
+
+        Usage:
+            @hsts(max_age=86400)
+            def func(my_param)
+                pass
+
+        Args:
+            max_age: An integer to indicate the time browser should remember your domain as HTTPS only communication.
+            If not specified default value of 2 years is used.
+
+        Returns:
+            The original decorated function response with the additional hsts header
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            response = func(*args, **kwargs)
+
+            if isinstance(response, dict):
+                headers_key = find_key_case_insensitive("headers", response)
+
+                resp_headers = response[headers_key] if headers_key in response else {}
+
+                header_key = find_key_case_insensitive("Strict-Transport-Security", resp_headers)
+                header_value = f"max-age={max_age}" if max_age else "max-age=63072000"
+                resp_headers[header_key] = header_value
+                response[headers_key] = resp_headers
+                return response
+            else:
+                LOGGER.error(NON_DICT_LOG_MESSAGE)
+                return failure(HSTS_NON_DICT_ERROR, HTTPStatus.INTERNAL_SERVER_ERROR)
         return wrapper
     return decorator

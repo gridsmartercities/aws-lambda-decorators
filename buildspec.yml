@@ -3,7 +3,8 @@ version: 0.2
 phases:
   install:
     commands:
-      - pip install -q PyJWT boto3 prospector coverage bandit schema pylint_quotes
+      - pip install --upgrade pip
+      - pip install -q boto3 bandit coverage==4.5.4 schema pylint_quotes prospector PyJWT==1.7.1
   pre_build:
     commands:
       - export LOG_LEVEL=CRITICAL

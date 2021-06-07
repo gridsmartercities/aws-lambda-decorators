@@ -44,6 +44,8 @@ The current list of AWS Lambda Python Decorators includes:
 * [__response_body_as_json__](#response_body_as_json): a decorator to transform a response dictionary body to a json string.
 * [__handle_all_exceptions__](#handle_all_exceptions): a decorator to handle all exceptions thrown by the lambda function.
 * [__cors__](#cors): a decorator to add cors headers to a lambda function.
+* [__push_ws_errors__](#push_ws_errors): a decorator to push unsuccessful responses back to the calling user via websockets with api gateway.
+* [__push_ws_responses__](#push_ws_response): a decorator to push all responses back to the calling user via websockets with api gateway.
 
 
 ### [Validators](https://github.com/gridsmartercities/aws-lambda-decorators/blob/master/aws_lambda_decorators/validators.py)
@@ -454,6 +456,58 @@ def cors_example():
     return {'statusCode': 200}
     
 cors_example()  # returns {'statusCode': 200, 'headers': {'access-control-allow-origin': '*', 'access-control-allow-methods': 'POST', 'access-control-allow-headers': 'Content-Type', 'access-control-max-age': 86400}}
+```
+
+### hsts
+
+This decorator adds HSTS header to the decorated function response. Uses 2 years max-age (recommended default from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security) unless custom value provided as parameter.
+
+Example:
+```python
+@hsts()
+def hsts_example():
+    return {'statusCode': 200}
+    
+hsts_example()  # returns {'statusCode': 200, 'headers': {'Strict-Transport-Security': 'max-age=63072000'}}
+```
+
+### push_ws_errors
+
+This decorator pushes unsuccessful responses back to the calling client over websockets built on api gateway
+
+This decorator requires the client is connected to the websocket api gateway instance, and will therefore have a connection id
+
+Example:
+```py
+@push_ws_errors('https://api_id.execute_id.region.amazonaws.com/Prod')
+@handle_all_exceptions()
+def handler(event, context):
+    return {
+        'statusCode': 400,
+        'body': {
+            'message': 'Bad request'
+        }
+    }
+
+# will push {'type': 'error', 'statusCode': 400, 'message': 'Bad request'} back to the client via websockets
+```
+
+### push_ws_response
+
+This decorator pushes all responses back to the calling client over websockets built on api gateway
+
+This decorator requires the client is connected to the websocket api gateway instance, and will therefore have a connection id
+
+Example:
+```py
+@push_ws_response('https://api_id.execute_id.region.amazonaws.com/Prod')
+def handler(event, context):
+    return {
+        'statusCode': 200,
+        'body': 'Hello, world!'
+    }
+
+# will push {'statusCode': 200, 'body': 'Hello, world!'} back to the client via websockets
 ```
 
 ## Writing your own validators
