@@ -192,8 +192,8 @@ class ExamplesTests(unittest.TestCase):
 
         # and check the log messages were produced.
         mock_logger.info.assert_has_calls([
-            call("Parameters: %s", ("Hello!",)),
-            call("Response: %s", "Done!")
+            call("Function: %s, Parameters: %s", "log_example", ("Hello!",)),
+            call("Function: %s, Response: %s", "log_example", "Done!")
         ])
 
     @patch("boto3.resource")
