@@ -98,7 +98,8 @@ def find_key_case_insensitive(key_name: str, the_dict: Dict[str, Any]) -> str:
         The found key name in its original case, if found. Otherwise, returns the searching key name
 
     """
-    desensitise = lambda key: normalise("NFC", key).casefold()
+    def desensitise(txt: str) -> str:
+        return normalise("NFC", txt).casefold()
 
     key_name_lower = desensitise(key_name)
 

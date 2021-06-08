@@ -141,8 +141,8 @@ def handle_exceptions(handlers: List[ExceptionHandler]) -> Callable:
     Args:
         handlers (list): A collection of ExceptionHandler type items.
     """
-    def decorator(func):
-        def wrapper(*args, **kwargs):
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args, **kwargs) -> Callable:
             try:
                 return func(*args, **kwargs)
             except tuple(handler.exception for handler in handlers) as ex:  # noqa: pylint - catching-non-exception
