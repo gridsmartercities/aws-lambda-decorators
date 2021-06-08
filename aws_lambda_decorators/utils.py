@@ -1,11 +1,15 @@
 """Utility functions."""
+
 from functools import lru_cache
 from http import HTTPStatus
 import inspect
 import json
 import keyword
 import logging
+from logging import Logger
 import os
+from typing import Any, Callable, Dict, List
+from unicodedata import normalize as normalise
 
 import boto3
 
@@ -13,13 +17,13 @@ import boto3
 LOG_LEVEL = getattr(logging, os.getenv("LOG_LEVEL", "INFO"))
 
 
-def get_logger(name):
+def get_logger(name: str) -> Logger:
     logger = logging.getLogger(name)
     logger.setLevel(LOG_LEVEL)
     return logger
 
 
-def full_name(class_type):
+def full_name(class_type: type) -> str:
     """
     Gets the fully qualified name of a class type.
 
@@ -37,7 +41,7 @@ def full_name(class_type):
     return f"{module}.{class_type.__class__.__name__}"
 
 
-def is_type_in_list(item_type, items):
+def is_type_in_list(item_type: type, items: list) -> bool:
     """
     Checks if there is an item of a given type in the list of items.
 
@@ -51,7 +55,7 @@ def is_type_in_list(item_type, items):
     return any(isinstance(item, item_type) for item in items)
 
 
-def is_valid_variable_name(name):
+def is_valid_variable_name(name: str) -> bool:
     """
     Check if the given name is python allowed variable name.
 
@@ -64,7 +68,7 @@ def is_valid_variable_name(name):
     return name.isidentifier() and not keyword.iskeyword(name)
 
 
-def all_func_args(func, args, kwargs):
+def all_func_args(func: Callable, args: list, kwargs: dict) -> dict:
     """
     Combine arguments and key word arguments to a dictionary.
 
@@ -82,7 +86,7 @@ def all_func_args(func, args, kwargs):
     return arg_dictionary
 
 
-def find_key_case_insensitive(key_name, the_dict):
+def find_key_case_insensitive(key_name: str, the_dict: Dict[str, Any]) -> str:
     """
     Finds if a dictionary (the_dict) has a string key (key_name) in any string case
 
@@ -94,13 +98,19 @@ def find_key_case_insensitive(key_name, the_dict):
         The found key name in its original case, if found. Otherwise, returns the searching key name
 
     """
+    def desensitise(txt: str) -> str:
+        return normalise("NFC", txt).casefold()
+
+    key_name_lower = desensitise(key_name)
+
     for key in the_dict:
-        if key.lower() == key_name:
+        if desensitise(key) == key_name_lower:
             return key
+
     return key_name
 
 
-def failure(errors, status_code=HTTPStatus.BAD_REQUEST):
+def failure(errors: List[str], status_code: int = HTTPStatus.BAD_REQUEST) -> dict:
     """
     Returns an error to the caller
 

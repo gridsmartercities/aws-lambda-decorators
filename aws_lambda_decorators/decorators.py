@@ -4,9 +4,13 @@ AWS lambda decorators.
 A set of Python decorators to ease the development of AWS lambda functions.
 
 """
-import json
 from http import HTTPStatus
+import json
+from typing import Callable, List
+
 import boto3
+
+from aws_lambda_decorators.classes import BaseParameter, ExceptionHandler, SSMParameter, ValidatedParameter
 from aws_lambda_decorators.utils import (full_name, all_func_args, find_key_case_insensitive, failure, get_logger,
                                          find_websocket_connection_id, get_websocket_endpoint)
 
@@ -30,7 +34,8 @@ HSTS_NON_DICT_ERROR = "Invalid response type for HSTS header"
 UNKNOWN = "Unknown"
 
 
-def extract_from_event(parameters, group_errors=False, allow_none_defaults=False):
+def extract_from_event(parameters: List[BaseParameter], group_errors: bool = False,
+                       allow_none_defaults: bool = False) -> Callable:
     """
     Extracts a set of parameters from the event dictionary in a lambda handler.
 
@@ -51,7 +56,8 @@ def extract_from_event(parameters, group_errors=False, allow_none_defaults=False
     return extract(parameters, group_errors, allow_none_defaults)
 
 
-def extract_from_context(parameters, group_errors=False, allow_none_defaults=False):
+def extract_from_context(parameters: List[BaseParameter], group_errors: bool = False,
+                         allow_none_defaults: bool = False):
     """
     Extracts a set of parameters from the context dictionary in a lambda handler.
 
@@ -72,7 +78,7 @@ def extract_from_context(parameters, group_errors=False, allow_none_defaults=Fal
     return extract(parameters, group_errors, allow_none_defaults)
 
 
-def extract(parameters, group_errors=False, allow_none_defaults=False):
+def extract(parameters: List[BaseParameter], group_errors: bool = False, allow_none_defaults: bool = False) -> Callable:
     """
     Extracts a set of parameters from any function parameter passed to an AWS lambda handler.
 
@@ -123,7 +129,7 @@ def extract(parameters, group_errors=False, allow_none_defaults=False):
     return decorator
 
 
-def handle_exceptions(handlers):
+def handle_exceptions(handlers: List[ExceptionHandler]) -> Callable:
     """
     Handles exceptions thrown by the wrapped/decorated function.
 
@@ -135,8 +141,8 @@ def handle_exceptions(handlers):
     Args:
         handlers (list): A collection of ExceptionHandler type items.
     """
-    def decorator(func):
-        def wrapper(*args, **kwargs):
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args, **kwargs) -> Callable:
             try:
                 return func(*args, **kwargs)
             except tuple(handler.exception for handler in handlers) as ex:  # noqa: pylint - catching-non-exception
@@ -153,7 +159,7 @@ def handle_exceptions(handlers):
     return decorator
 
 
-def log(parameters=False, response=False):
+def log(parameters: bool = False, response: bool = False) -> Callable:
     """
     Log parameters and/or response of the wrapped/decorated function using logging package
 
@@ -173,7 +179,7 @@ def log(parameters=False, response=False):
     return decorator
 
 
-def extract_from_ssm(ssm_parameters):
+def extract_from_ssm(ssm_parameters: List[SSMParameter]) -> Callable:
     """
     Load given ssm parameters from AWS parameter store to the handler variables.
 
@@ -201,7 +207,7 @@ def extract_from_ssm(ssm_parameters):
     return decorator
 
 
-def response_body_as_json(func):
+def response_body_as_json(func: Callable) -> Callable:
     """
     Convert the dictionary response of the wrapped/decorated function to a json string literal.
 
@@ -223,7 +229,7 @@ def response_body_as_json(func):
     return wrapper
 
 
-def validate(parameters, group_errors=False):
+def validate(parameters: ValidatedParameter, group_errors: bool = False) -> Callable:
     """
     Validates a set of function parameters.
 
@@ -263,7 +269,7 @@ def validate(parameters, group_errors=False):
     return decorator
 
 
-def handle_all_exceptions():
+def handle_all_exceptions() -> Callable:
     """
     Handles all exceptions thrown by the wrapped/decorated function.
 
@@ -283,7 +289,8 @@ def handle_all_exceptions():
     return decorator
 
 
-def cors(allow_origin=None, allow_methods=None, allow_headers=None, max_age=None):
+def cors(allow_origin: str = None, allow_methods: str = None, allow_headers: str = None,
+         max_age: int = None) -> Callable:
     """
     Adds CORS headers to the response of the decorated function
 
