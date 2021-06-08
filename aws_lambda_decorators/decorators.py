@@ -14,8 +14,8 @@ from aws_lambda_decorators.utils import (full_name, all_func_args, find_key_case
 LOGGER = get_logger(__name__)
 
 
-PARAM_LOG_MESSAGE = "Parameters: %s"
-RESPONSE_LOG_MESSAGE = "Response: %s"
+PARAM_LOG_MESSAGE = "Function: %s, Parameters: %s"
+RESPONSE_LOG_MESSAGE = "Function: %s, Response: %s"
 EXCEPTION_LOG_MESSAGE = "%s: %s in argument %s for path %s"
 EXCEPTION_LOG_MESSAGE_PATHLESS = "%s: %s in argument %s"
 ERROR_MESSAGE = "Error extracting parameters"
@@ -164,10 +164,10 @@ def log(parameters=False, response=False):
     def decorator(func):
         def wrapper(*args, **kwargs):
             if parameters:
-                LOGGER.info(PARAM_LOG_MESSAGE, args)
+                LOGGER.info(PARAM_LOG_MESSAGE, func.__name__, args)
             func_response = func(*args, **kwargs)
             if response:
-                LOGGER.info(RESPONSE_LOG_MESSAGE, func_response)
+                LOGGER.info(RESPONSE_LOG_MESSAGE, func.__name__, func_response)
             return func_response
         return wrapper
     return decorator
