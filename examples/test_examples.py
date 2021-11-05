@@ -12,7 +12,7 @@ from examples.examples import (extract_example, extract_to_kwargs_example, extra
                                extract_currency_param, hsts_example)
 
 
-# pylint:disable=too-many-public-methods,unsubscriptable-object
+# pylint:disable=too-many-public-methods
 class ExamplesTests(unittest.TestCase):
 
     def test_extract_example(self):
