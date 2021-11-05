@@ -1,0 +1,31 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pyjwt = "==1.7.1"
+
+[dev-packages]
+pytest = "*"
+setuptools = "*"
+wheel = "*"
+twine = "*"
+tqdm = "*"
+pre-commit = "*"
+commitizen = "*"
+toml = "*"
+coverage = "*"
+bandit = "*"
+pylint_quotes = "*"
+schema ="*"
+PyJWT ="*"
+boto3="*"
+
+[requires]
+python_version = "3.7"
+
+[scripts]
+test = "pytest"
+build = "python3 setup.py sdist bdist_wheel"
+deploy = "twine upload dist/*"
