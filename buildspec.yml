@@ -4,7 +4,7 @@ phases:
   install:
     commands:
       - pip install --upgrade pip
-      - pip install -q boto3 bandit coverage==4.5.4 schema pylint_quotes prospector==1.3.1 PyJWT==1.7.1
+      - pip install -r requirements.txt
   pre_build:
     commands:
       - export LOG_LEVEL=CRITICAL
