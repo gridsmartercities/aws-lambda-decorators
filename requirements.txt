@@ -1,6 +1,6 @@
 bandit
 boto3
-prospector
+prospector==1.3.1
 PyJWT==1.7.1
 pylint_quotes
 schema
