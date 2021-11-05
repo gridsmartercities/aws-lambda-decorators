@@ -1791,7 +1791,6 @@ class DecoratorsTests(unittest.TestCase):  # noqa: pylint - too-many-public-meth
         self.assertEqual(2, response)
 
     @patch("aws_lambda_decorators.decorators.LOGGER")
-    # pylint:disable=raise-missing-from
     def test_apply_custom_transformation_with_error_handling(self, mock_logger):
         event = {
             "a": "abc"
