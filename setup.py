@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-LONG_DESCRIPTION = open("README.md").read()
+LONG_DESCRIPTION = open("README.md").read()  # pylint:disable=consider-using-with,unspecified-encoding
 
 setup(name="aws-lambda-decorators",
       version="0.53",
