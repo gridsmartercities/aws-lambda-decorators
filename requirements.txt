@@ -1,7 +1,7 @@
 bandit
 boto3
 prospector
-PyJWT
+PyJWT==1.7.1
 pylint_quotes
 schema
-coverage
+coverage==4.5.4
